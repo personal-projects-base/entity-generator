@@ -1,0 +1,9 @@
+package <<packageName>>;
+
+import <<packageName>>gen.model.<<entityName>>Entity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface <<entityName>>Repository extends JpaRepository<<<entityName>>Entity, <<identifierType>>> {
+}
