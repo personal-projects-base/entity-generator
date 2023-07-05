@@ -1,0 +1,49 @@
+{
+  "projectName": "entity-generator",
+  "entities": [
+    {
+      "entityname": "cpf",
+      "tableName": "cpf",
+      "classExtends" : "document",
+      "entityFields": [
+        {
+          "comment": "",
+          "fieldname": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "relationShips": {
+            "classRelation": "",
+            "fetchType": "LAZZY",
+            "relationShip": "ManyToOne"
+          }
+        }
+      ],
+      "settings": {
+        "nullable": false
+      }
+    }
+  ],
+  "endpoints": [
+    {
+      "methodname": "cpfListQuery",
+      "metadata": {
+        "input": {
+          "parameters": [
+            {
+              "parameterName": "id",
+              "parameterType": "string"
+            }
+          ]
+        },
+        "output": "cpf",
+        "anonymous": false
+      }
+    }
+  ],
+  "enums": [
+
+  ]
+}
