@@ -2,6 +2,7 @@ package com.potatotech.entitygenerator.service;
 
 
 import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator_gen.CountryEntity;
 
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.logging.Logger;
 
 import static com.potatotech.entitygenerator.service.Common.*;
 import static com.potatotech.entitygenerator.service.GenerateEntity.generateEntity;
+import static com.potatotech.entitygenerator.service.GenerateRepositories.generateRepositoryes;
 
 public class GenerateSource {
 
@@ -29,6 +31,9 @@ public class GenerateSource {
 
         // gera a classe das entidaeds
         generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        // gera os repositories
+        generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
 
     }
 
