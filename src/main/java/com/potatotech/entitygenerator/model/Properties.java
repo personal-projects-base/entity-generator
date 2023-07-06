@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class Properties {
 
-
+    private String mainPackage;
     private String projectName;
     private List<Entities> entities;
     private List<Endpoints> endpoints;

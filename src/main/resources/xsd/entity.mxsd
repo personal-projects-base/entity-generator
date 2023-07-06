@@ -1,13 +1,13 @@
-package com.microservice.product.microserviceproduct.model.product;
+package <<packageName>>;
 
-<<importEntities>>
-//import com.microservice.product.microserviceproduct.model.supplier.SupplierEntity;
+import <<importEntities>>;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
 import java.util.Date;
 import java.time.LocalDate;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Data

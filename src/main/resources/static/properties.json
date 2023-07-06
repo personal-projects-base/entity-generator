@@ -1,14 +1,15 @@
 {
+  "mainPackage": "com.potatotech.entitygenerator",
   "projectName": "entity-generator",
   "entities": [
     {
-      "entityname": "cpf",
+      "entityName": "cpf",
       "tableName": "cpf",
       "classExtends" : "document",
       "entityFields": [
         {
           "comment": "",
-          "fieldname": "id",
+          "fieldName": "id",
           "fieldProperties": {
             "fieldType": "uuid",
             "required": true,
@@ -21,8 +22,9 @@
           }
         }
       ],
-      "settings": {
-        "nullable": false
+      "metadata": {
+        "nullable": false,
+        "key": true
       }
     }
   ],
