@@ -1,6 +1,6 @@
 package <<packageName>>;
 
-import <<packageName>>gen.model.<<entityName>>Entity;
+import <<importEntities>>;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
