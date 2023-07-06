@@ -2,13 +2,13 @@ package com.potatotech.entitygenerator.model;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class EntityFields {
 
     private String comment;
     private String fieldName;
+    private boolean list = false;
     private FieldProperties fieldProperties;
-    private List<RelationsShips> relationships;
+    private RelationsShips relationShips;
+    private FieldMetadata metadata;
 }

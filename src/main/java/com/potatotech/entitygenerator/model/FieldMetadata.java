@@ -2,8 +2,8 @@ package com.potatotech.entitygenerator.model;
 import lombok.Data;
 
 @Data
-public class Metadata {
+public class FieldMetadata {
 
-    private boolean nullable;
+    private boolean nullable = true;
     private boolean key = false;
 }

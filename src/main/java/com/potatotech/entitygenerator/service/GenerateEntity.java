@@ -1,6 +1,7 @@
 package com.potatotech.entitygenerator.service;
 
 import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator.model.EntityFields;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,15 +47,41 @@ public class GenerateEntity {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String anotations = "@Id";
-            String field = String.format("private %s %s;\n    ",FieldsMapper.getFieldType(item.getFieldProperties().getFieldType()),item.getFieldName());
+            String anotations = setMetadata(item).concat(setRelationsShip(item));
+            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            if(item.isList()){
+                fieldType = String.format("List<%s>",fieldType);
+            }
+            String field = String.format("private %s %s;\n    ",fieldType,item.getFieldName());
             tempField += anotations.concat("\n    ").concat(field);
             fields.set(tempField);
         });
         return fields.get();
     }
 
+    private static String setRelationsShip(EntityFields entity) {
 
+        var metadata = "";
+        if(entity.getRelationShips() != null){
+            metadata += String.format("\n    @%s(fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entity.getRelationShips().getFetchType());
+        }
+
+        return metadata;
+    }
+
+    private static String setMetadata(EntityFields entity) {
+        var metadata = "";
+        if(entity.getMetadata() != null){
+            if(entity.getMetadata().isKey()){
+                metadata += "\n    @Id";
+                metadata += "\n    @GeneratedValue(strategy = GenerationType.IDENTITY)";
+            }
+            if(!entity.getMetadata().isNullable()){
+                metadata += "\n    @Column(nullable = false)";
+            }
+        }
+        return metadata;
+    }
 
 
 }

@@ -13,5 +13,4 @@ public class Properties {
     private List<Endpoints> endpoints;
     private List<Enums> enums;
 
-
 }
