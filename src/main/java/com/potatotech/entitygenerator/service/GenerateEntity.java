@@ -22,7 +22,7 @@ public class GenerateEntity {
             try{
                 String fileName = stringFormater(item.getEntityName(),"Entity", packagePath.toString());
                 var path = Path.of(fileName);
-                var entity = configureFile(mod,packageName,item,item.getEntityName());
+                var entity = configureFileEntity(mod,packageName,item,item.getEntityName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
             }catch (IOException ex){
                 ex.printStackTrace();
@@ -30,18 +30,15 @@ public class GenerateEntity {
         });
     }
 
-    private static String configureFile(String mod,String packageName, Entities entity,String fileName){
+    private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
 
         String fields = getFields(entity);
-        var model = mod.replace("<<tableName>>",entity.getTableName())
+        return mod.replace("<<tableName>>",entity.getTableName())
                 .replace("<<entityName>>",firstCharacterUpperCase(fileName))
-                .replace("<<importEntities>>",packageName.concat("_gen.*"))
                 .replace("<<packageName>>",packageName.concat("_gen"))
                 .replace("<<entityFields>>",fields);
-
-
-        return model;
     }
+
 
     private static String getFields(Entities entity) {
         AtomicReference<String> fields = new AtomicReference<>("");

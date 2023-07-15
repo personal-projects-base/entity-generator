@@ -8,6 +8,7 @@ public class GenerateSourceTest {
 
     @Test
     public void testSource(){
-        //GenerateSource.generateSource();
+        GenerateSource gen = new GenerateSource();
+        gen.generateSource();
     }
 }

@@ -3,33 +3,48 @@ package com.potatotech.entitygenerator.service;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Mojo;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.logging.Logger;
 
 import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.GenerateDTO.generateDTO;
+import static com.potatotech.entitygenerator.service.GenerateDTOConverter.generateDTOConverter;
 import static com.potatotech.entitygenerator.service.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.GenerateRepositories.generateRepositoryes;
 
-public class GenerateSource {
+@Mojo(name="generate-sources")
+public class GenerateSource extends AbstractMojo {
 
 
     private static Path packagePath = null;
     private static Path resourcePath = null;
 
-    private static final Logger logger = Logger.getLogger(GenerateSource.class.getName());
 
-    public static void generateSource(){
+    @Override
+    public void execute() throws MojoExecutionException, MojoFailureException {
+        getLog().info("Iniciando geração de fontes");
+        generateSource();
+    }
 
-        FieldsMapper.log.info("Carregando metadata");
+    public void generateSource(){
+        getLog().info("Carregando metadata");
         var prop = loadProperties();
 
+        // Limpa os arquivos gerados anteriomente
         dropAndCreateDir(prop.getMainPackage());
 
         // gera a classe das entidaeds
         generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath);
+        // Gera as classes DTO
+        generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath);
+        // Gera as classes DTO
+        generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
 
         // gera os repositories
         generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
