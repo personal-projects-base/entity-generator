@@ -1,11 +1,10 @@
 package com.potatotech.entitygenerator.service;
 
 import com.google.gson.Gson;
+import com.potatotech.entitygenerator.model.EntityFields;
 import com.potatotech.entitygenerator.model.Properties;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,11 +27,15 @@ public class Common {
 
     protected static Properties loadProperties(){
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-
-        InputStream inputStream = classLoader.getResourceAsStream("static/properties.json");
-
-        return new Gson().fromJson(convertInputStreamToString(inputStream), Properties.class);
+        var path = System.getProperty("user.dir");
+        File arquivo = new File(String.format("%s/properties.json", path));
+        try {
+            InputStream inputStream = new FileInputStream(arquivo);
+            return new Gson().fromJson(convertInputStreamToString(inputStream), Properties.class);
+        }catch (IOException ex){
+            FieldsMapper.log.info(ex);
+        }
+        return null;
     }
 
     protected static String loadWxsd(String fileName){
@@ -56,5 +59,9 @@ public class Common {
 
     protected static String firstCharacterUpperCase(String fileName){
         return fileName.substring(0,1).toUpperCase() + fileName.substring(1);
+    }
+
+    protected static String setComments(String comments) {
+        return String.format("\n    /**%s**/",comments);
     }
 }

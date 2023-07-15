@@ -47,13 +47,14 @@ public class GenerateEntity {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
+            String comments = Common.setComments(item.getComment());
             String anotations = setMetadata(item).concat(setRelationsShip(item));
             String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
             String field = String.format("private %s %s;\n    ",fieldType,item.getFieldName());
-            tempField += anotations.concat("\n    ").concat(field);
+            tempField += comments.concat(anotations).concat("\n    ").concat(field);
             fields.set(tempField);
         });
         return fields.get();

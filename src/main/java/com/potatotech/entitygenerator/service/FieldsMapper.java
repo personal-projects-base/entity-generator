@@ -1,5 +1,8 @@
 package com.potatotech.entitygenerator.service;
 
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
+
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -9,7 +12,7 @@ import static com.potatotech.entitygenerator.service.Common.firstCharacterUpperC
 public class FieldsMapper {
 
     private static Map<String,String> typeFields = new LinkedHashMap<>();
-
+    public static Log log = new SystemStreamLog();
 
     protected static String getFieldType(String type){
         if(typeFields.isEmpty()){
