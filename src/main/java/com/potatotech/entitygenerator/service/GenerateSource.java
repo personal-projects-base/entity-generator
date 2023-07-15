@@ -16,6 +16,7 @@ import static com.potatotech.entitygenerator.service.Common.*;
 import static com.potatotech.entitygenerator.service.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.GenerateDTOConverter.generateDTOConverter;
 import static com.potatotech.entitygenerator.service.GenerateEntity.generateEntity;
+import static com.potatotech.entitygenerator.service.GenerateUtils.generateHandler;
 import static com.potatotech.entitygenerator.service.GenerateRepositories.generateRepositoryes;
 
 @Mojo(name="generate-sources")
@@ -45,6 +46,8 @@ public class GenerateSource extends AbstractMojo {
         generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera as classes DTO
         generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
+        // Gera as Handler
+        generateHandler(prop.getMainPackage(),packagePath);
 
         // gera os repositories
         generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
