@@ -1,28 +1,40 @@
 package <<packageName>>;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
-public interface HandlerEntities<T,ID> {
+@RestController
+@RequestMapping("<<entityNameLowerCase>>")
+public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUID> {
 
-    @PostMapping
-    @Transactional
-    public T save(@RequestBody T obj);
+    @Autowired
+    <<entityName>>Repository repository;
 
-    @PutMapping("{id}")
-    @Transactional
-    public T update(@RequestBody T obj,@PathVariable ID id);
+    @Override
+    public <<entityName>>DTO save(<<entityName>>DTO obj) {
+        return null;
+    }
 
-    @DeleteMapping("{id}")
-    @Transactional
-    public void delete(@PathVariable(value = "id", required = true) ID id);
+    @Override
+    public <<entityName>>DTO update(<<entityName>>DTO obj, UUID id) {
+        return null;
+    }
 
-    @GetMapping("{id}")
-    @Transactional
-    public T get(@PathVariable(value = "id", required = true) ID id);
+    @Override
+    public void delete(UUID id) {
+        repository.deleteById(id);
+    }
 
-    @GetMapping
-    @Transactional
-    public List<T> getAll(@RequestBody RequestData obj);
+    @Override
+    public <<entityName>>DTO get(UUID id) {
+        return null;
+    }
+
+    @Override
+    public List<<<entityName>>DTO> getAll(RequestData obj) {
+        return null;
+    }
 }

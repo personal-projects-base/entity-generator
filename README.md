@@ -29,6 +29,10 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 * events: criação de filas no rabbit
 * listeners: registra para ser ouvinte de algum evento do rabbit
 
+Apos configurado o arquivo properties.json pode se gerar o código gerando o seguinte comando a partir da raiz do projeto
+
+  `mvn entity-generator:generate-sources`
+
 ### Entities
 
 Neste objeto deverá ser configurado a criação das entidades.
@@ -85,6 +89,7 @@ O objeto entities deve ser configurado da seguinte forma:
 * entityFields: Objeto que contém os campos da entidade
   * comment: Comentario do campo, este item é obrigatório
   * fieldName: Nome do campo
+  * list: Se é uma lista
   * fieldProperties: Propriedades do campo
     * fieldType: Tipo do campo(caso o tipo seja outra classe basta colocar o nome igual ao inserido no entityName)
     * required: se é obrigatório

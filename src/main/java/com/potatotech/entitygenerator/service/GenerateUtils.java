@@ -12,9 +12,9 @@ public class GenerateUtils {
 
     protected static void generateHandler(String packageName, Path packagePath){
         generateRequestData( packageName, packagePath);
-        String mod = loadWxsd("handlerentities");
+        String mod = loadWxsd("handlerbase");
         try{
-            String fileName = stringFormater("HandlerEntities","", packagePath.toString());
+            String fileName = stringFormater("HandlerBase","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
