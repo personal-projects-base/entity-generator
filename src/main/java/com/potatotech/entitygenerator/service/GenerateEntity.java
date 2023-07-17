@@ -72,7 +72,7 @@ public class GenerateEntity {
         if(entity.getMetadata() != null){
             if(entity.getMetadata().isKey()){
                 metadata += "\n    @Id";
-                metadata += "\n    @GeneratedValue(strategy = GenerationType.IDENTITY)";
+                metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
             }
             if(!entity.getMetadata().isNullable()){
                 metadata += "\n    @Column(nullable = false)";
