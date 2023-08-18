@@ -89,7 +89,7 @@
             <plugin>
                 <groupId>com.potatotech</groupId>
                 <artifactId>entity-generator</artifactId>
-                <version>0.0.6</version>
+                <version>0.0.7</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

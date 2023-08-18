@@ -19,6 +19,7 @@ import static com.potatotech.entitygenerator.service.GenerateEntity.generateEnti
 import static com.potatotech.entitygenerator.service.GenerateHandler.generateHandlerEntities;
 import static com.potatotech.entitygenerator.service.GenerateUtils.generateHandler;
 import static com.potatotech.entitygenerator.service.GenerateRepositories.generateRepositoryes;
+import static com.potatotech.entitygenerator.service.GenerateUtils.generateRestConfig;
 
 @Mojo(name="generate-sources")
 public class GenerateSource extends AbstractMojo {
@@ -51,6 +52,8 @@ public class GenerateSource extends AbstractMojo {
         generateHandler(prop.getMainPackage(),packagePath);
         // Gera Handlers de crud
         generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
+        // Gera o RestConfig
+        generateRestConfig(prop.getMainPackage(),packagePath);
 
         // gera os repositories
         generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);

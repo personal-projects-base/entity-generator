@@ -9,6 +9,6 @@ public class GenerateSourceTest {
     @Test
     public void testSource(){
         GenerateSource gen = new GenerateSource();
-        //gen.generateSource();
+        gen.generateSource();
     }
 }
