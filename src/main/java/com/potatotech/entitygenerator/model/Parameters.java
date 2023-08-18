@@ -7,4 +7,5 @@ public class Parameters {
 
     private String parameterName;
     private String parameterType;
+    private boolean list = false;
 }

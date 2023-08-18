@@ -1,0 +1,14 @@
+package <<packageName>>;
+
+<<ifAnonimous>>
+import com.potatotech.authenticate.stereotype.Anonymous;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+public interface <<methodName>>Handler {
+
+    @<<httpMethod>>Mapping("<<methodName>>")
+    <<isAnonimous>>
+    public ResponseEntity<<<output>>> <<methodName>>(<<input>>);
+}

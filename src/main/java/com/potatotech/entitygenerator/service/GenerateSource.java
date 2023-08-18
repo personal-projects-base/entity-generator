@@ -15,6 +15,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import static com.potatotech.entitygenerator.service.Common.*;
 import static com.potatotech.entitygenerator.service.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.GenerateDTOConverter.generateDTOConverter;
+import static com.potatotech.entitygenerator.service.GenerateEndpoint.generateEndpoint;
 import static com.potatotech.entitygenerator.service.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.GenerateHandler.generateHandlerEntities;
 import static com.potatotech.entitygenerator.service.GenerateUtils.generateHandler;
@@ -54,6 +55,8 @@ public class GenerateSource extends AbstractMojo {
         generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o RestConfig
         generateRestConfig(prop.getMainPackage(),packagePath);
+        // Gera os endpoints
+        generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
 
         // gera os repositories
         generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);

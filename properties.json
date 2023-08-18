@@ -188,19 +188,22 @@
   ],
   "endpoints": [
     {
-      "methodname": "cpfListQuery",
+      "methodName": "cpfListQuery",
+      "httpMethod": "GET",
       "metadata": {
         "input": [
             {
               "parameterName": "id",
-              "parameterType": "string"
+              "parameterType": "string",
+              "list": false
             }
           ]
         },
         "output": [
           {
             "parameterName": "cpf",
-            "parameterType": "cpf"
+            "parameterType": "cpf",
+            "list": false
           }
         ],
         "anonymous": false

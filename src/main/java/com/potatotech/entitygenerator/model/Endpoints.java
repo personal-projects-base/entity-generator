@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class Endpoints {
 
-    private String methodname;
+    private String methodName;
+    private String httpMethod;
 
 }
