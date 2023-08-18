@@ -33,4 +33,19 @@ public class GenerateHandler {
                 .replace("<<entityNameLowerCase>>",fileName)
                 .replace("<<packageName>>",packageName.concat("_gen"));
     }
+
+    protected static void generateHandlers(List<Entities> entities, String packageName, Path packagePath){
+
+        String mod = loadWxsd("handlerentities");
+        entities.forEach(item -> {
+            try{
+                String fileName = stringFormater(item.getEntityName(),"Handler", packagePath.toString());
+                var path = Path.of(fileName);
+                var entity = configureFile(mod,packageName,item,item.getEntityName());
+                Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+            }catch (IOException ex){
+                ex.printStackTrace();
+            }
+        });
+    }
 }

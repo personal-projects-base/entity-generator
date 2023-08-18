@@ -190,15 +190,19 @@
     {
       "methodname": "cpfListQuery",
       "metadata": {
-        "input": {
-          "parameters": [
+        "input": [
             {
               "parameterName": "id",
               "parameterType": "string"
             }
           ]
         },
-        "output": "cpf",
+        "output": [
+          {
+            "parameterName": "cpf",
+            "parameterType": "cpf"
+          }
+        ],
         "anonymous": false
       }
     }
