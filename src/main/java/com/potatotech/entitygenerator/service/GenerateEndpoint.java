@@ -3,6 +3,7 @@ package com.potatotech.entitygenerator.service;
 import com.potatotech.entitygenerator.model.Endpoints;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.EntityFields;
+import com.potatotech.entitygenerator.model.Metadata;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,14 +34,24 @@ public class GenerateEndpoint {
 
     private static String configureFileEntity(String mod, String packageName, Endpoints endpoints, String fileName){
 
+        var anonimous = isAnonimous(endpoints.getMetadata());
         return mod.replace("<<packageName>>",packageName.concat("_gen"))
-                .replace("<<ifAnonimous>>",null)
+                .replace("<<ifAnonimous>>",anonimous[0])
                 .replace("<<className>>",firstCharacterUpperCase(fileName))
                 .replace("<<methodName>>",fileName)
-                .replace("<<isAnonimous>>",null)
+                .replace("<<isAnonimous>>",anonimous[1])
                 .replace("<<input>>",null)
                 .replace("<<output>>",null)
-                .replace("<<httpMethod>>",null);
+                .replace("<<httpMethod>>",firstCharacterUpperCase(endpoints.getHttpMethod().toLowerCase()));
+    }
+
+    private static String[] isAnonimous(Metadata metadata) {
+        if(metadata.isAnonymous()){
+            var anotation = "import com.potatotech.authenticate.stereotype.Anonymous;";
+            var importa = "@Anonymous";
+            return new String[]{anotation, importa};
+        }
+        return new String[]{"", "importa"};
     }
 
 }
