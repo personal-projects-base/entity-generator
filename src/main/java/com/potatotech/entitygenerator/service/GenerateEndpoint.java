@@ -20,7 +20,7 @@ public class GenerateEndpoint {
         endpoints.forEach(item -> {
             try{
                 String fileName = stringFormater(item.getMethodName(),"Handler", packagePath.toString());
-                generateInput(item.getMetadata().getInput(),item.getMethodName(),packagePath);
+                generateInput(item.getMetadata().getInput(),item.getMethodName(),packagePath, packageName);
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getMethodName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -53,7 +53,7 @@ public class GenerateEndpoint {
     }
 
 
-    private static void generateInput(List<Parameters> parameters, String className,Path packagePath) throws IOException {
+    private static void generateInput(List<Parameters> parameters, String className, Path packagePath, String packageName) throws IOException {
         System.out.println("iniciado o inpout");
 
         AtomicReference<String> fields = new AtomicReference<>("");
@@ -73,29 +73,25 @@ public class GenerateEndpoint {
 
         var strFields = fields.get().substring(0, fields.get().length() -2);
 
+        strFields = loadModel("Input",packageName);
+
         String fileName = stringFormater(className,"Input", packagePath.toString());
         var path = Path.of(fileName);
         Files.write(path, strFields.getBytes(), StandardOpenOption.CREATE);
 
     }
 
-    private static String generateInput(Entities entity) {
-        AtomicReference<String> fields = new AtomicReference<>("");
-        entity.getEntityFields().forEach(item -> {
-            String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+    private static String loadModel(String type, String packageName) {
 
-            //fieldType = fieldType.replace("Entity","DTO");
-            if(!fieldType.contains("Entity")){
-                if(item.isList()){
-                    fieldType = String.format("List<%s>",fieldType);
-                }
-                String field = String.format("%s %s, ",fieldType,item.getFieldName());
-                tempField += field;
-                fields.set(tempField);
-            }
-        });
-        return fields.get().substring(0, fields.get().length() -2);
+        String mod = loadWxsd("dtorequest");
+
+
+        return mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
+                .replace("<<packageName>>",packageName.concat("_gen"))
+                .replace("<<entityFields>>",fields)
+                .replace("<<entityFieldsDTO>>",fieldsDTO)
+                .replace("<<entityFieldsEntity>>",fieldsEntity);
+
     }
 
 }
