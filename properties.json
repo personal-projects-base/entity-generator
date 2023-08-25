@@ -192,22 +192,21 @@
       "httpMethod": "GET",
       "metadata": {
         "input": [
-            {
-              "parameterName": "id",
-              "parameterType": "string",
-              "list": false
-            }
-          ]
-        },
+          {
+            "parameterName": "id",
+            "parameterType": "string",
+            "list": false
+          }
+        ],
         "output": [
           {
             "parameterName": "cpf",
             "parameterType": "cpf",
             "list": false
           }
-        ],
-        "anonymous": false
-      }
+        ]
+      },
+      "anonymous": false
     }
   ],
   "enums": [

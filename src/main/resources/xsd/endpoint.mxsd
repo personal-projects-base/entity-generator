@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-public interface <<methodName>>Handler {
+public interface <<className>>Handler {
 
     @<<httpMethod>>Mapping("<<methodName>>")
     <<isAnonimous>>
