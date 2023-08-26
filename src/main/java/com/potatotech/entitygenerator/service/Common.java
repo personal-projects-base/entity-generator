@@ -1,14 +1,21 @@
 package com.potatotech.entitygenerator.service;
 
 import com.google.gson.Gson;
-import com.potatotech.entitygenerator.model.EntityFields;
 import com.potatotech.entitygenerator.model.Properties;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Common {
+
+
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int LENGTH = 20;
 
     protected static String convertInputStreamToString(InputStream inputStream){
         try{
@@ -63,5 +70,48 @@ public class Common {
 
     protected static String setComments(String comments) {
         return String.format("\n    /**%s**/",comments);
+    }
+
+
+    public static String splitByUppercase(String input) {
+        List<String> words = new ArrayList<>();
+
+        StringBuilder currentWord = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            char currentChar = input.charAt(i);
+
+            if (Character.isUpperCase(currentChar) && currentWord.length() > 0) {
+                words.add(currentWord.toString());
+                currentWord.setLength(0);
+            }
+
+            currentWord.append(currentChar);
+        }
+
+        if (currentWord.length() > 0) {
+            words.add(currentWord.toString());
+        }
+
+        AtomicReference<String> name = new AtomicReference<>("");
+
+        words.forEach(w -> {
+            var tempName = name.get();
+            tempName += String.format("%s_",w.toLowerCase());
+            name.set(tempName);
+        });
+        return name.get().substring(0, name.get().length() - 1);
+    }
+
+    public static String generateRandomString() {
+        SecureRandom random = new SecureRandom();
+        StringBuilder randomString = new StringBuilder();
+
+        for (int i = 0; i < LENGTH; i++) {
+            int randomIndex = random.nextInt(CHARACTERS.length());
+            char randomChar = CHARACTERS.charAt(randomIndex);
+            randomString.append(randomChar);
+        }
+
+        return randomString.toString();
     }
 }

@@ -1,5 +1,6 @@
 package com.potatotech.entitygenerator.service;
 
+import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.EntityFields;
 
@@ -28,12 +29,13 @@ public class GenerateEntity {
                 ex.printStackTrace();
             }
         });
+        GenerateUtils.generateSql(entities);
     }
 
     private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
 
         String fields = getFields(entity);
-        return mod.replace("<<tableName>>",entity.getTableName())
+        return mod.replace("<<tableName>>",splitByUppercase(entity.getEntityName()))
                 .replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<packageName>>",packageName.concat("_gen"))
                 .replace("<<entityFields>>",fields);
@@ -75,8 +77,12 @@ public class GenerateEntity {
                 metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
             }
             if(!entity.getMetadata().isNullable()){
-                metadata += "\n    @Column(nullable = false)";
+                metadata += "\n    @Column(nullable = false, name = \""+splitByUppercase(entity.getFieldName())+"\")";
+            } else {
+                metadata += "\n    @Column(name = \""+splitByUppercase(entity.getFieldName())+"\")";
             }
+        }else {
+            metadata += "\n    @Column(name = \""+splitByUppercase(entity.getFieldName())+"\")";
         }
         return metadata;
     }

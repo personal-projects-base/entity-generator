@@ -1,9 +1,15 @@
 package com.potatotech.entitygenerator.service;
 
+import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator.model.EntityFields;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.Common.*;
 
@@ -67,4 +73,108 @@ public class GenerateUtils {
     private static String configureFileEntity(String mod, String packageName){
         return mod.replace("<<packageName>>",packageName.concat("_gen"));
     }
+
+    protected static void generateSql(List<Entities> entities){
+
+        try{
+            String fileName = String.format("%s/postgree.sql",GenerateSource.resourcePath);
+            var path = Path.of(fileName);
+            var sql = generateSqlData(entities);
+            Files.write(path, sql.getBytes(), StandardOpenOption.CREATE);
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    private static String generateSqlData(List<Entities> entities) {
+
+        var tableModel = loadWxsd("sql_table");
+        var pkModel = loadWxsd("sql_pk");
+
+        AtomicReference<String> tableFields = new AtomicReference<>("");
+        AtomicReference<String> pkFields = new AtomicReference<>("");
+        entities.forEach(item -> {
+            var tempTable = tableFields.get();
+            var tempPk = pkFields.get();
+            var table = getTable(tableModel,item);
+            var pks = getPk(pkModel,item);
+            tempTable += table;
+            tempPk += pks;
+            tableFields.set(tempTable);
+            pkFields.set(tempPk);
+        });
+
+
+
+        tableFields.set("--Entities\n\n".concat(tableFields.get()).concat("-- PKs\n\n").concat(pkFields.get()).concat("-- Fks\n\n").concat(getFk(entities)));
+
+        return tableFields.get();
+    }
+
+    private static String getTable(String tableModel, Entities entities){
+
+        AtomicReference<String> tableFields = new AtomicReference<>("");
+        entities.getEntityFields().forEach(fields -> {
+            var tempTableField = tableFields.get();
+            String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType());
+            var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
+            tempTableField += fieldTable;
+            tableFields.set(tempTableField);
+
+        });
+
+        var fields = tableFields.get().substring(0, tableFields.get().length() - 1);
+
+        return tableModel.replace("<<fields>>",fields)
+                .replace("<<tableName>>",splitByUppercase(entities.getEntityName()));
+    }
+
+    private static String getPk(String pkModel, Entities entities){
+
+        AtomicReference<String> pkFields = new AtomicReference<>("");
+        entities.getEntityFields().forEach(fields -> {
+            var tempTableField = pkFields.get();
+            if(fields.getMetadata() != null && fields.getMetadata().isKey()){
+                var fieldTable = String.format("%s",splitByUppercase(fields.getFieldName()));
+                tempTableField += fieldTable;
+                pkFields.set(tempTableField);
+            }
+        });
+
+        return pkModel.replace("<<fieldKey>>",pkFields.get())
+                .replace("<<idPk>>","ok_".concat(generateRandomString()))
+                .replace("<<tableName>>",splitByUppercase(entities.getEntityName()));
+    }
+
+    private static String getFk(List<Entities> entities){
+        var fkModel = loadWxsd("sql_fk");
+
+        final var entityReference = entities;
+
+        AtomicReference<String> fkFields = new AtomicReference<>("");
+        entities.forEach(item -> {
+            item.getEntityFields().forEach(field -> {
+                if(field.getRelationShips() != null){
+
+                    var entity = entityReference.stream().filter(obj -> obj.getEntityName().equals(field.getFieldProperties().getFieldType())).findFirst();
+
+                    var fieldReference = Optional.of(new EntityFields());
+                    if(entity.isPresent()){
+                        fieldReference = entity.get().getEntityFields().stream().filter(obj -> obj.getMetadata().isKey()).findFirst();
+                    }
+
+                    var tempFk = fkModel.replace("<<tableName>> ",splitByUppercase(item.getEntityName()))
+                            .replace("<<field>>",splitByUppercase(field.getFieldName()))
+                            .replace("<<tableReference>>",splitByUppercase(field.getFieldProperties().getFieldType()))
+                            .replace("<<fieldReference>>",splitByUppercase(fieldReference.get().getFieldName()))
+                            .replace("<<idFk>> ","fk_".concat(generateRandomString()));
+                    fkFields.set(fkFields.get().concat(tempFk));
+                }
+            });
+        });
+
+        return fkFields.get();
+    }
+
+
 }

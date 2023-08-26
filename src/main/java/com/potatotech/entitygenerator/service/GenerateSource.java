@@ -27,7 +27,7 @@ public class GenerateSource extends AbstractMojo {
 
 
     private static Path packagePath = null;
-    private static Path resourcePath = null;
+    protected static Path resourcePath = null;
 
 
     @Override
