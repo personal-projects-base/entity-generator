@@ -1,6 +1,6 @@
 package <<packageName>>;
 
-public class ResultData {
+public class ResponseData {
 
     public int size;
 

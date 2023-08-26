@@ -11,29 +11,40 @@ import java.util.UUID;
 @Component
 public class <<entityName>>DTOConverter {
 
-        public <<entityName>>Entity toEntity(<<entityName>>DTO dto){
-            return new <<entityName>>Entity(<<entityFieldsDTO>>);
-        }
+    <<dependencies>>
 
-        public <<entityName>>DTO toDTO(<<entityName>>Entity entity){
-            return new <<entityName>>DTO(<<entityFieldsEntity>>);
-        }
+    public <<entityName>>Entity toEntity(<<entityName>>DTO dto){
 
-        public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj){
-            var list = new ArrayList<<<entityName>>Entity>();
-            obj.forEach(dto -> {
-                var entity = toEntity(dto);
-                list.add(entity);
-            });
-            return list;
-        }
+        var entity = new <<entityName>>Entity();
+        <<simpleFieldsEntity>>
 
-        public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj){
-            var list = new ArrayList<<<entityName>>DTO>();
-            obj.forEach(entity -> {
-                var dto = toDTO(entity);
-                list.add(dto);
-            });
-            return list;
-        }
+
+        return entity;
+    }
+
+    public <<entityName>>DTO toDTO(<<entityName>>Entity entity){
+
+        var dto = new <<entityName>>DTO();
+        <<simpleFieldsDTO>>
+
+        return dto;
+    }
+
+    public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj){
+        var list = new ArrayList<<<entityName>>Entity>();
+        obj.forEach(dto -> {
+            var entity = toEntity(dto);
+            list.add(entity);
+        });
+        return list;
+    }
+
+    public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj){
+        var list = new ArrayList<<<entityName>>DTO>();
+        obj.forEach(entity -> {
+            var dto = toDTO(entity);
+            list.add(dto);
+        });
+        return list;
+    }
 }

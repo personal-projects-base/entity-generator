@@ -48,15 +48,14 @@ public class GenerateDTO {
             String tempField = fields.get();
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
 
-            //fieldType = fieldType.replace("Entity","DTO");
-            if(!fieldType.contains("Entity")){
-                if(item.isList()){
-                    fieldType = String.format("List<%s>",fieldType);
-                }
-                String field = String.format("\n    %s %s; ",fieldType,item.getFieldName());
-                tempField += field;
-                fields.set(tempField);
+            fieldType = fieldType.replace("Entity","DTO");
+            if(item.isList()){
+                fieldType = String.format("List<%s>",fieldType);
             }
+            String field = String.format("\n    %s %s; ",fieldType,item.getFieldName());
+            tempField += field;
+            fields.set(tempField);
+
         });
         return fields.get();
     }
@@ -67,11 +66,10 @@ public class GenerateDTO {
             String tempField = fields.get();
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
 
-            if(!fieldType.contains("Entity")){
-                String field = String.format("%s %s, ",fieldType,item.getFieldName());
-                tempField += field;
-                fields.set(tempField);
-            }
+            String field = String.format("%s %s, ",fieldType,item.getFieldName());
+            tempField += field;
+            fields.set(tempField);
+
         });
         return fields.get().substring(0, fields.get().length() -2);
     }

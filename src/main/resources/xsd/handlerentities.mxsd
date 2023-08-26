@@ -34,7 +34,7 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     }
 
     @Override
-    public List<<<entityName>>DTO> getAll(RequestData obj) {
+    public List<ResponseData> getAll(RequestData obj) {
         return null;
     }
 }
