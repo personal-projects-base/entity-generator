@@ -1,7 +1,6 @@
 package com.potatotech.entitygenerator.service;
 
 import com.potatotech.entitygenerator.model.Entities;
-import com.potatotech.entitygenerator.model.EntityFields;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,26 +46,26 @@ public class GenerateDTO {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
 
             //fieldType = fieldType.replace("Entity","DTO");
             if(!fieldType.contains("Entity")){
                 if(item.isList()){
                     fieldType = String.format("List<%s>",fieldType);
                 }
-                String field = String.format("%s %s, ",fieldType,item.getFieldName());
+                String field = String.format("\n    %s %s; ",fieldType,item.getFieldName());
                 tempField += field;
                 fields.set(tempField);
             }
         });
-        return fields.get().substring(0, fields.get().length() -2);
+        return fields.get();
     }
 
     private static String getDTONotTypes(Entities entity) {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
 
             if(!fieldType.contains("Entity")){
                 String field = String.format("%s %s, ",fieldType,item.getFieldName());

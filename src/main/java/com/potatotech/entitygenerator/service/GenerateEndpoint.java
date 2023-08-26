@@ -20,7 +20,8 @@ public class GenerateEndpoint {
         endpoints.forEach(item -> {
             try{
                 String fileName = stringFormater(item.getMethodName(),"Handler", packagePath.toString());
-                generateInput(item.getMetadata().getInput(),item.getMethodName(),packagePath, packageName);
+                generateInputOutput(item.getMetadata().getInput(),item.getMethodName(),packagePath, packageName, "Input");
+                generateInputOutput(item.getMetadata().getOutput(),item.getMethodName(),packagePath, packageName,"Output");
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getMethodName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -38,8 +39,8 @@ public class GenerateEndpoint {
                 .replace("<<className>>",firstCharacterUpperCase(fileName))
                 .replace("<<methodName>>",fileName)
                 .replace("<<isAnonimous>>",anonimous[1])
-                .replace("<<input>>","")
-                .replace("<<output>>","")
+                .replace("<<input>>",firstCharacterUpperCase(fileName)+ "Input input")
+                .replace("<<output>>",!endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "?")
                 .replace("<<httpMethod>>",firstCharacterUpperCase(endpoints.getHttpMethod().toLowerCase()));
     }
 
@@ -53,45 +54,50 @@ public class GenerateEndpoint {
     }
 
 
-    private static void generateInput(List<Parameters> parameters, String className, Path packagePath, String packageName) throws IOException {
+    private static void generateInputOutput(List<Parameters> parameters, String className, Path packagePath, String packageName, String type) throws IOException {
         System.out.println("iniciado o inpout");
 
-        AtomicReference<String> fields = new AtomicReference<>("");
-        parameters.forEach(item -> {
-            String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getParameterType());
+        var strFields = loadFields(parameters);
+        if(strFields.isEmpty()){
+            return;
+        }
+        strFields = loadModel(type,packageName,className, strFields);
 
-            if(!fieldType.contains("Entity")){
-                if(item.isList()){
-                    fieldType = String.format("List<%s>",fieldType);
-                }
-                String field = String.format("%s %s, ",fieldType,item.getParameterName());
-                tempField += field;
-                fields.set(tempField);
-            }
-        });
-
-        var strFields = fields.get().substring(0, fields.get().length() -2);
-
-        strFields = loadModel("Input",packageName);
-
-        String fileName = stringFormater(className,"Input", packagePath.toString());
+        String fileName = stringFormater(className,type, packagePath.toString());
         var path = Path.of(fileName);
         Files.write(path, strFields.getBytes(), StandardOpenOption.CREATE);
 
     }
 
-    private static String loadModel(String type, String packageName) {
+
+    private static String loadModel(String type, String packageName,String className, String fields ) {
 
         String mod = loadWxsd("dtorequest");
 
-
-        return mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
+        return mod.replace("<<entityName>>",firstCharacterUpperCase(className))
                 .replace("<<packageName>>",packageName.concat("_gen"))
                 .replace("<<entityFields>>",fields)
-                .replace("<<entityFieldsDTO>>",fieldsDTO)
-                .replace("<<entityFieldsEntity>>",fieldsEntity);
+                .replace("<<operation>>",type);
 
+    }
+
+
+    private static String loadFields(List<Parameters> parameters) {
+        AtomicReference<String> fields = new AtomicReference<>("");
+        parameters.forEach(item -> {
+            String tempField = fields.get();
+            String fieldType = FieldsMapper.getFieldTypeDto(item.getParameterType());
+
+            if(item.isList()){
+                fieldType = String.format("List<%s>",fieldType);
+            }
+            String field = String.format("\n    %s %s;",fieldType,item.getParameterName());
+            tempField += field;
+            fields.set(tempField);
+
+        });
+
+        return fields.get();
     }
 
 }

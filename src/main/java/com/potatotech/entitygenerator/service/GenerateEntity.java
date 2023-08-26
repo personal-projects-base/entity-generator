@@ -46,7 +46,7 @@ public class GenerateEntity {
             String tempField = fields.get();
             String comments = Common.setComments(item.getComment());
             String anotations = setMetadata(item).concat(setRelationsShip(item));
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }

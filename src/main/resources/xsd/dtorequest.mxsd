@@ -6,4 +6,6 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-public record <<entityName>><<operation>>(<<entityFields>>) {}
+public class <<entityName>><<operation>> {
+    <<entityFields>>
+}

@@ -22,7 +22,7 @@ public class <<entityName>>DTOConverter {
         public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj){
             var list = new ArrayList<<<entityName>>Entity>();
             obj.forEach(dto -> {
-                var entity = new <<entityName>>Entity(<<entityFieldsDTO>>);
+                var entity = toEntity(dto);
                 list.add(entity);
             });
             return list;
@@ -31,7 +31,7 @@ public class <<entityName>>DTOConverter {
         public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj){
             var list = new ArrayList<<<entityName>>DTO>();
             obj.forEach(entity -> {
-                var dto = new <<entityName>>DTO(<<entityFieldsEntity>>);
+                var dto = toDTO(entity);
                 list.add(dto);
             });
             return list;

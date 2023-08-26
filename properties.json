@@ -189,7 +189,7 @@
   "endpoints": [
     {
       "methodName": "cpfListQuery",
-      "httpMethod": "GET",
+      "httpMethod": "POST",
       "metadata": {
         "input": [
           {
@@ -197,16 +197,9 @@
             "parameterType": "string",
             "list": false
           }
-        ],
-        "output": [
-          {
-            "parameterName": "cpf",
-            "parameterType": "cpf",
-            "list": false
-          }
         ]
       },
-      "anonymous": false
+      "anonymous": true
     }
   ],
   "enums": [

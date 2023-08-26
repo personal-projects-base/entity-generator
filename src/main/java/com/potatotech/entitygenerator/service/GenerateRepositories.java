@@ -33,7 +33,7 @@ public class GenerateRepositories {
         var typeField = fieldTypeIdentity.getFieldProperties().getFieldType();
         var model = mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<importEntities>>",packageName.concat("_gen.*"))
-                .replace("<<identifierType>>",FieldsMapper.getFieldType(typeField))
+                .replace("<<identifierType>>",FieldsMapper.getFieldTypeEntity(typeField))
                 .replace("<<packageName>>",packageName.concat("_gen"));
 
         return model;

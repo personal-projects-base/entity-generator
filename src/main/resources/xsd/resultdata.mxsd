@@ -1,0 +1,11 @@
+package <<packageName>>;
+
+public class ResultData {
+
+    public int size;
+
+    public int offset;
+
+    public Object contents;
+
+}

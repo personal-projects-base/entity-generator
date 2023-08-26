@@ -48,7 +48,7 @@ public class GenerateDTOConverter {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             //fieldType = fieldType.replace("Entity","DTO");
             if(!fieldType.contains("Entity")){
                 if(item.isList()){
@@ -67,7 +67,7 @@ public class GenerateDTOConverter {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             if(!fieldType.contains("Entity")){
                 String field = String.format("entity.get%s(), ",firstCharacterUpperCase(item.getFieldName()));
                 tempField += field;
@@ -82,9 +82,9 @@ public class GenerateDTOConverter {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
-            String fieldType = FieldsMapper.getFieldType(item.getFieldProperties().getFieldType());
+            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             if(!fieldType.contains("Entity")){
-                String field = String.format("dto.%s(), ",item.getFieldName());
+                String field = String.format("dto.%s, ",item.getFieldName());
                 tempField += field;
             } else {
                 tempField += "null, ";
