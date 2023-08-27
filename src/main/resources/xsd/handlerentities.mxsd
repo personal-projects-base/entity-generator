@@ -49,10 +49,19 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     @Override
     public ResponseData getAll(RequestData input) {
 
-        Pageable pageable = PageRequest.of(input.offset, input.offset);
-        var spec = especificationFilter.customFilter(input.filter);
-        var ret = repository.findAll(spec, pageable);
+         if(input.offset <= 0){
+             input.offset = 1;
+         }
+         input.offset--;
+         Pageable pageable = PageRequest.of(input.offset , input.size);
+         var spec = especificationFilter.customFilter(input.filter);
+         var ret = repository.findAll(spec, pageable);
 
-        return null;
+         var output = new ResponseData();
+         output.total = Integer.parseInt(String.valueOf(ret.getTotalElements()));
+         output.contents = ret.get();
+         output.size = ret.getSize();
+         output.offset = input.offset;
+         return output;
     }
 }
