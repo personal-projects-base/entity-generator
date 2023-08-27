@@ -24,5 +24,5 @@ public interface HandlerBase<T,ID> {
 
     @GetMapping
     @Transactional
-    public List<T> getAll(@RequestBody RequestData obj);
+    public List<ResponseData> getAll(@RequestBody RequestData obj);
 }

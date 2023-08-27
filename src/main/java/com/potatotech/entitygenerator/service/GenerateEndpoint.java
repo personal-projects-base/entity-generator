@@ -46,7 +46,7 @@ public class GenerateEndpoint {
 
     private static String[] isAnonimous(Metadata metadata) {
         if(metadata.isAnonymous()){
-            var anotation = "import com.potatotech.authenticate.stereotype.Anonymous;";
+            var anotation = "import com.potatotech.authorization.stereotype.Anonymous;";
             var importa = "@Anonymous";
             return new String[]{anotation, importa};
         }

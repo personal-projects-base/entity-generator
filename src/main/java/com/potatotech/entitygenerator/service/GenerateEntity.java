@@ -84,6 +84,9 @@ public class GenerateEntity {
         }else {
             metadata += "\n    @Column(name = \""+splitByUppercase(entity.getFieldName())+"\")";
         }
+        if(entity.getRelationShips() != null){
+            metadata = metadata.replace("@Column","@PrimaryKeyJoinColumn");
+        }
         return metadata;
     }
 }
