@@ -56,11 +56,11 @@ public class GenerateDTOConverter {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             String field = "";
             if(!fieldType.contains("Entity")){
-                field = String.format("\n        entity.set%s(dto.%s);",firstCharacterUpperCase(item.getFieldName()),item.getFieldName());
+                field = String.format("\n           entity.set%s(dto.%s);",firstCharacterUpperCase(item.getFieldName()),item.getFieldName());
             }
             else{
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
-                field = String.format("\n        entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),fieldType,item.getFieldName());
+                field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),fieldType,item.getFieldName());
             }
 
             tempField += field;
@@ -77,12 +77,12 @@ public class GenerateDTOConverter {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             String field = "";
             if(!fieldType.contains("Entity")){
-                field = String.format("\n        dto.%s = entity.get%s();",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
+                field = String.format("\n           dto.%s = entity.get%s();",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
             }
             else{
                 addDependencies(fieldType);
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
-                field = String.format("\n        dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),fieldType,firstCharacterUpperCase(item.getFieldName()));
+                field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),fieldType,firstCharacterUpperCase(item.getFieldName()));
             }
 
             tempField += field;

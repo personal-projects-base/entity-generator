@@ -8,10 +8,16 @@ import java.util.Date;
 import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class <<entityName>>DTO {
     <<entityFields>>
+
+    String createdBy;
+    LocalDateTime createdDate;
+    String lastModifiedBy;
+    LocalDateTime lastModifiedDate;
 }

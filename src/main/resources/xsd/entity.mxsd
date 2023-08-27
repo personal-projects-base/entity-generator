@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.*;
+import com.potatotech.authorization.tenant.TenantContext;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -19,4 +21,29 @@ import org.springframework.web.bind.annotation.*;
 public class <<entityName>>Entity {
 
     <<entityFields>>
+
+    @Column(name = "created_by")
+    private String createdBy;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    @Column(name = "last_modified_by")
+    private String lastModifiedBy;
+
+    @Column(name = "last_modified_date")
+    private LocalDateTime lastModifiedDate;
+
+    @PrePersist
+    public void prePersist() {
+        if (id == null) {
+            createdDate = LocalDateTime.now();
+            createdBy = TenantContext.getCurrentUser().getName();
+            lastModifiedDate = LocalDateTime.now();
+            lastModifiedBy = TenantContext.getCurrentUser().getName();
+        } else {
+            lastModifiedDate = LocalDateTime.now();
+            lastModifiedBy = TenantContext.getCurrentUser().getName();
+        }
+    }
 }

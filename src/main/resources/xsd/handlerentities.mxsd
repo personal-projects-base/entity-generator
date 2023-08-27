@@ -58,12 +58,7 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
 
          var output = new ResponseData();
          output.total = Integer.parseInt(String.valueOf(ret.getTotalElements()));
-         var contents = new ArrayList<>();
-         ret.forEach(item -> {
-             var dto = dtoConverter.toDTO(item);
-             contents.add(dto);
-         });
-          output.contents = contents;
+         output.contents = dtoConverter.toDTO(ret.getContent());
          output.size = ret.getSize();
          output.offset = input.offset;
          return output;
