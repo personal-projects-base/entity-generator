@@ -17,8 +17,9 @@ public class <<entityName>>DTOConverter {
     public <<entityName>>Entity toEntity(<<entityName>>DTO dto){
 
         var entity = new <<entityName>>Entity();
-        <<simpleFieldsEntity>>
-
+        if(dto != null) {
+            <<simpleFieldsEntity>>
+        }
 
         return entity;
     }
@@ -26,7 +27,9 @@ public class <<entityName>>DTOConverter {
     public <<entityName>>DTO toDTO(<<entityName>>Entity entity){
 
         var dto = new <<entityName>>DTO();
-        <<simpleFieldsDTO>>
+        if(entity != null){
+            <<simpleFieldsDTO>>
+        }
 
         return dto;
     }
