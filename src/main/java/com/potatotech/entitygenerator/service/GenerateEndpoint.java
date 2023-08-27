@@ -39,9 +39,13 @@ public class GenerateEndpoint {
                 .replace("<<className>>",firstCharacterUpperCase(fileName))
                 .replace("<<methodName>>",fileName)
                 .replace("<<isAnonimous>>",anonimous[1])
-                .replace("<<input>>",firstCharacterUpperCase(fileName)+ "Input input")
+                .replace("<<input>>",setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input"))
                 .replace("<<output>>",!endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "?")
                 .replace("<<httpMethod>>",firstCharacterUpperCase(endpoints.getHttpMethod().toLowerCase()));
+    }
+
+    private static String setRequest(Endpoints endpoints){
+        return endpoints.getMethodName().equals("GET") ? "@RequestParam " : "@RequestBody ";
     }
 
     private static String[] isAnonimous(Metadata metadata) {

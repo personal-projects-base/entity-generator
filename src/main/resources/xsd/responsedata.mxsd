@@ -6,6 +6,8 @@ public class ResponseData {
 
     public int offset;
 
+    public int total;
+
     public Object contents;
 
 }

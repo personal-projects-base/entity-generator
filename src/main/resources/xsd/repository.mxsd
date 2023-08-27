@@ -1,10 +1,13 @@
 package <<packageName>>;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
 public interface <<entityName>>Repository extends JpaRepository<<<entityName>>Entity, <<identifierType>>> {
+    Page<<<entityName>>Entity> findAll(Specification<<<entityName>>Entity> spec, Pageable pageable);
 }

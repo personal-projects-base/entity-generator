@@ -13,14 +13,22 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     @Autowired
     <<entityName>>Repository repository;
 
+    @Autowired
+    <<entityName>>DTOConverter dtoConverter;
+
     @Override
     public <<entityName>>DTO save(<<entityName>>DTO obj) {
-        return null;
+        var entity = dtoConverter.toEntity(obj);
+        entity = repository.save(entity);
+        return dtoConverter.toDTO(entity);
     }
 
     @Override
     public <<entityName>>DTO update(<<entityName>>DTO obj, UUID id) {
-        return null;
+        var entity = dtoConverter.toEntity(obj);
+        entity.setId(id);
+        entity = repository.save(entity);
+        return dtoConverter.toDTO(entity);
     }
 
     @Override
@@ -30,11 +38,11 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
 
     @Override
     public <<entityName>>DTO get(UUID id) {
-        return null;
+        return dtoConverter.toDTO(repository.getReferenceById(id));
     }
 
     @Override
-    public List<ResponseData> getAll(RequestData obj) {
+    public ResponseData getAll(RequestData obj) {
         return null;
     }
 }
