@@ -103,6 +103,44 @@ O objeto entities deve ser configurado da seguinte forma:
 
 ### Endpoints
 
+Neste objeto deverá ser implementado os endpoints que deseja ser gerado
+
+abaixo um exemplo da sintaxe:
+
+    {
+      "methodName": "listCity",
+      "httpMethod": "POST",
+      "metadata": {
+        "input": [
+          {
+            "parameterName": "id",
+            "parameterType": "uuid",
+            "list": false
+          }
+        ],
+        "output": [
+          {
+            "parameterName": "city",
+            "parameterType": "city",
+            "list": true
+          }
+        ],
+        "anonymous": true
+      }
+    }
+
+* methodName: nome do endpoint
+* httpMethod: metodo do endpoint (GET,POST,PUT,DELETE) atualmente só possui suporte ao POST
+* metadata:
+  * input: parametros de entrada
+    * parameterName: nome do parametro
+    * parameterType: tipo do parametro
+    * list: se o objeto é do tipo lista
+  * output: parametros de saida
+    * parameterName: nome do parametro
+    * parameterType: tipo do parametro
+    * list: se o objeto é do tipo lista
+  * anonymous: se o endpoint é anonimo
 
 ### Enums
 
