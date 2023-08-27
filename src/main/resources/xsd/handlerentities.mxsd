@@ -1,5 +1,7 @@
 package <<packageName>>;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,9 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
 
     @Autowired
     <<entityName>>DTOConverter dtoConverter;
+
+    @Autowired
+    SpecificationFilter<<<entityName>>Entity> especificationFilter;
 
     @Override
     public <<entityName>>DTO save(<<entityName>>DTO obj) {
@@ -42,7 +47,12 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     }
 
     @Override
-    public ResponseData getAll(RequestData obj) {
+    public ResponseData getAll(RequestData input) {
+
+        Pageable pageable = PageRequest.of(input.offset, input.offset);
+        var spec = especificationFilter.customFilter(input.filter);
+        var ret = repository.findAll(spec, pageable);
+
         return null;
     }
 }

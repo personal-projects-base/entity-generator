@@ -19,6 +19,7 @@ public class GenerateUtils {
     protected static void generateHandler(String packageName, Path packagePath){
         generateRequestData( packageName, packagePath);
         generateResponseData(packageName, packagePath);
+        generateEspecificationFilter(packageName, packagePath);
         String mod = loadWxsd("handlerbase");
         try{
             String fileName = stringFormater("HandlerBase","", packagePath.toString());
@@ -62,6 +63,19 @@ public class GenerateUtils {
         String mod = loadWxsd("responsedata");
         try{
             String fileName = stringFormater("ResponseData","", packagePath.toString());
+            var path = Path.of(fileName);
+            var entity = configureFileEntity(mod,packageName);
+            Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    private static void generateEspecificationFilter(String packageName, Path packagePath){
+
+        String mod = loadWxsd("especificationfilter");
+        try{
+            String fileName = stringFormater("SpecificationFilter","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
