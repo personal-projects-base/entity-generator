@@ -25,7 +25,7 @@ public class FieldsMapper {
         if(typeFields.isEmpty()){
             setFieldTypesMap();
         }
-        return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("Dto"));
+        return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("DTO"));
     }
 
     private static void setFieldTypesMap(){

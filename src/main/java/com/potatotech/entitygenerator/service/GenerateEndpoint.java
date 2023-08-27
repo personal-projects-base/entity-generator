@@ -19,7 +19,7 @@ public class GenerateEndpoint {
         String mod = loadWxsd("endpoint");
         endpoints.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getMethodName(),"Handler", packagePath.toString());
+                String fileName = stringFormater(item.getMethodName(),"", packagePath.toString());
                 generateInputOutput(item.getMetadata().getInput(),item.getMethodName(),packagePath, packageName, "Input");
                 generateInputOutput(item.getMetadata().getOutput(),item.getMethodName(),packagePath, packageName,"Output");
                 var path = Path.of(fileName);
@@ -95,7 +95,7 @@ public class GenerateEndpoint {
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("\n    %s %s;",fieldType,item.getParameterName());
+            String field = String.format("\n    public %s %s;",fieldType,item.getParameterName());
             tempField += field;
             fields.set(tempField);
 
