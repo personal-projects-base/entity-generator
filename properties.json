@@ -174,7 +174,7 @@
           "fieldName": "state",
           "list": true,
           "fieldProperties": {
-            "fieldType": "city",
+            "fieldType": "state",
             "required": false,
             "valueDefault": ""
           },

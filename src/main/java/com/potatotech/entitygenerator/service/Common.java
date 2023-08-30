@@ -1,6 +1,7 @@
 package com.potatotech.entitygenerator.service;
 
 import com.google.gson.Gson;
+import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.Properties;
 
 import java.io.*;
@@ -113,5 +114,14 @@ public class Common {
         }
 
         return randomString.toString();
+    }
+
+    public static String getTableName(Entities entity){
+        if(entity.getTableName() == null){
+            return splitByUppercase(entity.getEntityName());
+        }
+        else {
+            return entity.getTableName();
+        }
     }
 }

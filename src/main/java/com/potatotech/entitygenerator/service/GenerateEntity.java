@@ -35,11 +35,13 @@ public class GenerateEntity {
     private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
 
         String fields = getFields(entity);
-        return mod.replace("<<tableName>>",splitByUppercase(entity.getEntityName()))
+        return mod.replace("<<tableName>>",getTableName(entity))
                 .replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<packageName>>",packageName.concat("_gen"))
                 .replace("<<entityFields>>",fields);
     }
+
+
 
 
     private static String getFields(Entities entity) {

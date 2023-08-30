@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.Common.getTableName;
 
 
 public class GenerateUtils {
@@ -140,7 +141,7 @@ public class GenerateUtils {
         var fields = tableFields.get().substring(0, tableFields.get().length() - 1);
 
         return tableModel.replace("<<fields>>",fields)
-                .replace("<<tableName>>",splitByUppercase(entities.getEntityName()));
+                .replace("<<tableName>>",getTableName(entities));
     }
 
     private static String getPk(String pkModel, Entities entities){
@@ -157,7 +158,7 @@ public class GenerateUtils {
 
         return pkModel.replace("<<fieldKey>>",pkFields.get())
                 .replace("<<idPk>>","ok_".concat(generateRandomString()))
-                .replace("<<tableName>>",splitByUppercase(entities.getEntityName()));
+                .replace("<<tableName>>",getTableName(entities));
     }
 
     private static String getFk(List<Entities> entities){
@@ -177,9 +178,9 @@ public class GenerateUtils {
                         fieldReference = entity.get().getEntityFields().stream().filter(obj -> obj.getMetadata().isKey()).findFirst();
                     }
 
-                    var tempFk = fkModel.replace("<<tableName>> ",splitByUppercase(item.getEntityName()))
+                    var tempFk = fkModel.replace("<<tableName>> ",getTableName(item))
                             .replace("<<field>>",splitByUppercase(field.getFieldName()))
-                            .replace("<<tableReference>>",splitByUppercase(field.getFieldProperties().getFieldType()))
+                            .replace("<<tableReference>>", getTableName(getEntity(entities, field.getFieldProperties().getFieldType())))
                             .replace("<<fieldReference>>",splitByUppercase(fieldReference.get().getFieldName()))
                             .replace("<<idFk>> ","fk_".concat(generateRandomString()));
                     fkFields.set(fkFields.get().concat(tempFk));
@@ -188,6 +189,10 @@ public class GenerateUtils {
         });
 
         return fkFields.get();
+    }
+
+    private static Entities getEntity(List<Entities> entities, String entity){
+        return entities.stream().filter(item -> item.getEntityName().equals(entity)).findFirst().orElse(null);
     }
 
 

@@ -13,6 +13,11 @@
 ### Atualização de dependencia
 * N/A
 
+## >0.0.10 - 30-08-2023
+### Melhorias
+* Ajustado geração das tabelas para respeitar o valor que está no tableName
+
+
 ## >0.0.9 - 27-08-2023
 ### Novas Funcionalidades
 * Criado gerador de endpoints
