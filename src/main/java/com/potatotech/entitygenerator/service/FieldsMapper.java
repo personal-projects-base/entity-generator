@@ -30,6 +30,7 @@ public class FieldsMapper {
 
     private static void setFieldTypesMap(){
         typeFields.put("uuid","UUID");
+        typeFields.put("password","String");
         typeFields.put("string","String");
         typeFields.put("datetime","LocalDateTime");
         typeFields.put("date","LocalDate");
@@ -51,6 +52,7 @@ public class FieldsMapper {
     private static void setFieldTypesDbMap(){
 
         typeFieldsDatabase.put("uuid","uuid");
+        typeFieldsDatabase.put("password","varchar");
         typeFieldsDatabase.put("string","varchar");
         typeFieldsDatabase.put("datetime","timestamp");
         typeFieldsDatabase.put("date","date");
