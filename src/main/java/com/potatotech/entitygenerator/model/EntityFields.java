@@ -11,4 +11,5 @@ public class EntityFields {
     private FieldProperties fieldProperties;
     private RelationsShips relationShips;
     private FieldMetadata metadata;
+    private FrontEndProperties frontEndProperties;
 }
