@@ -13,6 +13,11 @@
 ### Atualização de dependencia
 * N/A
 
+
+## >0.0.11 - 30-08-2023
+### Novas Funcionalidades
+* Criado propriedade frontendProperties para armazenar propriedades para o front
+
 ## >0.0.10 - 30-08-2023
 ### Melhorias
 * Ajustado geração das tabelas para respeitar o valor que está no tableName
