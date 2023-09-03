@@ -13,6 +13,12 @@
 ### Atualização de dependencia
 * N/A
 
+## >0.0.13 - 03-09-2023
+### Novas Funcionalidades
+* Criado parametro para tornar opcional a geração dos handler base
+
+### Correções
+* Ajustado método dos endpoints quando o objeto output era vazio retornar void
 
 ## >0.0.11 - 30-08-2023
 ### Novas Funcionalidades

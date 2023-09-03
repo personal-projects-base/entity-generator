@@ -17,10 +17,12 @@ public class GenerateHandler {
         String mod = loadWxsd("handlerentities");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getEntityName(),"Handler", packagePath.toString());
-                var path = Path.of(fileName);
-                var entity = configureFile(mod,packageName,item,item.getEntityName());
-                Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                if(item.isGenerateDefaultHandlers()){
+                    String fileName = stringFormater(item.getEntityName(),"Handler", packagePath.toString());
+                    var path = Path.of(fileName);
+                    var entity = configureFile(mod,packageName,item,item.getEntityName());
+                    Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                }
             }catch (IOException ex){
                 ex.printStackTrace();
             }

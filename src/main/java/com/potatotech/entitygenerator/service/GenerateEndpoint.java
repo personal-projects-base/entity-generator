@@ -39,9 +39,25 @@ public class GenerateEndpoint {
                 .replace("<<className>>",firstCharacterUpperCase(fileName))
                 .replace("<<methodName>>",fileName)
                 .replace("<<isAnonimous>>",anonimous[1])
-                .replace("<<input>>",setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input"))
-                .replace("<<output>>",!endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "?")
+                .replace("<<input>>",setParameterInput(endpoints,fileName))
+                .replace("<<output>>",setParameterOutput(endpoints,fileName))
                 .replace("<<httpMethod>>",firstCharacterUpperCase(endpoints.getHttpMethod().toLowerCase()));
+    }
+
+    private static String setParameterInput(Endpoints endpoints, String fileName){
+        if(!validRequestOrResponseData(endpoints.getMetadata().getInput())){
+            return setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input");
+        } else {
+            return setRequest(endpoints).concat("RequestData input");
+        }
+    }
+
+    private static String setParameterOutput(Endpoints endpoints, String fileName){
+        if(!validRequestOrResponseData(endpoints.getMetadata().getInput())){
+            return !endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "void";
+        } else {
+            return !endpoints.getMetadata().getOutput().isEmpty() ?  "ResponseData" : "?";
+        }
     }
 
     private static String setRequest(Endpoints endpoints){
@@ -61,6 +77,9 @@ public class GenerateEndpoint {
     private static void generateInputOutput(List<Parameters> parameters, String className, Path packagePath, String packageName, String type) throws IOException {
         System.out.println("iniciado o inpout");
 
+        if(validRequestOrResponseData(parameters)){
+            return;
+        }
         var strFields = loadFields(parameters);
         if(strFields.isEmpty()){
             return;
@@ -71,6 +90,10 @@ public class GenerateEndpoint {
         var path = Path.of(fileName);
         Files.write(path, strFields.getBytes(), StandardOpenOption.CREATE);
 
+    }
+
+    private static boolean validRequestOrResponseData(List<Parameters> parameters) {
+        return parameters.stream().anyMatch(item -> item.getParameterType().equalsIgnoreCase("requestdata") || item.getParameterType().equalsIgnoreCase("responsedata"));
     }
 
 
