@@ -124,4 +124,17 @@ public class Common {
             return entity.getTableName();
         }
     }
+
+    public static void dropFile(String file){
+        try{
+            File localFile = new File(file);
+            if(localFile.exists()){
+                if (localFile.delete()){
+                    System.out.println("delete file " +file);
+                }
+            }
+        } catch (Exception ex){
+            System.out.println("failure delete file " +file);
+        }
+    }
 }

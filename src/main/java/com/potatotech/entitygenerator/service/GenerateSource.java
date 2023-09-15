@@ -69,6 +69,7 @@ public class GenerateSource extends AbstractMojo {
     private static void generateMetadata(Properties prop) {
         try{
             String fileName = String.format("%s/properties.json",resourcePath.toString());
+            Common.dropFile(fileName);
             var path = Path.of(fileName);
             var entity = new Gson().toJson(prop);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -107,5 +108,7 @@ public class GenerateSource extends AbstractMojo {
         }catch (IOException ex){
         }
     }
+
+
 
 }

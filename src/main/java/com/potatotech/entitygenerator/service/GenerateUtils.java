@@ -92,7 +92,9 @@ public class GenerateUtils {
     protected static void generateSql(List<Entities> entities){
 
         try{
+
             String fileName = String.format("%s/postgree.sql",GenerateSource.resourcePath);
+            Common.dropFile(fileName);
             var path = Path.of(fileName);
             var sql = generateSqlData(entities);
             Files.write(path, sql.getBytes(), StandardOpenOption.CREATE);
