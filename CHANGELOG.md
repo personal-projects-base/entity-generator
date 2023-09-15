@@ -13,6 +13,10 @@
 ### Atualização de dependencia
 * N/A
 
+## >0.0.14 - 03-09-2023
+### Correções
+* Implementado exclusão de arquivos metadata
+
 ## >0.0.13 - 03-09-2023
 ### Novas Funcionalidades
 * Criado parametro para tornar opcional a geração dos handler base
