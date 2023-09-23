@@ -1,0 +1,6 @@
+
+    @JoinTable(
+        name = "<<unionTableName>>",
+        joinColumns = @JoinColumn(name = "<<joinColumn>>"),
+        inverseJoinColumns = @JoinColumn(name = "<<inverseJoinColumn>>")
+    )

@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS <<tableName>>(
+    <<joinColumns>> UUID,
+    <<inverseJoinColumns>>  UUID,
+    PRIMARY KEY (<<joinColumns>>, <<inverseJoinColumns>>),
+    FOREIGN KEY (<<joinColumns>>) REFERENCES <<entityInverseJoinColumns>>(<<fieldInverseColumnId>>),
+    FOREIGN KEY (<<inverseJoinColumns>>) REFERENCES <<entityJoinColumns>>(<<fieldColumnId>>)
+);
+

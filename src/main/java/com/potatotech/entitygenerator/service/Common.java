@@ -125,6 +125,19 @@ public class Common {
         }
     }
 
+    public static String getPkEntity(Entities entity){
+        AtomicReference<String> pkField = new AtomicReference<>("");
+        entity.getEntityFields().forEach(fields -> {
+            var tempTableField = pkField.get();
+            if(fields.getMetadata() != null && fields.getMetadata().isKey()){
+                var fieldTable = String.format("%s",splitByUppercase(fields.getFieldName()));
+                tempTableField += fieldTable;
+                pkField.set(tempTableField);
+            }
+        });
+        return pkField.get();
+    }
+
     public static void dropFile(String file){
         try{
             File localFile = new File(file);

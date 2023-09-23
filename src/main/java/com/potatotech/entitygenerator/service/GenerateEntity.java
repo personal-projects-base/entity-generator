@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.EntityFields;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.GenerateSQL.generateSql;
 
 
 public class GenerateEntity {
@@ -29,7 +31,7 @@ public class GenerateEntity {
                 ex.printStackTrace();
             }
         });
-        GenerateUtils.generateSql(entities);
+        generateSql(entities);
     }
 
     private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
@@ -49,7 +51,7 @@ public class GenerateEntity {
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
             String comments = Common.setComments(item.getComment());
-            String anotations = setMetadata(item).concat(setRelationsShip(item));
+            String anotations = setMetadata(item, entity).concat(setRelationsShip(item));
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
@@ -71,24 +73,49 @@ public class GenerateEntity {
         return metadata;
     }
 
-    private static String setMetadata(EntityFields entity) {
+    private static String setMetadata(EntityFields field, Entities entity) {
         var metadata = "";
-        if(entity.getMetadata() != null){
-            if(entity.getMetadata().isKey()){
+        if(field.getMetadata() != null && field.getRelationShips() == null){
+            if(field.getMetadata().isKey()){
                 metadata += "\n    @Id";
                 metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
             }
-            if(!entity.getMetadata().isNullable()){
-                metadata += "\n    @Column(nullable = false, name = \""+splitByUppercase(entity.getFieldName())+"\")";
+            if(!field.getMetadata().isNullable()){
+                metadata += "\n    @Column(nullable = false, name = \""+splitByUppercase(field.getFieldName())+"\")";
             } else {
-                metadata += "\n    @Column(name = \""+splitByUppercase(entity.getFieldName())+"\")";
+                metadata += "\n    @Column(name = \""+splitByUppercase(field.getFieldName())+"\")";
             }
-        }else {
-            metadata += "\n    @Column(name = \""+splitByUppercase(entity.getFieldName())+"\")";
         }
-        if(entity.getRelationShips() != null){
-            metadata = metadata.replace("@Column","@JoinColumn");
+        if(field.getRelationShips() != null){
+            if(field.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany")){
+                var joinTable = setJointTable(field, entity);
+                metadata += "\n    ".concat(joinTable);
+            }else {
+                metadata += "\n    @JoinColumn(name = \""+splitByUppercase(field.getFieldName())+"\")";
+            }
+
         }
         return metadata;
+    }
+
+
+    private static String setJointTable(EntityFields field, Entities entity){
+
+        var joinTable = "";
+
+        var name = splitByUppercase(entity.getEntityName()).concat("_")
+                .concat(splitByUppercase(field.getFieldProperties()
+                        .getFieldType()));
+
+        var joinColumn = splitByUppercase(entity.getEntityName()).concat("_id");
+        var inverseJoinColumn = splitByUppercase(field.getFieldProperties().getFieldType()).concat("_id");
+
+        var model = loadWxsd("jointable");
+
+        joinTable = model.replace("<<unionTableName>>",name)
+                .replace("<<joinColumn>>",joinColumn)
+                .replace("<<inverseJoinColumn>>", inverseJoinColumn);
+
+        return joinTable.trim();
     }
 }

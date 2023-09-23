@@ -10,7 +10,7 @@ public class GenerateSourceTest {
 
     @Test
     public void testSource(){
-        //GenerateSource gen = new GenerateSource();
-        //gen.generateSource();
+        GenerateSource gen = new GenerateSource();
+        gen.generateSource();
     }
 }
