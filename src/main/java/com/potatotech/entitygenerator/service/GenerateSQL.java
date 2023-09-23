@@ -63,12 +63,13 @@ public class GenerateSQL {
 
         AtomicReference<String> tableFields = new AtomicReference<>("");
         entities.getEntityFields().forEach(fields -> {
-            var tempTableField = tableFields.get();
-            String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType());
-            var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
-            tempTableField += fieldTable;
-            tableFields.set(tempTableField);
-
+            if(fields.getRelationShips() == null || !fields.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany")){
+                var tempTableField = tableFields.get();
+                String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType());
+                var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
+                tempTableField += fieldTable;
+                tableFields.set(tempTableField);
+            }
         });
 
         var fields = tableFields.get().substring(0, tableFields.get().length() - 1);
@@ -133,11 +134,11 @@ public class GenerateSQL {
         AtomicReference<String> tablesRelationShips = new AtomicReference<>("");
         var model = loadWxsd("sql_table_relation_ships");
         entities.forEach(entity -> {
-            var fieldRelationShps = entity.getEntityFields().stream().filter(field -> field.getRelationShips() != null);
+            var fieldRelationShps = entity.getEntityFields().stream().filter(field -> field.getRelationShips() != null && field.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany"));
             fieldRelationShps.forEach(fieldRelationShip -> {
                 var tempTableField = tablesRelationShips.get();
                 var modelTable = generateTableRelation(fieldRelationShip, entity, model,entities);
-                tempTableField += modelTable;
+                tempTableField += modelTable.concat("\n");
                 tablesRelationShips.set(tempTableField);
             });
         });
