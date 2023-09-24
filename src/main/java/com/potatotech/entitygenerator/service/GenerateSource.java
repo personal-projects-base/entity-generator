@@ -18,6 +18,7 @@ import static com.potatotech.entitygenerator.service.GenerateDTOConverter.genera
 import static com.potatotech.entitygenerator.service.GenerateEndpoint.generateEndpoint;
 import static com.potatotech.entitygenerator.service.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.GenerateHandler.generateHandlerEntities;
+import static com.potatotech.entitygenerator.service.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.GenerateUtils.generateHandler;
 import static com.potatotech.entitygenerator.service.GenerateRepositories.generateRepositoryes;
 import static com.potatotech.entitygenerator.service.GenerateUtils.generateRestConfig;
@@ -63,6 +64,8 @@ public class GenerateSource extends AbstractMojo {
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);
+
+        generateResources(prop.getEntities(),prop.getEndpoints());
 
     }
 
