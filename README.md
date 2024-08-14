@@ -44,6 +44,7 @@ O objeto entities deve ser configurado da seguinte forma:
       "entityName": "cpf",
       "tableName": "cpf",
       "classExtends" : "document",
+      "generateDefaultHandlers": false,
       "entityFields": [
         {
           "comment": "Identificador único do cpf",
@@ -56,6 +57,15 @@ O objeto entities deve ser configurado da seguinte forma:
           "metadata": {
             "nullable": true,
             "key": true
+          },
+	        "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": true,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
           }
         },
         {
@@ -86,6 +96,7 @@ O objeto entities deve ser configurado da seguinte forma:
 * entityName: nome da entidade
 * tableName: nome da tabela
 * classExtends: se extende de alguma outra classe
+* generateDefaultHandlers: se gera as interfaces de crud padrões
 * entityFields: Objeto que contém os campos da entidade
   * comment: Comentario do campo, este item é obrigatório
   * fieldName: Nome do campo
@@ -97,6 +108,14 @@ O objeto entities deve ser configurado da seguinte forma:
   * metadata: Outras configurações
     * key: se é uma chave primaria
     * nullable: se aceita valor nulo
+  * frontendProperties: configurações do campo para o frontend
+    * label: (string) - Texto da label default (fieldName)
+    * size: (int) tamanho do campo
+    * hidden: (boolean) - Se é pra ser oculto ou não
+    * order: (int) - ordem do campo na tela
+    * guidance: (string) orientação 
+    * reference: não lembro quando criei
+    * enableFieldsFilter: (boolean) - Se é um campo habilitado a filtros
   * relationShips: Configurações de relacionamento
     * fetchType: fetchType do campo: EAGER|LAZY
     * relationShip: relacionamento ex: OneToOne, ManyToOne...
