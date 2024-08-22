@@ -1,6 +1,7 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.java;
 
 import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.common.Common.*;
 
 
 public class GenerateDTO {

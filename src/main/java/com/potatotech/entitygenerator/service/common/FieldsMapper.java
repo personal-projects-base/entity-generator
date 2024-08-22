@@ -1,4 +1,4 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.common;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -6,7 +6,7 @@ import org.apache.maven.plugin.logging.SystemStreamLog;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.potatotech.entitygenerator.service.Common.firstCharacterUpperCase;
+import static com.potatotech.entitygenerator.service.common.Common.firstCharacterUpperCase;
 
 public class FieldsMapper {
 
@@ -14,14 +14,14 @@ public class FieldsMapper {
     private static Map<String,String> typeFieldsDatabase = new LinkedHashMap<>();
     public static Log log = new SystemStreamLog();
 
-    protected static String getFieldTypeEntity(String type){
+    public static String getFieldTypeEntity(String type){
         if(typeFields.isEmpty()){
             setFieldTypesMap();
         }
         return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("Entity"));
     }
 
-    protected static String getFieldTypeDto(String type){
+    public static String getFieldTypeDto(String type){
         if(typeFields.isEmpty()){
             setFieldTypesMap();
         }
@@ -42,7 +42,7 @@ public class FieldsMapper {
     }
 
 
-    protected static String getFieldTypeDb(String type){
+    public static String getFieldTypeDb(String type){
         if(typeFieldsDatabase.isEmpty()){
             setFieldTypesDbMap();
         }

@@ -1,6 +1,7 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.java;
 
 import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,7 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 
-import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.common.Common.*;
 
 public class GenerateRepositories {
 
@@ -33,7 +34,7 @@ public class GenerateRepositories {
         var typeField = fieldTypeIdentity.getFieldProperties().getFieldType();
         var model = mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<importEntities>>",packageName.concat("_gen.*"))
-                .replace("<<identifierType>>",FieldsMapper.getFieldTypeEntity(typeField))
+                .replace("<<identifierType>>", FieldsMapper.getFieldTypeEntity(typeField))
                 .replace("<<packageName>>",packageName.concat("_gen"));
 
         return model;

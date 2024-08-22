@@ -1,4 +1,4 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.common;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Entities;
@@ -18,7 +18,7 @@ public class Common {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int LENGTH = 20;
 
-    protected static String convertInputStreamToString(InputStream inputStream){
+    public static String convertInputStreamToString(InputStream inputStream){
         try{
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuilder stringBuilder = new StringBuilder();
@@ -33,7 +33,7 @@ public class Common {
         }
     }
 
-    protected static Properties loadProperties(){
+    public static Properties loadProperties(){
 
         var path = System.getProperty("user.dir");
         File arquivo = new File(String.format("%s/properties.json", path));
@@ -46,7 +46,7 @@ public class Common {
         return null;
     }
 
-    protected static String loadWxsd(String fileName){
+    public static String loadWxsd(String fileName){
 
         ClassLoader classLoader = Common.class.getClassLoader();
 
@@ -55,21 +55,21 @@ public class Common {
         return convertInputStreamToString(inputStream);
     }
 
-    protected static String loadPath(){
+    public static String loadPath(){
         Path currentPath = Paths.get("");
         return currentPath.toAbsolutePath().toString();
     }
 
-    protected static String stringFormater(String entityName, String entity, String packagePath) {
+    public static String stringFormater(String entityName, String entity, String packagePath) {
         entityName = firstCharacterUpperCase(entityName);
         return String.format("%s/%s%s.java",packagePath,entityName,entity);
     }
 
-    protected static String firstCharacterUpperCase(String fileName){
+    public static String firstCharacterUpperCase(String fileName){
         return fileName.substring(0,1).toUpperCase() + fileName.substring(1);
     }
 
-    protected static String setComments(String comments) {
+    public static String setComments(String comments) {
         return String.format("\n    /**%s**/",comments);
     }
 

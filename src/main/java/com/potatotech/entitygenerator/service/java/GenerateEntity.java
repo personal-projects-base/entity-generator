@@ -1,10 +1,10 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.java;
 
-import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.EntityFields;
+import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,8 +12,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.potatotech.entitygenerator.service.Common.*;
-import static com.potatotech.entitygenerator.service.GenerateSQL.generateSql;
+import static com.potatotech.entitygenerator.service.common.Common.*;
+import static com.potatotech.entitygenerator.service.common.GenerateSQL.generateSql;
 
 
 public class GenerateEntity {

@@ -1,5 +1,6 @@
 {
   "mainPackage": "com.potatotech.entitygenerator",
+  "language": "JAVA",
   "projectName": "entity-generator",
   "entities": [
     {

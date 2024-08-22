@@ -1,6 +1,7 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.java;
 
 import com.potatotech.entitygenerator.model.*;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +10,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.potatotech.entitygenerator.service.Common.*;
+import static com.potatotech.entitygenerator.service.common.Common.*;
 
 
 public class GenerateEndpoint {
@@ -75,7 +76,7 @@ public class GenerateEndpoint {
 
 
     private static void generateInputOutput(List<Parameters> parameters, String className, Path packagePath, String packageName, String type) throws IOException {
-        System.out.println("iniciado o inpout");
+        System.out.println("iniciado o input");
 
         if(validRequestOrResponseData(parameters)){
             return;

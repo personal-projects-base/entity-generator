@@ -1,7 +1,8 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.common;
 
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.EntityFields;
+import com.potatotech.entitygenerator.service.GenerateSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,16 +12,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.potatotech.entitygenerator.service.Common.*;
-import static com.potatotech.entitygenerator.service.Common.generateRandomString;
+import static com.potatotech.entitygenerator.service.common.Common.*;
+import static com.potatotech.entitygenerator.service.common.Common.generateRandomString;
 
 public class GenerateSQL {
 
-    protected static void generateSql(List<Entities> entities){
+    public static void generateSql(List<Entities> entities){
 
         try{
 
-            String fileName = String.format("%s/postgree.sql",GenerateSource.resourcePath);
+            String fileName = String.format("%s/postgree.sql", GenerateSource.resourcePath);
             Common.dropFile(fileName);
             var path = Path.of(fileName);
             var sql = generateSqlData(entities);

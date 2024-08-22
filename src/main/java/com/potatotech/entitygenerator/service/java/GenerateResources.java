@@ -1,10 +1,12 @@
-package com.potatotech.entitygenerator.service;
+package com.potatotech.entitygenerator.service.java;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.enuns.PermissionType;
 import com.potatotech.entitygenerator.model.Endpoints;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.Permissions;
+import com.potatotech.entitygenerator.service.GenerateSource;
+import com.potatotech.entitygenerator.service.common.Common;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +21,7 @@ public class GenerateResources {
 
         try{
 
-            String fileName = String.format("%s/resources.json",GenerateSource.resourcePath);
+            String fileName = String.format("%s/resources.json", GenerateSource.resourcePath);
             Common.dropFile(fileName);
             var path = Path.of(fileName);
             var resources = loadResources(entities, endpoints);
