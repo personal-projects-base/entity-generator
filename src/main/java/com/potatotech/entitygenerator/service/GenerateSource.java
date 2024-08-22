@@ -39,6 +39,9 @@ public class GenerateSource extends AbstractMojo {
         if(prop.getLanguage() == Language.JAVA){
             GenerateJava.generateSource(prop);
         }
+        if(prop.getLanguage() == Language.DOTNET){
+            System.out.println("Aqui será gerado os codigos C#" + loadPath());
+        }
 
     }
 

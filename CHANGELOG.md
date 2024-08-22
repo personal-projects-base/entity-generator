@@ -13,6 +13,10 @@
 ### Atualização de dependencia
 * N/A
 
+## >0.0.16 - 22-08-2024
+### Novas Funcionalidades
+* Adicionado suporte a geração de codigo DotNet
+
 ## >0.0.15 - 23-09-2023
 ### Novas Funcionalidades
 * Criado configuraçção para relacionamento ManyToMany

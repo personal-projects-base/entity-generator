@@ -14,6 +14,15 @@ public class GenerateSourceTest {
         }catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void testSourceDotNet(){
+        GenerateSource gen = new GenerateSource();
+        try {
+            gen.generateSource();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

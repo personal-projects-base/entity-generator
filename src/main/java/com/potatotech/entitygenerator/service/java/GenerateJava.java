@@ -81,8 +81,6 @@ public class GenerateJava {
         }
     }
 
-
-
     private static void dropFiles(Path path){
 
         try{
