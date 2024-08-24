@@ -2,6 +2,7 @@ package com.potatotech.entitygenerator.service;
 
 
 import com.potatotech.entitygenerator.enuns.Language;
+import com.potatotech.entitygenerator.service.common.Common;
 import com.potatotech.entitygenerator.service.java.GenerateJava;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,15 +33,15 @@ public class GenerateSource extends AbstractMojo {
 
     public void generateSource() throws MojoExecutionException {
         getLog().info("Carregando metadata");
-        var prop = loadProperties();
+        Common.properties = loadProperties();
 
-        if(prop.getLanguage() == null){
+        if(Common.properties.getLanguage() == null){
             throw new MojoExecutionException("Language not defined");
         }
-        if(prop.getLanguage() == Language.JAVA){
-            GenerateJava.generateSource(prop);
+        if(Common.properties.getLanguage() == Language.JAVA){
+            GenerateJava.generateSource(Common.properties);
         }
-        if(prop.getLanguage() == Language.DOTNET){
+        if(Common.properties.getLanguage() == Language.DOTNET){
             System.out.println("Aqui será gerado os codigos C#" + loadPath());
         }
 

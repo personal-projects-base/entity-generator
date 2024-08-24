@@ -2,7 +2,6 @@ package com.potatotech.entitygenerator.service.java;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
-import com.potatotech.entitygenerator.service.GenerateSource;
 import com.potatotech.entitygenerator.service.common.Common;
 
 import java.io.IOException;
@@ -17,7 +16,7 @@ import static com.potatotech.entitygenerator.service.java.GenerateEndpoint.gener
 import static com.potatotech.entitygenerator.service.java.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
 import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositoryes;
-import static com.potatotech.entitygenerator.service.java.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateHandler;
 import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateRestConfig;
 

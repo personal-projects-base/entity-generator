@@ -1,6 +1,7 @@
 package com.potatotech.entitygenerator.service.common;
 
 import com.google.gson.Gson;
+import com.potatotech.entitygenerator.enuns.Language;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.Properties;
 
@@ -50,8 +51,15 @@ public class Common {
     public static String loadWxsd(String fileName){
 
         ClassLoader classLoader = Common.class.getClassLoader();
+        InputStream inputStream = null;
+        if(properties.getLanguage() == Language.JAVA)
+            inputStream = classLoader.getResourceAsStream(String.format("xsd/java/%s.mxsd", fileName));
+        if(properties.getLanguage() == Language.DOTNET)
+            inputStream = classLoader.getResourceAsStream(String.format("xsd/dotnet/%s.mxsd", fileName));
 
-        InputStream inputStream = classLoader.getResourceAsStream(String.format("xsd/%s.mxsd", fileName));
+        if(inputStream == null)
+            inputStream = classLoader.getResourceAsStream(String.format("xsd/sql/%s.mxsd", fileName));
+
 
         return convertInputStreamToString(inputStream);
     }
@@ -63,8 +71,13 @@ public class Common {
 
     public static String stringFormaterJava(String entityName, String entity, String packagePath) {
         entityName = firstCharacterUpperCase(entityName);
+        var output = "";
+        if(properties.getLanguage() == Language.JAVA)
+            output = String.format("%s/%s%s.java",packagePath,entityName,entity);
+        if(properties.getLanguage() == Language.DOTNET)
+            output = String.format("%s/%s%s.cs",packagePath,entityName,entity);
 
-        return String.format("%s/%s%s.java",packagePath,entityName,entity);
+        return output;
     }
 
     public static String firstCharacterUpperCase(String fileName){

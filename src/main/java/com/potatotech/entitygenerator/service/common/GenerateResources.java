@@ -1,12 +1,10 @@
-package com.potatotech.entitygenerator.service.java;
+package com.potatotech.entitygenerator.service.common;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.enuns.PermissionType;
 import com.potatotech.entitygenerator.model.Endpoints;
 import com.potatotech.entitygenerator.model.Entities;
 import com.potatotech.entitygenerator.model.Permissions;
-import com.potatotech.entitygenerator.service.GenerateSource;
-import com.potatotech.entitygenerator.service.common.Common;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,7 +15,7 @@ import java.util.List;
 
 public class GenerateResources {
 
-    protected static void generateResources(List<Entities> entities, List<Endpoints> endpoints){
+    public static void generateResources(List<Entities> entities, List<Endpoints> endpoints){
 
         try{
 
