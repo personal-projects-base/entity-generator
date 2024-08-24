@@ -21,7 +21,7 @@ public class GenerateSQL {
 
         try{
 
-            String fileName = String.format("%s/postgree.sql", GenerateSource.resourcePath);
+            String fileName = String.format("%s/postgree.sql", Common.resourcePath);
             Common.dropFile(fileName);
             var path = Path.of(fileName);
             var sql = generateSqlData(entities);

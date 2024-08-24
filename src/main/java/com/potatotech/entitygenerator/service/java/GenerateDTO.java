@@ -21,7 +21,7 @@ public class GenerateDTO {
         String mod = loadWxsd("dto");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getEntityName(),"DTO", packagePath.toString());
+                String fileName = stringFormaterJava(item.getEntityName(),"DTO", packagePath.toString());
                 var path = Path.of(fileName);
                 var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);

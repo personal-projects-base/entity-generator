@@ -14,7 +14,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Common {
 
-
+    public static Path resourcePath = null;
+    public static Properties properties = null;
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int LENGTH = 20;
 
@@ -60,8 +61,9 @@ public class Common {
         return currentPath.toAbsolutePath().toString();
     }
 
-    public static String stringFormater(String entityName, String entity, String packagePath) {
+    public static String stringFormaterJava(String entityName, String entity, String packagePath) {
         entityName = firstCharacterUpperCase(entityName);
+
         return String.format("%s/%s%s.java",packagePath,entityName,entity);
     }
 

@@ -16,7 +16,7 @@ public class GenerateUtils {
         generateEspecificationFilter(packageName, packagePath);
         String mod = loadWxsd("handlerbase");
         try{
-            String fileName = stringFormater("HandlerBase","", packagePath.toString());
+            String fileName = stringFormaterJava("HandlerBase","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -30,7 +30,7 @@ public class GenerateUtils {
         generateRequestData( packageName, packagePath);
         String mod = loadWxsd("restconfig");
         try{
-            String fileName = stringFormater("RestConfig","", packagePath.toString());
+            String fileName = stringFormaterJava("RestConfig","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -43,7 +43,7 @@ public class GenerateUtils {
 
         String mod = loadWxsd("requestdata");
         try{
-            String fileName = stringFormater("RequestData","", packagePath.toString());
+            String fileName = stringFormaterJava("RequestData","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -56,7 +56,7 @@ public class GenerateUtils {
 
         String mod = loadWxsd("responsedata");
         try{
-            String fileName = stringFormater("ResponseData","", packagePath.toString());
+            String fileName = stringFormaterJava("ResponseData","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
@@ -69,7 +69,7 @@ public class GenerateUtils {
 
         String mod = loadWxsd("especificationfilter");
         try{
-            String fileName = stringFormater("SpecificationFilter","", packagePath.toString());
+            String fileName = stringFormaterJava("SpecificationFilter","", packagePath.toString());
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName);
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);

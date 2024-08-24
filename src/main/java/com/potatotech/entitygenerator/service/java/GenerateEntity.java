@@ -23,7 +23,7 @@ public class GenerateEntity {
         String mod = loadWxsd("entity");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getEntityName(),"Entity", packagePath.toString());
+                String fileName = stringFormaterJava(item.getEntityName(),"Entity", packagePath.toString());
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getEntityName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);

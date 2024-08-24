@@ -59,7 +59,7 @@ public class GenerateJava {
         String pack = packageName.replace(".","/");
 
         packagePath = Paths.get(String.format("%s/src/main/java/%s_gen",path,pack));
-        GenerateSource.resourcePath = Paths.get(String.format("%s/src/main/resources",path));
+        Common.resourcePath = Paths.get(String.format("%s/src/main/resources",path));
         try {
             dropFiles(packagePath);
             Files.deleteIfExists(packagePath);
@@ -71,7 +71,7 @@ public class GenerateJava {
 
     private static void generateMetadata(Properties prop) {
         try{
-            String fileName = String.format("%s/properties.json",GenerateSource.resourcePath.toString());
+            String fileName = String.format("%s/properties.json",Common.resourcePath.toString());
             Common.dropFile(fileName);
             var path = Path.of(fileName);
             var entity = new Gson().toJson(prop);

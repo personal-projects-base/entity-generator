@@ -21,7 +21,7 @@ public class GenerateResources {
 
         try{
 
-            String fileName = String.format("%s/resources.json", GenerateSource.resourcePath);
+            String fileName = String.format("%s/resources.json", Common.resourcePath);
             Common.dropFile(fileName);
             var path = Path.of(fileName);
             var resources = loadResources(entities, endpoints);

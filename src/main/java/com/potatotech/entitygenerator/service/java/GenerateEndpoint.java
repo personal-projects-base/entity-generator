@@ -20,7 +20,7 @@ public class GenerateEndpoint {
         String mod = loadWxsd("endpoint");
         endpoints.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getMethodName(),"", packagePath.toString());
+                String fileName = stringFormaterJava(item.getMethodName(),"", packagePath.toString());
                 generateInputOutput(item.getMetadata().getInput(),item.getMethodName(),packagePath, packageName, "Input");
                 generateInputOutput(item.getMetadata().getOutput(),item.getMethodName(),packagePath, packageName,"Output");
                 var path = Path.of(fileName);
@@ -87,7 +87,7 @@ public class GenerateEndpoint {
         }
         strFields = loadModel(type,packageName,className, strFields);
 
-        String fileName = stringFormater(className,type, packagePath.toString());
+        String fileName = stringFormaterJava(className,type, packagePath.toString());
         var path = Path.of(fileName);
         Files.write(path, strFields.getBytes(), StandardOpenOption.CREATE);
 

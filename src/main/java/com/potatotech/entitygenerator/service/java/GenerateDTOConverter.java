@@ -24,7 +24,7 @@ public class GenerateDTOConverter {
         String mod = loadWxsd("dtoconverter");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormater(item.getEntityName(),"DTOConverter", packagePath.toString());
+                String fileName = stringFormaterJava(item.getEntityName(),"DTOConverter", packagePath.toString());
                 var path = Path.of(fileName);
                 var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
                 dependencies.clear();
