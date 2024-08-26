@@ -44,8 +44,6 @@ public class GenerateEntity {
     }
 
 
-
-
     private static String getFields(Entities entity) {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {

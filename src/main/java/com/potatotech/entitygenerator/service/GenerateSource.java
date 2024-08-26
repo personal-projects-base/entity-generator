@@ -3,6 +3,7 @@ package com.potatotech.entitygenerator.service;
 
 import com.potatotech.entitygenerator.enuns.Language;
 import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.dotNet.GenerateDotNet;
 import com.potatotech.entitygenerator.service.java.GenerateJava;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -42,7 +43,7 @@ public class GenerateSource extends AbstractMojo {
             GenerateJava.generateSource(Common.properties);
         }
         if(Common.properties.getLanguage() == Language.DOTNET){
-            System.out.println("Aqui será gerado os codigos C#" + loadPath());
+            GenerateDotNet.generateSource(Common.properties);
         }
 
     }

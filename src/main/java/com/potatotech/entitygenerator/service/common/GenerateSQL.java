@@ -20,7 +20,6 @@ public class GenerateSQL {
     public static void generateSql(List<Entities> entities){
 
         try{
-
             String fileName = String.format("%s/postgree.sql", Common.resourcePath);
             Common.dropFile(fileName);
             var path = Path.of(fileName);

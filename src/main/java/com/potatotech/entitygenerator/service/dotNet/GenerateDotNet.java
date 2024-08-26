@@ -10,6 +10,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static com.potatotech.entitygenerator.service.common.Common.loadPath;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
+
 
 public class GenerateDotNet {
 
@@ -19,6 +21,8 @@ public class GenerateDotNet {
         // Limpa os arquivos gerados anteriomente
         dropAndCreateDir(prop.getMainPackage());
 
+        // gera a classe das entidaeds
+        generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath);
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);
