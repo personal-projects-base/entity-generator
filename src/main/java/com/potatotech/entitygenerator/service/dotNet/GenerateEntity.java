@@ -54,7 +54,7 @@ public class GenerateEntity {
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("private %s %s { get; set; };\n    ",fieldType,item.getFieldName());
+            String field = String.format("private %s %s { get; set; }\n    ",fieldType,item.getFieldName());
             tempField += comments.concat(anotations).concat("\n    ").concat(field);
             fields.set(tempField);
         });

@@ -43,7 +43,7 @@ public class Common {
             InputStream inputStream = new FileInputStream(arquivo);
             return new Gson().fromJson(convertInputStreamToString(inputStream), Properties.class);
         }catch (IOException ex){
-            FieldsMapper.log.info(ex);
+            FieldsMapper.logger.info(ex);
         }
         return null;
     }
@@ -162,7 +162,7 @@ public class Common {
                 }
             }
         } catch (Exception ex){
-            System.out.println("failure delete file " +file);
+            System.err.println("failure delete file " +file);
         }
     }
 }

@@ -3,6 +3,7 @@ package com.potatotech.entitygenerator.service.dotNet;
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
 import java.io.IOException;
 import java.nio.file.*;

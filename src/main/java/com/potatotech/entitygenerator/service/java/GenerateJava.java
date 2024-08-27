@@ -3,6 +3,9 @@ package com.potatotech.entitygenerator.service.java;
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -21,6 +24,8 @@ import static com.potatotech.entitygenerator.service.java.GenerateUtils.generate
 import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateRestConfig;
 
 public class GenerateJava {
+
+    public static Logger logger = LogManager.getLogger(GenerateJava.class);
 
     private static Path packagePath = null;
 
