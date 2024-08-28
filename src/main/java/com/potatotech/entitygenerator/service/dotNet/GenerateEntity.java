@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.common.Common.*;
-import static com.potatotech.entitygenerator.service.common.Common.firstCharacterUpperCase;
+import static com.potatotech.entitygenerator.service.common.GenerateCommon.configureFileEntity;
 import static com.potatotech.entitygenerator.service.common.GenerateSQL.generateSql;
 
 public class GenerateEntity {
@@ -25,7 +25,7 @@ public class GenerateEntity {
             try{
                 String fileName = stringFormaterJava(item.getEntityName(),"Entity", packagePath.toString());
                 var path = Path.of(fileName);
-                var entity = configureFileEntity(mod,packageName,item,item.getEntityName());
+                var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),getFields(item));
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
             }catch (IOException ex){
                 ex.printStackTrace();
@@ -34,15 +34,7 @@ public class GenerateEntity {
         generateSql(entities);
     }
 
-    private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
 
-        String fields = getFields(entity);
-        return mod.replace("<<tableName>>",getTableName(entity))
-                .replace("<<entityName>>",firstCharacterUpperCase(fileName))
-                .replace("<<projetcName>>",packageName)
-                .replace("<<nameSpaceName>>",packageName.concat("_Gen"))
-                .replace("<<entityFields>>",fields);
-    }
 
     private static String getFields(Entities entity) {
         AtomicReference<String> fields = new AtomicReference<>("");
@@ -69,22 +61,22 @@ public class GenerateEntity {
         var metadata = "";
         if(field.getMetadata() != null && field.getRelationShips() == null){
             if(field.getMetadata().isKey()) {
-                metadata += "\n       [Key]";
+                metadata += "\n        [Key]";
                 if(field.getFieldProperties().getFieldType().equals("uuid"))
-                    metadata += "\n       [DatabaseGenerated(DatabaseGeneratedOption.Identity)]";
+                    metadata += "\n        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]";
             }
             if(!field.getMetadata().isNullable()){
-                metadata += "\n       [Required]";
-                metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+                metadata += "\n        [Required]";
+                metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             } else {
-                metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+                metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
         }else {
-            metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
         }
 
         if(field.getRelationShips() != null) {
-            metadata += "\n       [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
+            metadata += "\n        [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
         }
         return metadata;
     }

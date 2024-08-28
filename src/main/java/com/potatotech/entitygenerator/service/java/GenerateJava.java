@@ -21,8 +21,6 @@ import static com.potatotech.entitygenerator.service.java.GenerateEntity.generat
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
 import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositoryes;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
-import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateHandler;
-import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateRestConfig;
 
 public class GenerateJava {
 
@@ -41,11 +39,13 @@ public class GenerateJava {
         // Gera as classes DTO
         generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o HandlerBase
-        generateHandler(prop.getMainPackage(),packagePath);
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "handlerbase", "HandlerBase");
         // Gera Handlers de crud
         generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o RestConfig
-        generateRestConfig(prop.getMainPackage(),packagePath);
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "restconfig", "RestConfig");
+        // Gera especificação dos filtros
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
         generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
 

@@ -190,7 +190,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version>0.0.17-SNAPSHOT</version>
+    <version>0.0.18-SNAPSHOT</version>
     <app.version>0.0.4</app.version>
   </properties>
 </project>

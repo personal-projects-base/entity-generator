@@ -85,7 +85,13 @@ public class Common {
     }
 
     public static String setComments(String comments) {
-        return String.format("\n    /**%s**/",comments);
+        var output = "";
+        if(properties.getLanguage() == Language.JAVA)
+            output = String.format("\n    /**%s**/",comments);
+        if(properties.getLanguage() == Language.DOTNET)
+            output = String.format("\n        /**%s**/",comments);
+
+        return output;
     }
 
 

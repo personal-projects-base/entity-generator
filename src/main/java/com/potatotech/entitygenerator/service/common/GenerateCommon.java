@@ -1,6 +1,7 @@
 package com.potatotech.entitygenerator.service.common;
 
 import com.potatotech.entitygenerator.enuns.Language;
+import com.potatotech.entitygenerator.model.Entities;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,7 +20,7 @@ public class GenerateCommon {
         try{
             String fileName = stringFormaterJava(entityName,"", packagePath.toString());
             var path = Path.of(fileName);
-            var entity = configureFileEntity(mod,packageName);
+            var entity = configureFileEntity(mod,packageName, null,"","");
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
         }catch (IOException ex){
             ex.printStackTrace();
@@ -27,27 +28,25 @@ public class GenerateCommon {
     }
 
 
-    public static void generateResponseData(String packageName, Path packagePath){
+    public static String configureFileEntity(String mod, String packageName, Entities entity, String fileName, String fields){
 
-        String mod = loadWxsd("responsedata");
-        try{
-            String fileName = stringFormaterJava("ResponseData","", packagePath.toString());
-            var path = Path.of(fileName);
-            var entity = configureFileEntity(mod,packageName);
-            Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
-        }catch (IOException ex){
-            ex.printStackTrace();
+        var tableName = (entity == null ? "" : getTableName(entity));
+        var entityName = (fileName.equals("")  ? "" : firstCharacterUpperCase(fileName));
+
+         var ret = mod.replace("<<entityName>>",entityName)
+                    .replace("<<entityFields>>",fields)
+                    .replace("<<tableName>>",tableName)
+                    .replace("<<projetcName>>",packageName);
+
+
+        if(properties.getLanguage() == Language.JAVA){
+            ret = ret.replace("<<packageName>>",packageName.concat("_gen"));
         }
-    }
-
-    public static String configureFileEntity(String mod, String packageName){
-        if(properties.getLanguage() == Language.JAVA)
-            return mod.replace("<<packageName>>",packageName.concat("_gen"));
         else if(properties.getLanguage() == Language.DOTNET){
-            return mod.replace("<<projetcName>>",packageName)
-                    .replace("<<nameSpaceName>>",packageName.concat("_Gen"));
+            ret = ret.replace("<<nameSpaceName>>",packageName.concat("_Gen"));
         }
-        return null;
+
+        return ret;
     }
 
 }
