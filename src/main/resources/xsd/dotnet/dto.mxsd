@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
-    public class <<entityName>>Entity
+    public class <<entityName>>DTO
     {
-
         <<entityFields>>
     }
+
 }
 
 

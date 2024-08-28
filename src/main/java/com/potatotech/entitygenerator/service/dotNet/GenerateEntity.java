@@ -49,77 +49,44 @@ public class GenerateEntity {
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
             String comments = Common.setComments(item.getComment());
-            String anotations = setMetadata(item, entity).concat(setRelationsShip(item));
+            String anotations = setMetadata(item, entity);
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
+            if(fieldType.contains("Entity")){
+                fieldType = "virtual ".concat(fieldType);
+            }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("private %s %s { get; set; }\n    ",fieldType,item.getFieldName());
+            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,item.getFieldName());
             tempField += comments.concat(anotations).concat("\n    ").concat(field);
             fields.set(tempField);
         });
         return fields.get();
     }
 
-    private static String setRelationsShip(EntityFields entity) {
-
-        var metadata = "";
-        if(entity.getRelationShips() != null){
-            metadata += String.format("\n    @%s(fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entity.getRelationShips().getFetchType());
-        }
-
-        return metadata;
-    }
 
     private static String setMetadata(EntityFields field, Entities entity) {
         var metadata = "";
         if(field.getMetadata() != null && field.getRelationShips() == null){
-            if(field.getMetadata().isKey()){
-                metadata += "\n    [Key]";
+            if(field.getMetadata().isKey()) {
+                metadata += "\n       [Key]";
                 if(field.getFieldProperties().getFieldType().equals("uuid"))
-                    metadata += "\n    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]";
+                    metadata += "\n       [DatabaseGenerated(DatabaseGeneratedOption.Identity)]";
             }
             if(!field.getMetadata().isNullable()){
-                metadata += "\n    [Required]";
-                metadata += "\n    [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+                metadata += "\n       [Required]";
+                metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             } else {
-                metadata += "\n    [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+                metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
         }else {
-            metadata += "\n    [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            metadata += "\n       [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
         }
 
-//        if(field.getRelationShips() != null){
-//            if(field.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany")){
-//                var joinTable = setJointTable(field, entity);
-//                metadata += "\n    ".concat(joinTable);
-//            }else {
-//                metadata += "\n    @JoinColumn(name = \""+splitByUppercase(field.getFieldName())+"\")";
-//            }
-//
-//        }
+        if(field.getRelationShips() != null) {
+            metadata += "\n       [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
+        }
         return metadata;
-    }
-
-
-    private static String setJointTable(EntityFields field, Entities entity){
-
-        var joinTable = "";
-
-        var name = splitByUppercase(entity.getEntityName()).concat("_")
-                .concat(splitByUppercase(field.getFieldProperties()
-                        .getFieldType()));
-
-        var joinColumn = splitByUppercase(entity.getEntityName()).concat("_id");
-        var inverseJoinColumn = splitByUppercase(field.getFieldProperties().getFieldType()).concat("_id");
-
-        var model = loadWxsd("jointable");
-
-        joinTable = model.replace("<<unionTableName>>",name)
-                .replace("<<joinColumn>>",joinColumn)
-                .replace("<<inverseJoinColumn>>", inverseJoinColumn);
-
-        return joinTable.trim();
     }
 
 }

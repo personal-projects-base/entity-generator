@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
 import com.potatotech.entitygenerator.service.common.FieldsMapper;
+import com.potatotech.entitygenerator.service.common.GenerateCommon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -50,6 +51,10 @@ public class GenerateJava {
 
         // gera os repositories
         generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        // Gera requestData e outputData
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);

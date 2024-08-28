@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
 import com.potatotech.entitygenerator.service.common.FieldsMapper;
+import com.potatotech.entitygenerator.service.common.GenerateCommon;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -11,6 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static com.potatotech.entitygenerator.service.common.Common.loadPath;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
 
 
@@ -24,6 +26,13 @@ public class GenerateDotNet {
 
         // gera a classe das entidaeds
         generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        // gera as classes de DTO
+        generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        // Gera requestData e outputData
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);
