@@ -11,6 +11,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static com.potatotech.entitygenerator.service.common.Common.loadPath;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateContext.generateDbContext;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
@@ -37,6 +38,11 @@ public class GenerateDotNet {
         // Gera IBaseRepository
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "ibaserepository", "IBaseRepository");
 
+        // Gera DynamicSchemaModelCacheKeyFactory
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "dynamicreplaceschemafactory", "DynamicSchemaModelCacheKeyFactory");
+
+        //Generate dbContext
+        generateDbContext(prop.getEntities(),prop.getMainPackage(),packagePath);
         // gera os repositories
         generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
