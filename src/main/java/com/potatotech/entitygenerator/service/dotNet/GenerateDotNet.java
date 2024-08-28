@@ -3,7 +3,6 @@ package com.potatotech.entitygenerator.service.dotNet;
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
-import com.potatotech.entitygenerator.service.common.FieldsMapper;
 import com.potatotech.entitygenerator.service.common.GenerateCommon;
 
 import java.io.IOException;
@@ -14,6 +13,7 @@ import static com.potatotech.entitygenerator.service.common.Common.loadPath;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
 
 
 public class GenerateDotNet {
@@ -33,6 +33,12 @@ public class GenerateDotNet {
         // Gera requestData e outputData
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
+
+        // Gera IBaseRepository
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "ibaserepository", "IBaseRepository");
+
+        // gera os repositories
+        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);

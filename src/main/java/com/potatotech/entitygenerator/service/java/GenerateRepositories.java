@@ -13,7 +13,7 @@ import static com.potatotech.entitygenerator.service.common.Common.*;
 
 public class GenerateRepositories {
 
-    protected static void generateRepositoryes(List<Entities> entities, String packageName, Path packagePath){
+    protected static void generateRepositories(List<Entities> entities, String packageName, Path packagePath){
 
         String mod = loadWxsd("repository");
         entities.forEach(item -> {

@@ -3,7 +3,6 @@ package com.potatotech.entitygenerator.service.java;
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
 import com.potatotech.entitygenerator.service.common.Common;
-import com.potatotech.entitygenerator.service.common.FieldsMapper;
 import com.potatotech.entitygenerator.service.common.GenerateCommon;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,8 +18,8 @@ import static com.potatotech.entitygenerator.service.java.GenerateDTOConverter.g
 import static com.potatotech.entitygenerator.service.java.GenerateEndpoint.generateEndpoint;
 import static com.potatotech.entitygenerator.service.java.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
-import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositoryes;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositories;
 
 public class GenerateJava {
 
@@ -50,7 +49,7 @@ public class GenerateJava {
         generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
 
         // gera os repositories
-        generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
         // Gera requestData e outputData
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
