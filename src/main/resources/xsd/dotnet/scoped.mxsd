@@ -1,0 +1,13 @@
+
+namespace <<projetcName>>.<<nameSpaceName>>
+{
+    public class AddScoped
+    {
+        public static void AddScopedGenerate(WebApplicationBuilder builder)
+        {
+            <<scoped>>
+        }
+    }
+
+}
+

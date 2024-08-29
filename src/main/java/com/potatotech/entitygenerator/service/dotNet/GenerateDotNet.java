@@ -12,6 +12,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import static com.potatotech.entitygenerator.service.common.Common.loadPath;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateContext.generateDbContext;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateContext.generateScoped;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
@@ -43,6 +44,9 @@ public class GenerateDotNet {
 
         //Generate dbContext
         generateDbContext(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        //Gera o scoped
+        generateScoped(prop.getEntities(),prop.getMainPackage(),packagePath);
         // gera os repositories
         generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
