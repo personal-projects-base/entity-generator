@@ -80,6 +80,19 @@
             "required": false,
             "valueDefault": ""
           }
+        },
+        {
+          "comment": "State",
+          "fieldName": "state",
+          "fieldProperties": {
+            "fieldType": "state",
+            "required": false,
+            "valueDefault": ""
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne"
+          }
         }
       ]
     },
@@ -120,10 +133,10 @@
           }
         },
         {
-          "comment": "Cidade",
-          "fieldName": "city",
+          "comment": "Pais",
+          "fieldName": "country",
           "fieldProperties": {
-            "fieldType": "city",
+            "fieldType": "country",
             "required": false,
             "valueDefault": ""
           },

@@ -43,8 +43,12 @@ public class GenerateEntity {
             String comments = Common.setComments(item.getComment());
             String anotations = setMetadata(item, entity);
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
+            var fieldIdentity = "";
             if(fieldType.contains("Entity")){
+                // aqui coloca a logica
                 fieldType = "virtual ".concat(fieldType);
+                fieldIdentity = loadRelationship(item, entity);
+
             }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
@@ -54,6 +58,17 @@ public class GenerateEntity {
             fields.set(tempField);
         });
         return fields.get();
+    }
+
+    private static String loadRelationship(EntityFields field, Entities entity) {
+
+        var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(field.getFieldName())).findFirst().get();
+
+        var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
+
+        var joinColumn = splitByUppercase(entity.getEntityName()).concat("_id");
+        var inverseJoinColumn = splitByUppercase(field.getFieldProperties().getFieldType()).concat("_id");
+        return "";
     }
 
 
