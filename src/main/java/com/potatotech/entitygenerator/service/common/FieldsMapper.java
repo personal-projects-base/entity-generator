@@ -2,6 +2,7 @@ package com.potatotech.entitygenerator.service.common;
 
 
 
+import com.potatotech.entitygenerator.enuns.Language;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.potatotech.entitygenerator.service.common.Common.firstCharacterUpperCase;
+import static com.potatotech.entitygenerator.service.common.Common.properties;
 
 public class FieldsMapper {
 
@@ -31,11 +33,22 @@ public class FieldsMapper {
     }
 
     private static void setFieldTypesMap(){
-        typeFields.put("uuid","UUID");
-        typeFields.put("password","String");
-        typeFields.put("string","String");
-        typeFields.put("datetime","LocalDateTime");
-        typeFields.put("date","LocalDate");
+        if(properties.getLanguage() == Language.JAVA){
+            typeFields.put("uuid","UUID");
+            typeFields.put("string","String");
+            typeFields.put("password","String");
+            typeFields.put("datetime","LocalDateTime");
+            typeFields.put("date","LocalDate");
+        }
+        else if(properties.getLanguage() == Language.DOTNET){
+
+            typeFields.put("uuid","Guid");
+            typeFields.put("string","string");
+            typeFields.put("password","string");
+            typeFields.put("datetime","DateTime");
+            typeFields.put("date","DateTime");
+        }
+
         typeFields.put("int","int");
         typeFields.put("integer","int");
         typeFields.put("long","Long");

@@ -45,16 +45,14 @@ public class GenerateEntity {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             var fieldIdentity = "";
             if(fieldType.contains("Entity")){
-                // aqui coloca a logica
                 fieldType = "virtual ".concat(fieldType);
                 fieldIdentity = loadRelationship(item, entity);
-
             }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,item.getFieldName());
-            tempField += comments.concat(anotations).concat("\n    ").concat(field);
+            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,firstCharacterUpperCase(item.getFieldName()));
+            tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
             fields.set(tempField);
         });
         return fields.get();
@@ -65,10 +63,10 @@ public class GenerateEntity {
         var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(field.getFieldName())).findFirst().get();
 
         var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
+        var fieldType = FieldsMapper.getFieldTypeEntity(loadFieldKey.getFieldProperties().getFieldType());
+        var fieldName = entity.getEntityName().concat("Id");
 
-        var joinColumn = splitByUppercase(entity.getEntityName()).concat("_id");
-        var inverseJoinColumn = splitByUppercase(field.getFieldProperties().getFieldType()).concat("_id");
-        return "";
+        return String.format("    \n        public %s %s { get; set; }\n    ", fieldType, firstCharacterUpperCase(fieldName));
     }
 
 

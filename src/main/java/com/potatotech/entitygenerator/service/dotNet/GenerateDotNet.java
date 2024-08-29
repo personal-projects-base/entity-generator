@@ -50,6 +50,9 @@ public class GenerateDotNet {
         // gera os repositories
         generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
+        //Gera os DTOConverter
+        GenerateDTOConverter.generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
+
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);
 
