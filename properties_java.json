@@ -1,5 +1,5 @@
 {
-  "mainPackage": "EntityGenerator",
+  "mainPackage": "com.potatotech.entitygenerator",
   "language": "DOTNET",
   "projectName": "entity-generator",
   "entities": [
@@ -12,7 +12,7 @@
           "comment": "Identificador único do cpf",
           "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "int",
+            "fieldType": "uuid",
             "required": true,
             "valueDefault": ""
           },

@@ -3,6 +3,7 @@ package com.potatotech.entitygenerator;
 import com.potatotech.entitygenerator.enuns.Language;
 
 import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.dotNet.GenerateDotNet;
 import com.potatotech.entitygenerator.service.java.GenerateJava;
 
 
@@ -23,7 +24,7 @@ public class Main {
         }
         if(Common.properties.getLanguage() == Language.DOTNET){
             loadPath();
-            System.out.println("Aqui será gerado os codigos C#" + loadPath());
+            GenerateDotNet.generateSource(Common.properties);
         }
     }
 }

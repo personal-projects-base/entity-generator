@@ -12,6 +12,7 @@ Deve ser criado um arquivo com nome properties.json na raiz do projeto
 
 após criar o arquivo deve ser inserido as seguintes propriedades:
 
+##### Java
 
     "mainPackage": "com.potatotech.entitygenerator",  
     "projectName": "entity-generator",
@@ -20,6 +21,17 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
     "enums": [],
     "events": [],
     "listeners": []
+
+##### DotNet
+
+    "mainPackage": "EntityGenerator",  
+    "projectName": "EntityGenerator",
+    "entities": [],
+    "endpoints": [],
+    "enums": [],
+    "events": [],
+    "listeners": []
+
 
 * mainPackage: Nome completo do pacote do projeto
 * projectName: Nome do projeto
@@ -168,3 +180,6 @@ abaixo um exemplo da sintaxe:
 
 
 ### Listeners
+
+### OBS:
+  * Para geração correta dos arquivos estaticos para DotNet deve possuir a pasta "static"

@@ -1,0 +1,41 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+namespace <<projetcName>>.<<nameSpaceName>>
+{
+    public abstract class CustomDbContext : DbContext
+    {
+        public string Schema = "public";
+
+        public static readonly AsyncLocal<string> _asyncThread = new();
+
+        public CustomDbContext(){}
+
+        public CustomDbContext(DbContextOptions options) : base(options)
+        {
+
+        }
+
+        public CustomDbContext(DbContextOptions options, String _schema = "") : base(options)
+        {
+            Schema = _schema;
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.HasDefaultSchema($"{_asyncThread.Value}");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured) {}
+            optionsBuilder.ReplaceService<IModelCacheKeyFactory, DynamicSchemaModelCacheKeyFactory>();
+        }
+
+        <<dbSet>>
+    }
+
+}
+

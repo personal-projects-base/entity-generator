@@ -2,8 +2,10 @@ package com.potatotech.entitygenerator.service.java;
 
 import com.google.gson.Gson;
 import com.potatotech.entitygenerator.model.Properties;
-import com.potatotech.entitygenerator.service.GenerateSource;
 import com.potatotech.entitygenerator.service.common.Common;
+import com.potatotech.entitygenerator.service.common.GenerateCommon;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,12 +18,12 @@ import static com.potatotech.entitygenerator.service.java.GenerateDTOConverter.g
 import static com.potatotech.entitygenerator.service.java.GenerateEndpoint.generateEndpoint;
 import static com.potatotech.entitygenerator.service.java.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
-import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositoryes;
-import static com.potatotech.entitygenerator.service.java.GenerateResources.generateResources;
-import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateHandler;
-import static com.potatotech.entitygenerator.service.java.GenerateUtils.generateRestConfig;
+import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
+import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositories;
 
 public class GenerateJava {
+
+    public static Logger logger = LogManager.getLogger(GenerateJava.class);
 
     private static Path packagePath = null;
 
@@ -36,16 +38,22 @@ public class GenerateJava {
         // Gera as classes DTO
         generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o HandlerBase
-        generateHandler(prop.getMainPackage(),packagePath);
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "handlerbase", "HandlerBase");
         // Gera Handlers de crud
         generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o RestConfig
-        generateRestConfig(prop.getMainPackage(),packagePath);
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "restconfig", "RestConfig");
+        // Gera especificação dos filtros
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
         generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
 
         // gera os repositories
-        generateRepositoryes(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        // Gera requestData e outputData
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
 
         // faz uma copia da properties.json para a pasta static
         generateMetadata(prop);
