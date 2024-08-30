@@ -4,12 +4,11 @@
   "projectName": "entity-generator",
   "entities": [
     {
-      "entityName": "cpf",
-      "tableName": "cpf",
-      "classExtends" : "document",
+      "entityName": "pessoa",
+      "tableName": "pessoa",
       "entityFields": [
         {
-          "comment": "Identificador único do cpf",
+          "comment": "Identificador único da pessoa",
           "fieldName": "id",
           "fieldProperties": {
             "fieldType": "int",
@@ -22,24 +21,66 @@
           }
         },
         {
-          "comment": "Numero do CPF",
-          "fieldName": "number",
+          "comment": "Nome Pessoa",
+          "fieldName": "name",
           "fieldProperties": {
             "fieldType": "string",
-            "required": false,
+            "required": true,
             "valueDefault": ""
           }
         },
         {
-          "comment": "Cidade",
-          "fieldName": "city",
+          "comment": "Pessoas Juridicas",
+          "fieldName": "pessoaJuridica",
           "fieldProperties": {
-            "fieldType": "city",
+            "fieldType": "pessoaJuridica",
             "required": false,
             "valueDefault": ""
           },
           "relationShips": {
-            "fetchType": "EAGER",
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "bidirectional": true
+          }
+        }
+      ]
+    },
+    {
+      "entityName": "pessoaJuridica",
+      "tableName": "pessoaJuridica",
+      "entityFields": [
+        {
+          "comment": "Identificador único da pessoa juridica",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": true
+          }
+        },
+        {
+          "comment": "CNPJ da pessoa Juridica",
+          "fieldName": "cnpj",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Referencia de Pessoas",
+          "fieldName": "pessoa",
+          "fieldProperties": {
+            "fieldType": "pessoa",
+            "required": false,
+            "valueDefault": ""
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
             "relationShip": "OneToOne"
           }
         }

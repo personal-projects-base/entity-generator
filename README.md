@@ -99,7 +99,8 @@ O objeto entities deve ser configurado da seguinte forma:
           },
           "relationShips": {
             "fetchType": "EAGER",
-            "relationShip": "OneToOne"
+            "relationShip": "OneToOne",
+            "bidirectional": false
           }
         }
       ]
@@ -129,8 +130,9 @@ O objeto entities deve ser configurado da seguinte forma:
     * reference: não lembro quando criei
     * enableFieldsFilter: (boolean) - Se é um campo habilitado a filtros
   * relationShips: Configurações de relacionamento
-    * fetchType: fetchType do campo: EAGER|LAZY
-    * relationShip: relacionamento ex: OneToOne, ManyToOne...
+    * fetchType: (string) fetchType do campo: EAGER|LAZY
+    * relationShip: (string) relacionamento ex: OneToOne, ManyToOne...
+    * bidirectional: (boolean) se é uma classe que terá um relacionamento bidirecional
 
 ### Endpoints
 
