@@ -46,7 +46,9 @@ public class GenerateEntity {
             var fieldIdentity = "";
             if(fieldType.contains("Entity")){
                 fieldType = "virtual ".concat(fieldType);
-                fieldIdentity = loadRelationship(item, entity);
+                if(!item.getRelationShips().isBidirectional()){
+                    fieldIdentity = loadRelationship(item, entity);
+                }
             }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
@@ -85,10 +87,13 @@ public class GenerateEntity {
                 metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
         }else {
-            metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()){
+                metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            }
+
         }
 
-        if(field.getRelationShips() != null) {
+        if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()) {
             metadata += "\n        [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
         }
         return metadata;
