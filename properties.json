@@ -89,7 +89,7 @@
     {
       "entityName": "city",
       "tableName": "city",
-      "classExtends" : "document",
+      "classExtends" : "custom",
       "entityFields": [
         {
           "comment": "Identificador único da cidade",
@@ -140,7 +140,7 @@
     {
       "entityName": "state",
       "tableName": "state",
-      "classExtends" : "document",
+      "classExtends" : "custom",
       "entityFields": [
         {
           "comment": "Identificador único do estado",
@@ -191,7 +191,7 @@
     {
       "entityName": "country",
       "tableName": "country",
-      "classExtends" : "document",
+      "classExtends" : "custom",
       "entityFields": [
         {
           "comment": "Identificador único do estado",
@@ -257,9 +257,7 @@
       "anonymous": true
     }
   ],
-  "enums": [
-
-  ],
+  "enums": [],
   "events": [],
   "listeners": []
 }
