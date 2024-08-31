@@ -22,6 +22,7 @@ public class GenerateCommon {
             var path = Path.of(fileName);
             var entity = configureFileEntity(mod,packageName, null,"","");
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+            System.out.println("@GenerateData");
         }catch (IOException ex){
             ex.printStackTrace();
         }
@@ -38,6 +39,7 @@ public class GenerateCommon {
                     .replace("<<entityFields>>",fields)
                     .replace("<<entity>>",entityLowerName)
                     .replace("<<tableName>>",tableName)
+                    .replace("<<tableNameSplit>>",splitByUppercase(tableName))
                     .replace("<<projetcName>>",packageName);
 
 

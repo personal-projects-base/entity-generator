@@ -29,6 +29,7 @@ public class GenerateDTOConverter {
                 var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
                 dependencies.clear();
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }
@@ -71,7 +72,7 @@ public class GenerateDTOConverter {
                     field = String.format("\n               %s",fieldFk);
                 }
 
-                field += String.format("\n               entity.%s = %sDTOConverter.ToEntity(dto.%s);",firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(fieldType),item.getFieldName());
+                field += String.format("\n               entity.%s = %sDTOConverter.ToEntity(dto.%s);",firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()),item.getFieldName());
 
             }
 
@@ -94,7 +95,7 @@ public class GenerateDTOConverter {
             else{
                 addDependencies(fieldType);
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
-                field = String.format("\n               dto.%s = %sDTOConverter.ToDTO(entity.%s);",item.getFieldName(),firstCharacterUpperCase(fieldType),firstCharacterUpperCase(item.getFieldName()));
+                field = String.format("\n               dto.%s = %sDTOConverter.ToDTO(entity.%s);",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()));
             }
 
             tempField += field;

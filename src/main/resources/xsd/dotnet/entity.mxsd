@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
+    [Table("<<tableNameSplit>>")]
     public class <<entityName>>Entity
     {
 

@@ -22,6 +22,7 @@ public class GenerateRepository {
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),"");
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }
@@ -37,6 +38,7 @@ public class GenerateRepository {
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),"");
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }
