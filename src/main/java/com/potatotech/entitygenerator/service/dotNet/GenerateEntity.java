@@ -66,7 +66,7 @@ public class GenerateEntity {
 
         var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
         var fieldType = FieldsMapper.getFieldTypeEntity(loadFieldKey.getFieldProperties().getFieldType());
-        var fieldName = entity.getEntityName().concat("Id");
+        var fieldName = firstCharacterUpperCase(field.getFieldName().concat("Id"));
 
         return String.format("    \n        public %s %s { get; set; }\n    ", fieldType, firstCharacterUpperCase(fieldName));
     }

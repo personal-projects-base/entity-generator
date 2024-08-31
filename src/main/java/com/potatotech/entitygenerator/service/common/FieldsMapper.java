@@ -39,17 +39,19 @@ public class FieldsMapper {
             typeFields.put("password","String");
             typeFields.put("datetime","LocalDateTime");
             typeFields.put("date","LocalDate");
+            typeFields.put("int","int");
         }
         else if(properties.getLanguage() == Language.DOTNET){
 
-            typeFields.put("uuid","Guid");
+            typeFields.put("uuid","Guid?");
             typeFields.put("string","string");
             typeFields.put("password","string");
             typeFields.put("datetime","DateTime");
             typeFields.put("date","DateTime");
+            typeFields.put("int","int?");
         }
 
-        typeFields.put("int","int");
+
         typeFields.put("integer","int");
         typeFields.put("long","Long");
         typeFields.put("decimal","Double");
