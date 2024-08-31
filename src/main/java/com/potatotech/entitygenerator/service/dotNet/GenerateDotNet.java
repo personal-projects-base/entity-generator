@@ -15,6 +15,7 @@ import static com.potatotech.entitygenerator.service.dotNet.GenerateContext.gene
 import static com.potatotech.entitygenerator.service.dotNet.GenerateContext.generateScoped;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generateDTO;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateIRepositories;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
 
 
@@ -48,6 +49,7 @@ public class GenerateDotNet {
         //Gera o scoped
         generateScoped(prop.getEntities(),prop.getMainPackage(),packagePath);
         // gera os repositories
+        generateIRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
         generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
 
         //Gera os DTOConverter

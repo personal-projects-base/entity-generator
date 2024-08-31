@@ -60,13 +60,17 @@ public class GenerateDTOConverter {
                 field = String.format("\n               entity.%s = dto.%s;",firstCharacterUpperCase(item.getFieldName()),item.getFieldName());
             }
             else{
+
                 var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(item.getFieldName())).findFirst().get();
                 var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
                 var fieldName = firstCharacterUpperCase(item.getFieldName()).concat("Id");
                 var fieldFk = String.format("entity.%s = dto.%s != null ? dto.%s.%s : null;",firstCharacterUpperCase(fieldName),item.getFieldName(),item.getFieldName(),loadFieldKey.getFieldName());
 
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
-                field = String.format("\n               %s",fieldFk);
+                if(!item.getRelationShips().isBidirectional()){
+                    field = String.format("\n               %s",fieldFk);
+                }
+
                 field += String.format("\n               entity.%s = %sDtoConverter.ToEntity(dto.%s);",firstCharacterUpperCase(item.getFieldName()),fieldType,item.getFieldName());
 
             }

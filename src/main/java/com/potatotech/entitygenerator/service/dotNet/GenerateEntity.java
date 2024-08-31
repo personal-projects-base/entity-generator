@@ -87,14 +87,14 @@ public class GenerateEntity {
                 metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
         }else {
-            if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()){
+            if(field.getRelationShips() == null || !field.getRelationShips().isBidirectional()){
                 metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
 
         }
 
         if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()) {
-            metadata += "\n        [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
+            metadata += "\n        [ForeignKey(name:\""+firstCharacterUpperCase(field.getFieldName())+"\")]";
         }
         return metadata;
     }

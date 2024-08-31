@@ -33,7 +33,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
         public List<<<entityName>>Entity> ToEntity(List<<<entityName>>DTO> obj)
         {
             var list = new List<<<entityName>>Entity>();
-            obj.ForEach(dto -> {
+            obj.ForEach(dto => {
                 var entity = ToEntity(dto);
                 list.Add(entity);
             });
@@ -43,7 +43,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
         public List<<<entityName>>DTO> ToDTO(List<<<entityName>>Entity> obj)
         {
             var list = new List<<<entityName>>DTO>();
-            obj.ForEach(entity -> {
+            obj.ForEach(entity => {
                 var dto = ToDTO(entity);
                 list.Add(dto);
             });
