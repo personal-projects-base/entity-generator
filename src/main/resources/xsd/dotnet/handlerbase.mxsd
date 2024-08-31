@@ -1,0 +1,30 @@
+using Microsoft.AspNetCore.Mvc;
+
+namespace <<projetcName>>.<<nameSpaceName>>
+{
+    [Serializable]
+    [ApiController]
+    [Route("entities/<<entity>>")]
+    public abstract class <<entityName>>Handler : ControllerBase
+    {
+        public readonly I<<entityName>>Repository _<<entity>>Repository;
+
+        public <<entityName>>Handler(I<<entityName>>Repository <<entity>>Repository)
+        {
+            _<<entity>>Repository = <<entity>>Repository;
+        }
+
+        [HttpGet]
+        public abstract ActionResult<List<<<entityName>>DTO>> <<entityName>>();
+
+        [HttpPost]
+        public abstract ActionResult<<<entityName>>DTO> <<entityName>>([FromBody] <<entityName>>DTO input);
+
+        [HttpPut("{id}")]
+        public abstract ActionResult<<<entityName>>DTO> <<entityName>>(int id, [FromBody] <<entityName>>DTO input);
+
+        [HttpDelete("{id}")]
+        public abstract ActionResult<<<entityName>>DTO> <<entityName>>(int id);
+    }
+}
+
