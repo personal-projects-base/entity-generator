@@ -9,8 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static com.potatotech.entitygenerator.service.common.Common.firstCharacterUpperCase;
-import static com.potatotech.entitygenerator.service.common.Common.properties;
+import static com.potatotech.entitygenerator.service.common.Common.*;
 
 public class FieldsMapper {
 
@@ -60,10 +59,23 @@ public class FieldsMapper {
 
 
     public static String getFieldTypeDb(String type){
+        var output = "";
         if(typeFieldsDatabase.isEmpty()){
             setFieldTypesDbMap();
         }
-        return typeFieldsDatabase.getOrDefault(type,"uuid");
+
+        var typePk = properties.getEntities().stream().filter(entity -> entity.getEntityName().equals(type)).findFirst().orElse(null);
+        if(typePk != null){
+            var field = typePk.getEntityFields().stream().filter(item -> item.getMetadata().isKey()).findFirst().orElse(null);
+            if(field != null){
+                output = typeFieldsDatabase.getOrDefault(type,typeFieldsDatabase.getOrDefault(field.getFieldProperties().getFieldType(),""));
+            }
+
+        }else {
+            output = typeFieldsDatabase.getOrDefault(type,"uuid");
+        }
+
+        return output;
     }
 
     private static void setFieldTypesDbMap(){

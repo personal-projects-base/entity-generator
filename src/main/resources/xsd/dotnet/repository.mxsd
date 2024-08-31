@@ -1,12 +1,13 @@
+using <<projetcName>>.Config.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
     public class <<entityName>>Repository : I<<entityName>>Repository
     {
-        public CustomDbContext _context;
+        public ApiDbContext _context;
 
-        public <<entityName>>Repository(CustomDbContext context)
+        public <<entityName>>Repository(ApiDbContext context)
         {
             _context = context;
         }

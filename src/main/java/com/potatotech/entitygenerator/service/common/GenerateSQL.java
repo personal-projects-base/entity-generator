@@ -75,7 +75,7 @@ public class GenerateSQL {
         var fields = tableFields.get().substring(0, tableFields.get().length() - 1);
 
         return tableModel.replace("<<fields>>",fields)
-                .replace("<<tableName>>",getTableName(entities));
+                .replace("<<tableName>>",splitByUppercase(getTableName(entities)));
     }
 
     private static String generatePk(String pkModel, Entities entities){
