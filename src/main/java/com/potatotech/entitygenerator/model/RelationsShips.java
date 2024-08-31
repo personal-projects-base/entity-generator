@@ -7,4 +7,5 @@ public class RelationsShips {
 
     private String fetchType;
     private String relationShip;
+    private boolean bidirectional = false;
 }

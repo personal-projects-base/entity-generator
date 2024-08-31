@@ -84,6 +84,10 @@ public class Common {
         return fileName.substring(0,1).toUpperCase() + fileName.substring(1);
     }
 
+    public static String firstCharacterLowerCase(String fileName){
+        return fileName.substring(0,1).toLowerCase() + fileName.substring(1);
+    }
+
     public static String setComments(String comments) {
         var output = "";
         if(properties.getLanguage() == Language.JAVA)

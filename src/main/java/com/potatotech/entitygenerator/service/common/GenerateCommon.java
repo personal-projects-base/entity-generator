@@ -32,9 +32,11 @@ public class GenerateCommon {
 
         var tableName = (entity == null ? "" : getTableName(entity));
         var entityName = (fileName.equals("")  ? "" : firstCharacterUpperCase(fileName));
+        var entityLowerName = (fileName.equals("")  ? "" : firstCharacterLowerCase(fileName));
 
          var ret = mod.replace("<<entityName>>",entityName)
                     .replace("<<entityFields>>",fields)
+                    .replace("<<entity>>",entityLowerName)
                     .replace("<<tableName>>",tableName)
                     .replace("<<projetcName>>",packageName);
 

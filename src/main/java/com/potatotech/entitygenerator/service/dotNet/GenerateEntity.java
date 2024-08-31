@@ -43,17 +43,32 @@ public class GenerateEntity {
             String comments = Common.setComments(item.getComment());
             String anotations = setMetadata(item, entity);
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
+            var fieldIdentity = "";
             if(fieldType.contains("Entity")){
                 fieldType = "virtual ".concat(fieldType);
+                if(!item.getRelationShips().isBidirectional()){
+                    fieldIdentity = loadRelationship(item, entity);
+                }
             }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,item.getFieldName());
-            tempField += comments.concat(anotations).concat("\n    ").concat(field);
+            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,firstCharacterUpperCase(item.getFieldName()));
+            tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
             fields.set(tempField);
         });
         return fields.get();
+    }
+
+    private static String loadRelationship(EntityFields field, Entities entity) {
+
+        var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(field.getFieldName())).findFirst().get();
+
+        var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
+        var fieldType = FieldsMapper.getFieldTypeEntity(loadFieldKey.getFieldProperties().getFieldType());
+        var fieldName = firstCharacterUpperCase(field.getFieldName().concat("Id"));
+
+        return String.format("    \n        public %s %s { get; set; }\n    ", fieldType, firstCharacterUpperCase(fieldName));
     }
 
 
@@ -72,11 +87,14 @@ public class GenerateEntity {
                 metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
             }
         }else {
-            metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            if(field.getRelationShips() == null || !field.getRelationShips().isBidirectional()){
+                metadata += "\n        [Column(name:\""+splitByUppercase(field.getFieldName())+"\")]";
+            }
+
         }
 
-        if(field.getRelationShips() != null) {
-            metadata += "\n        [ForeignKey(name = \""+splitByUppercase(field.getFieldName())+"\")]";
+        if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()) {
+            metadata += "\n        [ForeignKey(name:\""+firstCharacterUpperCase(field.getFieldName())+"\")]";
         }
         return metadata;
     }

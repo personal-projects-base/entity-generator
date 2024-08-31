@@ -1,0 +1,39 @@
+using Microsoft.AspNetCore.Mvc;
+
+namespace <<projetcName>>.<<nameSpaceName>>
+{
+    public class <<entityName>>HandlerImpl : <<entityName>>Handler
+    {
+
+        <<entityName>>DTOConverter _dtoConverter = new();
+        public <<entityName>>HandlerImpl(I<<entityName>>Repository <<entity>>Repository) : base(<<entity>>Repository)
+        {
+        }
+
+        public override ActionResult<List<<<entityName>>DTO>> <<entityName>>()
+        {
+            var obj = _<<entity>>Repository.GetAll();
+            return Ok(_dtoConverter.ToDTO(obj));
+        }
+
+        public override ActionResult<<<entityName>>DTO> <<entityName>>(<<entityName>>DTO input)
+        {
+            var dto = _dtoConverter.ToEntity(input);
+            var output = _<<entity>>Repository.Add(dto);
+            return _dtoConverter.ToDTO(output);
+        }
+
+        public override ActionResult<<<entityName>>DTO> <<entityName>>(int id, <<entityName>>DTO input)
+        {
+            var dto = _dtoConverter.ToEntity(input);
+            var output = _<<entity>>Repository.Update(id, dto);
+            return Ok(_dtoConverter.ToDTO(output));
+        }
+
+        public override ActionResult<<<entityName>>DTO> <<entityName>>(int id)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+

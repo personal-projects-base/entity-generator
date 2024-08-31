@@ -66,16 +66,18 @@ public class GenerateSQL {
             if(fields.getRelationShips() == null || !fields.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany")){
                 var tempTableField = tableFields.get();
                 String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType());
-                var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
-                tempTableField += fieldTable;
-                tableFields.set(tempTableField);
+                if(fields.getRelationShips() == null || !fields.getRelationShips().isBidirectional()){
+                    var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
+                    tempTableField += fieldTable;
+                    tableFields.set(tempTableField);
+                }
             }
         });
 
         var fields = tableFields.get().substring(0, tableFields.get().length() - 1);
 
         return tableModel.replace("<<fields>>",fields)
-                .replace("<<tableName>>",getTableName(entities));
+                .replace("<<tableName>>",splitByUppercase(getTableName(entities)));
     }
 
     private static String generatePk(String pkModel, Entities entities){
@@ -92,7 +94,7 @@ public class GenerateSQL {
 
         return pkModel.replace("<<fieldKey>>",pkFields.get())
                 .replace("<<idPk>>","ok_".concat(generateRandomString()))
-                .replace("<<tableName>>",getTableName(entities));
+                .replace("<<tableName>>",splitByUppercase(getTableName(entities)));
     }
 
     private static String generateFk(List<Entities> entities){
@@ -103,7 +105,7 @@ public class GenerateSQL {
         AtomicReference<String> fkFields = new AtomicReference<>("");
         entities.forEach(item -> {
             item.getEntityFields().forEach(field -> {
-                if(field.getRelationShips() != null){
+                if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()){
 
                     var entity = entityReference.stream().filter(obj -> obj.getEntityName().equals(field.getFieldProperties().getFieldType())).findFirst();
 
@@ -112,9 +114,9 @@ public class GenerateSQL {
                         fieldReference = entity.get().getEntityFields().stream().filter(obj -> obj.getMetadata().isKey()).findFirst();
                     }
 
-                    var tempFk = fkModel.replace("<<tableName>> ",getTableName(item))
+                    var tempFk = fkModel.replace("<<tableName>> ",splitByUppercase(getTableName(item)))
                             .replace("<<field>>",splitByUppercase(field.getFieldName()))
-                            .replace("<<tableReference>>", getTableName(getEntity(entities, field.getFieldProperties().getFieldType())))
+                            .replace("<<tableReference>>", splitByUppercase(getTableName(getEntity(entities, field.getFieldProperties().getFieldType()))))
                             .replace("<<fieldReference>>",splitByUppercase(fieldReference.get().getFieldName()))
                             .replace("<<idFk>> ","fk_".concat(generateRandomString()));
                     fkFields.set(fkFields.get().concat(tempFk));
