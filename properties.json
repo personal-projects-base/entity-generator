@@ -223,19 +223,52 @@
             "required": false,
             "valueDefault": ""
           }
-        },
+        }
+      ]
+    },
+    {
+      "entityName": "carros",
+      "tableName": "carros",
+      "classExtends" : "custom",
+      "entityFields": [
         {
-          "comment": "estado",
-          "fieldName": "state",
-          "list": true,
+          "comment": "Identificador único do Carro",
+          "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "state",
-            "required": false,
+            "fieldType": "uuid",
+            "required": true,
             "valueDefault": ""
           },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToMany"
+          "metadata": {
+            "nullable": true,
+            "key": true
+          }
+        },
+        {
+          "comment": "Marca",
+          "fieldName": "marca",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Modelo",
+          "fieldName": "modelo",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Placa",
+          "fieldName": "placa",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
           }
         }
       ]

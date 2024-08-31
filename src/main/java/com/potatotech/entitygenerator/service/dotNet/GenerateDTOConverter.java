@@ -94,8 +94,15 @@ public class GenerateDTOConverter {
             }
             else{
                 addDependencies(fieldType);
-                fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
-                field = String.format("\n               dto.%s = %sDTOConverter.ToDTO(entity.%s);",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()));
+
+                var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(item.getFieldName())).findFirst().get();
+                var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getFieldProperties().getFieldType().equals(entity.getEntityName())).findFirst().orElse(null);
+                // passando raiva com essa merda
+                if(loadFieldKey == null || loadFieldKey.getRelationShips() == null && (!loadFieldKey.getRelationShips().isBidirectional())){
+                    field = String.format("\n               dto.%s = %sDTOConverter.ToDTO(entity.%s);",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()));
+                } else if (item.getRelationShips() != null && item.getRelationShips().isBidirectional()) {
+                    field = String.format("\n               dto.%s = %sDTOConverter.ToDTO(entity.%s);",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()));
+                }
             }
 
             tempField += field;
