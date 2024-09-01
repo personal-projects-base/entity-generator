@@ -32,6 +32,15 @@ namespace <<projetcName>>.<<nameSpaceName>>
             var output = new ResponseData();
             IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
 
+            if (!input.displayFields.Equals(""))
+            {
+                var displays = input.displayFields.Split(";").ToList();
+                displays.ForEach(e =>
+                {
+                    query = query.Include(e);
+                });
+            }
+
             var totalRegistry = query.Count();
             var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
 
