@@ -1,18 +1,19 @@
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
+    [Serializable]
     public class RequestData
     {
 
-        public int size;
+        public int size { get; set; } =  10;
 
-        public int offset;
+        public int offset { get; set; } = 1;
 
-        public String filter;
+        public String filter { get; set; }  = "";
 
-        public String order;
+        public String order { get; set; }  = "";
 
-        public String displayFields;
+        public String displayFields { get; set; }  = "";
     }
 
 }

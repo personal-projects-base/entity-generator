@@ -1,16 +1,17 @@
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
+    [Serializable]
     public class ResponseData
     {
 
-        public int size;
+        public int size { get; set; }
 
-        public int offset;
+        public int offset { get; set; }
 
-        public int total;
+        public int total { get; set; }
 
-        public Object contents;
+        public Object contents { get; set; }
 
     }
 }

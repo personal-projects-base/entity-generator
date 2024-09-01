@@ -27,10 +27,22 @@ namespace <<projetcName>>.<<nameSpaceName>>
         }
 
 
-        public virtual List<<<entityName>>Entity> GetAll()
+        public virtual ResponseData GetAll(RequestData input)
         {
-            string order = "name";
-            return _context.<<entityName>>Context.Skip((1-1) * 10).Take(10).ToList();
+            var output = new ResponseData();
+            IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
+
+            var totalRegistry = query.Count();
+            var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
+
+            var itens = query.OrderBy(p => p.Id).Skip((1-input.offset) * 10).Take(10).ToList();
+
+            output.total = totalRegistry;
+            output.offset = input.offset;
+            output.size = totalPages;
+            output.contents = <<entityName>>DTOConverter.ToDTO(itens);
+
+            return output;
         }
 
         public virtual <<entityName>>Entity FindById(int id)

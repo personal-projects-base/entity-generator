@@ -10,29 +10,30 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
         }
 
-        public override ActionResult<List<<<entityName>>DTO>> <<entityName>>()
+        public override ActionResult<ResponseData> GetAll(RequestData input)
         {
-            var obj = _<<entity>>Repository.GetAll();
-            return Ok(<<entityName>>DTOConverter.ToDTO(obj));
+            var obj = _<<entity>>Repository.GetAll(input);
+            return Ok(obj);
         }
 
-        public override ActionResult<<<entityName>>DTO> <<entityName>>(<<entityName>>DTO input)
+        public override ActionResult<<<entityName>>DTO> Save(<<entityName>>DTO input)
         {
             var dto = <<entityName>>DTOConverter.ToEntity(input);
             var output = _<<entity>>Repository.Add(dto);
             return <<entityName>>DTOConverter.ToDTO(output);
         }
 
-        public override ActionResult<<<entityName>>DTO> <<entityName>>(int id, <<entityName>>DTO input)
+        public override ActionResult<<<entityName>>DTO> Update(int id, <<entityName>>DTO input)
         {
             var dto = <<entityName>>DTOConverter.ToEntity(input);
             var output = _<<entity>>Repository.Update(id, dto);
             return Ok(<<entityName>>DTOConverter.ToDTO(output));
         }
 
-        public override ActionResult<<<entityName>>DTO> <<entityName>>(int id)
+        public override ActionResult<<<entityName>>DTO> Delete(int id)
         {
-            throw new NotImplementedException();
+            _<<entity>>Repository.Delete(id);
+            return Ok("deleted");
         }
     }
 }
