@@ -52,6 +52,7 @@ public class GenerateDTOConverter {
 
 
     private static String getFieldsEntity(Entities entity) {
+
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();

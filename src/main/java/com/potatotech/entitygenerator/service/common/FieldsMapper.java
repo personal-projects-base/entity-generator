@@ -39,6 +39,7 @@ public class FieldsMapper {
             typeFields.put("datetime","LocalDateTime");
             typeFields.put("date","LocalDate");
             typeFields.put("int","int");
+            typeFields.put("boolean","boolean");
         }
         else if(properties.getLanguage() == Language.DOTNET){
 
@@ -48,10 +49,12 @@ public class FieldsMapper {
             typeFields.put("datetime","DateTime");
             typeFields.put("date","DateTime");
             typeFields.put("int","int?");
+            typeFields.put("boolean","bool");
         }
 
 
         typeFields.put("integer","int");
+
         typeFields.put("long","Long");
         typeFields.put("decimal","Double");
         typeFields.put("double","Double");
