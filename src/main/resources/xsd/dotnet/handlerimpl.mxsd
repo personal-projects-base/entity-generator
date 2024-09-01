@@ -16,6 +16,12 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return Ok(obj);
         }
 
+        public override ActionResult<<<entityName>>DTO> Get(int id)
+        {
+            var obj = _<<entity>>Repository.FindById(id);
+            return <<entityName>>DTOConverter.ToDTO(obj);
+        }
+
         public override ActionResult<<<entityName>>DTO> Save(<<entityName>>DTO input)
         {
             var dto = <<entityName>>DTOConverter.ToEntity(input);
