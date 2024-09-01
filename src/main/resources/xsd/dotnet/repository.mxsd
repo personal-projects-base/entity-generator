@@ -44,7 +44,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
             var totalRegistry = query.Count();
             var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
 
-            var itens = query.OrderBy(p => p.Id).Skip((1-input.offset) * 10).Take(10).ToList();
+            var itens = query.OrderBy(p => p.Id).Skip((1-input.offset) * input.size).Take(input.size).ToList();
 
             output.total = totalRegistry;
             output.offset = input.offset;
@@ -77,8 +77,8 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
             try
             {
-                _context.Attach(obj);
-                _context.Entry(obj).State = EntityState.Modified;
+                _context.ChangeTracker.AutoDetectChangesEnabled = true;
+                _context.Update(obj);
                 _context.SaveChanges();
                 return obj;
             }

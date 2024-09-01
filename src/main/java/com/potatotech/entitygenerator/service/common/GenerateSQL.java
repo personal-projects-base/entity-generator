@@ -65,7 +65,7 @@ public class GenerateSQL {
         entities.getEntityFields().forEach(fields -> {
             if(fields.getRelationShips() == null || !fields.getRelationShips().getRelationShip().equalsIgnoreCase("ManyToMany")){
                 var tempTableField = tableFields.get();
-                String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType());
+                String fieldTypeEntity = FieldsMapper.getFieldTypeDb(fields.getFieldProperties().getFieldType(),fields);
                 if(fields.getRelationShips() == null || !fields.getRelationShips().isBidirectional()){
                     var fieldTable = String.format("\n  %s %s,",splitByUppercase(fields.getFieldName()),fieldTypeEntity);
                     tempTableField += fieldTable;

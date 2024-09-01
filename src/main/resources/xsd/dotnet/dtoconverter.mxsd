@@ -12,22 +12,25 @@ namespace <<projetcName>>.<<nameSpaceName>>
         public static <<entityName>>Entity ToEntity(<<entityName>>DTO dto)
         {
 
-            var entity = new <<entityName>>Entity();
+
             if(dto != null) {
+                var entity = new <<entityName>>Entity();
                 <<simpleFieldsEntity>>
+                return entity;
             }
-            return entity;
+            return null;
         }
 
         public static <<entityName>>DTO ToDTO(<<entityName>>Entity entity)
         {
 
-            var dto = new <<entityName>>DTO();
-            if(entity != null){
-                <<simpleFieldsDTO>>
-            }
 
-            return dto;
+            if(entity != null){
+                var dto = new <<entityName>>DTO();
+                <<simpleFieldsDTO>>
+                return dto;
+            }
+            return null;
         }
 
         public static List<<<entityName>>Entity> ToEntity(List<<<entityName>>DTO> obj)
