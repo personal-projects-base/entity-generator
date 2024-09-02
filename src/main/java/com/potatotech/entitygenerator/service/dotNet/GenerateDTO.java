@@ -24,6 +24,7 @@ public class GenerateDTO {
                 var path = Path.of(fileName);
                 var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }

@@ -27,15 +27,46 @@ namespace <<projetcName>>.<<nameSpaceName>>
         }
 
 
-        public virtual List<<<entityName>>Entity> GetAll()
+        public virtual ResponseData GetAll(RequestData input)
         {
-            string order = "name";
-            return _context.<<entityName>>Context.Skip((1-1) * 10).Take(10).ToList();
+            var output = new ResponseData();
+            IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
+
+            if (!input.displayFields.Equals(""))
+            {
+                var displays = input.displayFields.Split(";").ToList();
+                displays.ForEach(e =>
+                {
+                    query = query.Include(e);
+                });
+            }
+
+            var totalRegistry = query.Count();
+            var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
+
+            var itens = query.OrderBy(p => p.Id).Skip((1-input.offset) * input.size).Take(input.size).ToList();
+
+            output.total = totalRegistry;
+            output.offset = input.offset;
+            output.size = totalPages;
+            output.contents = <<entityName>>DTOConverter.ToDTO(itens);
+
+            return output;
         }
 
-        public virtual <<entityName>>Entity FindById(int id)
+        public virtual <<entityName>>Entity FindById(int id, string displayFields = "")
         {
-            return _context.Set<<<entityName>>Entity>().Find(id);
+            IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
+            if (displayFields != null && !displayFields.Equals(""))
+            {
+                var displays = displayFields.Split(";").ToList();
+                displays.ForEach(e =>
+                {
+                    query = query.Include(e);
+                });
+            }
+
+            return query.SingleOrDefault(p => p.Id == id);
         }
 
         public virtual void Delete(int id)
@@ -56,8 +87,8 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
             try
             {
-                _context.Attach(obj);
-                _context.Entry(obj).State = EntityState.Modified;
+                _context.ChangeTracker.AutoDetectChangesEnabled = true;
+                _context.Update(obj);
                 _context.SaveChanges();
                 return obj;
             }

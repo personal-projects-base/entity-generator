@@ -4,8 +4,8 @@ namespace <<projetcName>>.<<nameSpaceName>>
     public interface IBaseRepository<TEntity> where TEntity : class
     {
         TEntity Add(TEntity obj);
-        TEntity FindById(int id);
-        List<TEntity> GetAll();
+        TEntity FindById(int id, string displayFields);
+        ResponseData GetAll(RequestData input);
         TEntity Update(int id, TEntity obj);
         void Delete(int id);
     }

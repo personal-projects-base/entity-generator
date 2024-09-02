@@ -3,6 +3,7 @@ package com.potatotech.entitygenerator.service.common;
 
 
 import com.potatotech.entitygenerator.enuns.Language;
+import com.potatotech.entitygenerator.model.EntityFields;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +40,7 @@ public class FieldsMapper {
             typeFields.put("datetime","LocalDateTime");
             typeFields.put("date","LocalDate");
             typeFields.put("int","int");
+            typeFields.put("boolean","boolean");
         }
         else if(properties.getLanguage() == Language.DOTNET){
 
@@ -48,17 +50,19 @@ public class FieldsMapper {
             typeFields.put("datetime","DateTime");
             typeFields.put("date","DateTime");
             typeFields.put("int","int?");
+            typeFields.put("boolean","bool");
         }
 
 
         typeFields.put("integer","int");
+
         typeFields.put("long","Long");
         typeFields.put("decimal","Double");
         typeFields.put("double","Double");
     }
 
 
-    public static String getFieldTypeDb(String type){
+    public static String getFieldTypeDb(String type, EntityFields fields){
         var output = "";
         if(typeFieldsDatabase.isEmpty()){
             setFieldTypesDbMap();
@@ -75,12 +79,18 @@ public class FieldsMapper {
             output = typeFieldsDatabase.getOrDefault(type,"uuid");
         }
 
+        // configuração especial para postgres, será alterado quando implementado geração pra sql server
+        if(output.equals("integer") && (fields.getMetadata() != null && fields.getMetadata().isKey())){
+            output = "serial";
+        }
+
         return output;
     }
 
     private static void setFieldTypesDbMap(){
 
         typeFieldsDatabase.put("uuid","uuid");
+        typeFieldsDatabase.put("boolean","boolean");
         typeFieldsDatabase.put("password","varchar");
         typeFieldsDatabase.put("string","varchar");
         typeFieldsDatabase.put("datetime","timestamp");

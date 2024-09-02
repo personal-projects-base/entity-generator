@@ -27,6 +27,7 @@ public class GenerateEntity {
                 var path = Path.of(fileName);
                 var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),getFields(item));
                 Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }
@@ -77,7 +78,7 @@ public class GenerateEntity {
         if(field.getMetadata() != null && field.getRelationShips() == null){
             if(field.getMetadata().isKey()) {
                 metadata += "\n        [Key]";
-                if(field.getFieldProperties().getFieldType().equals("uuid"))
+                //if(field.getFieldProperties().getFieldType().equals("uuid"))
                     metadata += "\n        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]";
             }
             if(!field.getMetadata().isNullable()){

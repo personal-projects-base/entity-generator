@@ -100,6 +100,8 @@ public class Common {
 
 
     public static String splitByUppercase(String input) {
+        if(input.equals(""))
+            return "";
         List<String> words = new ArrayList<>();
 
         StringBuilder currentWord = new StringBuilder();

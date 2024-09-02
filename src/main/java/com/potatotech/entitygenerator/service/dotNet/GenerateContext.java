@@ -30,6 +30,7 @@ public class GenerateContext {
             var entity = mod.replace("<<dbSet>>", entityAtomic.get());
             entity = configureFileEntity(entity,packageName,null,"","");
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+            System.out.println("@GenerateData");
         }catch (IOException ex){
             ex.printStackTrace();
         }
@@ -51,6 +52,7 @@ public class GenerateContext {
             var entity = mod.replace("<<scoped>>", entityAtomic.get());
             entity = configureFileEntity(entity,packageName,null,"","");
             Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+            System.out.println("@GenerateData");
         }catch (IOException ex){
             ex.printStackTrace();
         }

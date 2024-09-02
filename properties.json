@@ -223,19 +223,52 @@
             "required": false,
             "valueDefault": ""
           }
-        },
+        }
+      ]
+    },
+    {
+      "entityName": "fiscal",
+      "tableName": "fiscal",
+      "classExtends" : "custom",
+      "entityFields": [
         {
-          "comment": "estado",
-          "fieldName": "state",
-          "list": true,
+          "comment": "Identificador único da pessoa juridica",
+          "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "state",
-            "required": false,
+            "fieldType": "int",
+            "required": true,
             "valueDefault": ""
           },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToMany"
+          "metadata": {
+            "nullable": true,
+            "key": true
+          }
+        },
+        {
+          "comment": "Empresa Optante pelo simples Nacional",
+          "fieldName": "optanteSimples",
+          "fieldProperties": {
+            "fieldType": "boolean",
+            "required": false,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Modelidade da tributação",
+          "fieldName": "modTributacao",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Código Regime Tributário",
+          "fieldName": "codRegimeTributario",
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
           }
         }
       ]
