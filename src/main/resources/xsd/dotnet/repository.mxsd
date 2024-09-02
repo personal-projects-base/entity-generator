@@ -54,9 +54,19 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return output;
         }
 
-        public virtual <<entityName>>Entity FindById(int id)
+        public virtual <<entityName>>Entity FindById(int id, string displayFields = "")
         {
-            return _context.Set<<<entityName>>Entity>().Find(id);
+            IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
+            if (displayFields != null && !displayFields.Equals(""))
+            {
+                var displays = displayFields.Split(";").ToList();
+                displays.ForEach(e =>
+                {
+                    query = query.Include(e);
+                });
+            }
+
+            return query.SingleOrDefault(p => p.Id == id);
         }
 
         public virtual void Delete(int id)

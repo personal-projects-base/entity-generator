@@ -16,9 +16,9 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return Ok(obj);
         }
 
-        public override ActionResult<<<entityName>>DTO> Get(int id)
+        public override ActionResult<<<entityName>>DTO> Get(int id, string displayFields)
         {
-            var obj = _<<entity>>Repository.FindById(id);
+            var obj = _<<entity>>Repository.FindById(id, displayFields);
             return <<entityName>>DTOConverter.ToDTO(obj);
         }
 
