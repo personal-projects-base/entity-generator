@@ -35,22 +35,28 @@ namespace <<projetcName>>.<<nameSpaceName>>
 
         public static List<<<entityName>>Entity> ToEntity(List<<<entityName>>DTO> obj)
         {
-            var list = new List<<<entityName>>Entity>();
-            obj.ForEach(dto => {
-                var entity = ToEntity(dto);
-                list.Add(entity);
-            });
-            return list;
+            if(obj != null){
+                var list = new List<<<entityName>>Entity>();
+                obj.ForEach(dto => {
+                    var entity = ToEntity(dto);
+                    list.Add(entity);
+                });
+                return list;
+            }
+            return null;
         }
 
         public static List<<<entityName>>DTO> ToDTO(List<<<entityName>>Entity> obj)
         {
-            var list = new List<<<entityName>>DTO>();
-            obj.ForEach(entity => {
-                var dto = ToDTO(entity);
-                list.Add(dto);
-            });
-            return list;
+            if(obj != null){
+                var list = new List<<<entityName>>DTO>();
+                obj.ForEach(entity => {
+                    var dto = ToDTO(entity);
+                    list.Add(dto);
+                });
+                return list;
+            }
+            return null;
         }
     }
 }
