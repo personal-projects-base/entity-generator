@@ -16,7 +16,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
             try
             {
-                _context.Set<<<entityName>>Entity>().Add(obj);
+                _context.Set<<<entityName>>Entity>().Attach(obj);
                 _context.SaveChanges();
                 return obj;
             }
