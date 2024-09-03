@@ -42,6 +42,21 @@
             "relationShip": "OneToOne",
             "bidirectional": true
           }
+        },
+        {
+          "comment": "Pessoas Telefone",
+          "fieldName": "pessoaTelefone",
+          "list": true,
+          "fieldProperties": {
+            "fieldType": "pessoaTelefone",
+            "required": false,
+            "valueDefault": ""
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "bidirectional": true
+          }
         }
       ]
     },
@@ -269,6 +284,48 @@
             "fieldType": "int",
             "required": false,
             "valueDefault": ""
+          }
+        }
+      ]
+    },
+    {
+      "entityName": "pessoaTelefone",
+      "tableName": "pessoaTelefone",
+      "classExtends" : "custom",
+      "entityFields": [
+        {
+          "comment": "Identificador único da pessoa juridica",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": true
+          }
+        },
+        {
+          "comment": "Numero telefone",
+          "fieldName": "fone",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Relacionamento com a tabela pessoa",
+          "fieldName": "pessoa",
+          "fieldProperties": {
+            "fieldType": "pessoa",
+            "required": true,
+            "valueDefault": ""
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne"
           }
         }
       ]

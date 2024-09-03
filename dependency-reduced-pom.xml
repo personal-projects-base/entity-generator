@@ -41,7 +41,7 @@
         </executions>
         <configuration>
           <jar>${project.build.directory}/entity-generator-${version}.jar</jar>
-          <outfile>${project.build.directory}/entity-generator-${version}.exe</outfile>
+          <outfile>${project.build.directory}/entity.exe</outfile>
         </configuration>
       </plugin>
       <plugin>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Entity Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .form-row > div {
+            margin-bottom: 10px;
+        }
+        .compact {
+            padding: 5px;
+        }
+        .compact label {
+            font-size: 12px;
+        }
+        .compact input, .compact select {
+            font-size: 12px;
+            padding: 3px;
+        }
+        .delete-button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container compact">
+    <h3 class="my-3">Entity JSON Generator</h3>
+    <div class="form-row">
+        <div class="form-group col-md-4">
+            <label for="entityName">Nome da Entidade</label>
+            <input type="text" class="form-control" id="entityName">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="tableName">Nome da Tabela</label>
+            <input type="text" class="form-control" id="tableName">
+        </div>
+        <div class="form-group col-md-4">
+            <label for="classExtends">Extende Classe</label>
+            <input type="text" class="form-control" id="classExtends">
+        </div>
+        <div class="form-group col-md-4">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="generateDefaultHandlers">
+                <label class="form-check-label" for="generateDefaultHandlers">Gera Interfaces CRUD Padrões</label>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <h5>
+        Campos da Entidade
+        <button class="btn btn-primary btn-sm float-right" id="addField">Adicionar Campo</button>
+    </h5>
+
+    <div id="fieldsList"></div>
+
+    <button class="btn btn-success btn-sm mt-2" id="generateJson">Gerar JSON</button>
+
+    <hr>
+
+    <h5>JSON Gerado</h5>
+    <pre id="generatedJson" class="border p-2"></pre>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    let fieldCounter = 0;
+
+    document.getElementById('addField').addEventListener('click', function () {
+        fieldCounter++;
+
+        const fieldHtml = `
+            <div class="border rounded p-2 my-2" id="fieldWrapper_${fieldCounter}">
+                <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target="#field_${fieldCounter}" aria-expanded="false" aria-controls="field_${fieldCounter}">
+                    <span id="toggleFieldText_${fieldCounter}">Mostrar</span>
+                </button>
+                <button class="btn btn-danger btn-sm delete-button float-right" type="button" onclick="removeField(${fieldCounter})">Excluir</button>
+                <div id="field_${fieldCounter}" class="collapse">
+                     <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="comment_${fieldCounter}">Comentário</label>
+                        <input type="text" class="form-control" id="comment_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="fieldName_${fieldCounter}">Nome do Campo</label>
+                        <input type="text" class="form-control" id="fieldName_${fieldCounter}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="fieldRequired_${fieldCounter}">
+                            <label class="form-check-label" for="fieldRequired_${fieldCounter}">Obrigatório</label>
+                        </div>
+                    </div>
+                </div> 
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <h6>Propriedades do campo</h6>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <hr>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="fieldType_${fieldCounter}">Tipo do Campo</label>
+                        <input type="text" class="form-control" id="fieldType_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="fieldDefault_${fieldCounter}">Valor Padrão</label>
+                        <input type="text" class="form-control" id="fieldDefault_${fieldCounter}">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <h6>Metadata</h6>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <hr>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="metadata_nullable_${fieldCounter}">
+                            <label for="metadata_nullable_${fieldCounter}">Aceita valor nulo?</label>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <input type="checkbox" class="form-check-input" id="metadata_key_${fieldCounter}">
+                        <label for="metadata_key_${fieldCounter}">É um campo chave primaria?</label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <h6>Propriedades do frontEnd</h6>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <hr>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="frontend_label_${fieldCounter}">Label</label>
+                        <input type="text" class="form-control" id="frontend_label_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="frontend_size_${fieldCounter}">Size</label>
+                        <input type="number" class="form-control" id="frontend_size_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="frontend_guidance_${fieldCounter}">Guidance</label>
+                        <input type="text" class="form-control" id="frontend_guidance_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="frontend_reference_${fieldCounter}">Reference</label>
+                        <input type="text" class="form-control" id="frontend_reference_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="frontend_order_${fieldCounter}">Order</label>
+                        <input type="number" class="form-control" id="frontend_order_${fieldCounter}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="frontend_enableFieldsFilter_${fieldCounter}">
+                            <label for="frontend_enableFieldsFilter_${fieldCounter}">Enable Fields Filter</label>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="frontend_hidden_${fieldCounter}">
+                            <label for="frontend_hidden_${fieldCounter}">Hidden</label>
+                        </div>
+                    </div>
+                </div>   
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <h6>Relacionamentos</h6>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <hr>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="relationShips_fetchType_${fieldCounter}">Fetch Type</label>
+                        <select class="form-control" id="relationShips_fetchType_${fieldCounter}">
+                            <option value="None">None</option>
+                            <option value="EAGER">EAGER</option>
+                            <option value="LAZY">LAZY</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="relationShips_relationShip_${fieldCounter}">Relation Ship</label>
+                        <select class="form-control" id="relationShips_relationShip_${fieldCounter}">
+                            <option value="None">None</option>
+                            <option value="OneToOne">OneToOne</option>
+                            <option value="OneToMany">OneToMany</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="relationShips_bidirectional_${fieldCounter}">
+                        <label for="relationShips_bidirectional_${fieldCounter}">Bidirectional</label>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('fieldsList').insertAdjacentHTML('beforeend', fieldHtml);
+    });
+
+    document.getElementById('generateJson').addEventListener('click', function () {
+        const entityName = document.getElementById('entityName').value;
+        const tableName = document.getElementById('tableName').value;
+        const classExtends = document.getElementById('classExtends').value;
+        const generateDefaultHandlers = document.getElementById('generateDefaultHandlers').checked;
+
+        const entityFields = [];
+        const fieldWrappers = document.querySelectorAll('[id^="fieldWrapper_"]');
+
+        fieldWrappers.forEach(wrapper => {
+            const i = wrapper.id.split('_')[1];
+            const comment = document.getElementById(`comment_${i}`).value;
+            const fieldName = document.getElementById(`fieldName_${i}`).value;
+            const fieldProperties = {
+                fieldType: document.getElementById(`fieldType_${i}`).value,
+                required: document.getElementById(`fieldRequired_${i}`).checked,
+                valueDefault: document.getElementById(`fieldDefault_${i}`).value
+            }
+            
+
+            const metadata = {
+                nullable: document.getElementById(`metadata_nullable_${i}`).checked,
+                key: document.getElementById(`metadata_key_${i}`).checked
+            };
+
+            const frontendProperties = {
+                label: document.getElementById(`frontend_label_${i}`).value,
+                size: parseInt(document.getElementById(`frontend_size_${i}`).value, 10),
+                hidden: document.getElementById(`frontend_hidden_${i}`).checked,
+                order: parseInt(document.getElementById(`frontend_order_${i}`).value, 10),
+                guidance: document.getElementById(`frontend_guidance_${i}`).value,
+                reference: document.getElementById(`frontend_reference_${i}`).value,
+                enableFieldsFilter: document.getElementById(`frontend_enableFieldsFilter_${i}`).checked
+            };
+
+            
+            const relationShips = {
+                fetchType: document.getElementById(`relationShips_fetchType_${i}`).value,
+                relationShip: document.getElementById(`relationShips_relationShip_${i}`).value,
+                bidirectional: document.getElementById(`relationShips_bidirectional_${i}`).checked
+            };
+            
+            entityFields.push({
+                comment,
+                fieldName,
+                fieldProperties,
+                metadata,
+                frontendProperties,
+                relationShips
+            });
+        });
+
+        entityFields.forEach(e => {
+            
+            if(e.relationShips.fetchType === 'None'){
+                
+                delete e.relationShips;
+            }
+        })
+
+        const generatedJson = {
+            entityName,
+            tableName,
+            classExtends,
+            generateDefaultHandlers,
+            entityFields
+        };
+
+
+
+        document.getElementById('generatedJson').textContent = JSON.stringify(generatedJson, null, 2);
+    });
+
+    function removeField(id) {
+        const fieldWrapper = document.getElementById(`fieldWrapper_${id}`);
+        if (fieldWrapper) {
+            fieldWrapper.remove();
+        }
+    }
+</script>
+</body>
+</html>

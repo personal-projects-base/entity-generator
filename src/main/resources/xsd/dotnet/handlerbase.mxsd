@@ -28,6 +28,10 @@ namespace <<projetcName>>.<<nameSpaceName>>
 
         [HttpDelete("{id}")]
         public abstract ActionResult<<<entityName>>DTO> Delete(int id);
+
+        [HttpPost]
+        [Route("import")]
+        public abstract ActionResult<string> Import([FromBody] List<<<entityName>>DTO> input);
     }
 }
 

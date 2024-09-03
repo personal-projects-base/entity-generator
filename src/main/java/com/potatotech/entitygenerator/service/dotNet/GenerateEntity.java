@@ -45,8 +45,9 @@ public class GenerateEntity {
             String anotations = setMetadata(item, entity);
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             var fieldIdentity = "";
+            var containVirtual = "";
             if(fieldType.contains("Entity")){
-                fieldType = "virtual ".concat(fieldType);
+                containVirtual = "virtual";
                 if(!item.getRelationShips().isBidirectional()){
                     fieldIdentity = loadRelationship(item, entity);
                 }
@@ -54,7 +55,7 @@ public class GenerateEntity {
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("    public %s %s { get; set; }\n    ",fieldType,firstCharacterUpperCase(item.getFieldName()));
+            String field = String.format("    public %s %s %s { get; set; }\n    ",containVirtual,fieldType,firstCharacterUpperCase(item.getFieldName()));
             tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
             fields.set(tempField);
         });
