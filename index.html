@@ -96,15 +96,13 @@
                         <label for="fieldName_${fieldCounter}">Nome do Campo</label>
                         <input type="text" class="form-control" id="fieldName_${fieldCounter}">
                     </div>
-                </div>
-                <div class="form-row">
                     <div class="form-group col-md-12">
                         <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="fieldRequired_${fieldCounter}">
-                            <label class="form-check-label" for="fieldRequired_${fieldCounter}">Obrigatório</label>
+                            <input type="checkbox" class="form-check-input" id="fieldList_${fieldCounter}">
+                            <label class="form-check-label" for="fieldList_${fieldCounter}">É do tipo Lista?</label>
                         </div>
                     </div>
-                </div> 
+                </div>
                 <div class="form-row">
                     <div class="form-group col-md-12">
                         <h6>Propriedades do campo</h6>
@@ -121,6 +119,12 @@
                     <div class="form-group col-md-6">
                         <label for="fieldDefault_${fieldCounter}">Valor Padrão</label>
                         <input type="text" class="form-control" id="fieldDefault_${fieldCounter}">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="fieldRequired_${fieldCounter}">
+                            <label class="form-check-label" for="fieldRequired_${fieldCounter}">Obrigatório</label>
+                        </div>
                     </div>
                 </div>
 
@@ -240,6 +244,7 @@
             const i = wrapper.id.split('_')[1];
             const comment = document.getElementById(`comment_${i}`).value;
             const fieldName = document.getElementById(`fieldName_${i}`).value;
+            const list = document.getElementById(`fieldList_${i}`).checked;
             const fieldProperties = {
                 fieldType: document.getElementById(`fieldType_${i}`).value,
                 required: document.getElementById(`fieldRequired_${i}`).checked,
@@ -272,6 +277,7 @@
             entityFields.push({
                 comment,
                 fieldName,
+                list,
                 fieldProperties,
                 metadata,
                 frontendProperties,
