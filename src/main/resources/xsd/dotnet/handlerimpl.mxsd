@@ -41,6 +41,18 @@ namespace <<projetcName>>.<<nameSpaceName>>
             _<<entity>>Repository.Delete(id);
             return Ok("deleted");
         }
+
+        public override ActionResult<string> Save(<<entityName>>DTO input)
+        {
+
+            if(input != null){
+                input.ForEach(e => {
+                    var dto = <<entityName>>DTOConverter.ToEntity(e);
+                    _<<entity>>Repository.Add(dto);
+                }
+            }
+            return Ok($"Imported {input.Count()} registrys");
+        }
     }
 }
 
