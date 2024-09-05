@@ -18,16 +18,16 @@ namespace <<projetcName>>.<<nameSpaceName>>
         public abstract ActionResult<ResponseData> GetAll(RequestData input);
 
         [HttpGet("{id}")]
-        public abstract ActionResult<<<entityName>>DTO> Get(int id, string displayFields);
+        public abstract ActionResult<<<entityName>>DTO> Get(<<keyType>> id, string displayFields);
 
         [HttpPost]
         public abstract ActionResult<<<entityName>>DTO> Save([FromBody] <<entityName>>DTO input);
 
         [HttpPut("{id}")]
-        public abstract ActionResult<<<entityName>>DTO> Update(int id, [FromBody] <<entityName>>DTO input);
+        public abstract ActionResult<<<entityName>>DTO> Update(<<keyType>> id, [FromBody] <<entityName>>DTO input);
 
         [HttpDelete("{id}")]
-        public abstract ActionResult<<<entityName>>DTO> Delete(int id);
+        public abstract ActionResult<<<entityName>>DTO> Delete(<<keyType>> id);
 
         [HttpPost]
         [Route("import")]

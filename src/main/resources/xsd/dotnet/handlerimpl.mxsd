@@ -16,7 +16,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return Ok(obj);
         }
 
-        public override ActionResult<<<entityName>>DTO> Get(int id, string displayFields)
+        public override ActionResult<<<entityName>>DTO> Get(<<keyType>> id, string displayFields)
         {
             var obj = _<<entity>>Repository.FindById(id, displayFields);
             return <<entityName>>DTOConverter.ToDTO(obj);
@@ -29,14 +29,14 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return <<entityName>>DTOConverter.ToDTO(output);
         }
 
-        public override ActionResult<<<entityName>>DTO> Update(int id, <<entityName>>DTO input)
+        public override ActionResult<<<entityName>>DTO> Update(<<keyType>> id, <<entityName>>DTO input)
         {
             var dto = <<entityName>>DTOConverter.ToEntity(input);
             var output = _<<entity>>Repository.Update(id, dto);
             return Ok(<<entityName>>DTOConverter.ToDTO(output));
         }
 
-        public override ActionResult<<<entityName>>DTO> Delete(int id)
+        public override ActionResult<<<entityName>>DTO> Delete(<<keyType>> id)
         {
             _<<entity>>Repository.Delete(id);
             return Ok("deleted");

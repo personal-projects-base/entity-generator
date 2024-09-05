@@ -78,7 +78,8 @@ public class GenerateDTOConverter {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             String field = "";
             if(!fieldType.contains("Entity")){
-                field = String.format("\n           dto.%s = entity.get%s();",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
+                var op = fieldType == "boolean" ? "is" : "get";
+                field = String.format("\n           dto.%s = entity.%s%s();",item.getFieldName(),op,firstCharacterUpperCase(item.getFieldName()));
             }
             else{
                 addDependencies(fieldType);

@@ -1,12 +1,12 @@
 
 namespace <<projetcName>>.<<nameSpaceName>>
 {
-    public interface IBaseRepository<TEntity> where TEntity : class
+    public interface IBaseRepository<TEntity,T> where TEntity : class
     {
         TEntity Add(TEntity obj);
-        TEntity FindById(int id, string displayFields);
+        TEntity FindById(T id, string displayFields);
         ResponseData GetAll(RequestData input);
-        TEntity Update(int id, TEntity obj);
-        void Delete(int id);
+        TEntity Update(T id, TEntity obj);
+        void Delete(T id);
     }
 }

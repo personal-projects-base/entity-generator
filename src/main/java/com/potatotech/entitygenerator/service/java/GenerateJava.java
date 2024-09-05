@@ -55,7 +55,7 @@ public class GenerateJava {
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
 
-        // faz uma copia da properties.json para a pasta static
+        // faz uma copia da properties_dot.json para a pasta static
         generateMetadata(prop);
 
         generateResources(prop.getEntities(),prop.getEndpoints());

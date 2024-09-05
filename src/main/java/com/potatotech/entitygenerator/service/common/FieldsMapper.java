@@ -39,7 +39,7 @@ public class FieldsMapper {
             typeFields.put("password","String");
             typeFields.put("datetime","LocalDateTime");
             typeFields.put("date","LocalDate");
-            typeFields.put("int","int");
+            typeFields.put("int","Integer");
             typeFields.put("boolean","boolean");
         }
         else if(properties.getLanguage() == Language.DOTNET){

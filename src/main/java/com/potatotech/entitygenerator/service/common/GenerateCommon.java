@@ -34,10 +34,18 @@ public class GenerateCommon {
         var tableName = (entity == null ? "" : getTableName(entity));
         var entityName = (fileName.equals("")  ? "" : firstCharacterUpperCase(fileName));
         var entityLowerName = (fileName.equals("")  ? "" : firstCharacterLowerCase(fileName));
+        var fieldType = "";
+        if(entity != null){
+            var fieldTypeIdentity = entity.getEntityFields().stream().filter(item -> item.getMetadata().isKey()).findFirst().orElse(null);
+            var typeField = fieldTypeIdentity.getFieldProperties().getFieldType();
+            fieldType = FieldsMapper.getFieldTypeEntity(typeField);
+        }
+
 
          var ret = mod.replace("<<entityName>>",entityName)
                     .replace("<<entityFields>>",fields)
                     .replace("<<entity>>",entityLowerName)
+                    .replace("<<keyType>>",fieldType)
                     .replace("<<tableName>>",tableName)
                     .replace("<<tableNameSplit>>",splitByUppercase(tableName))
                     .replace("<<projetcName>>",packageName);

@@ -28,6 +28,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 
     "mainPackage": "EntityGenerator",  
     "projectName": "EntityGenerator",
+    "defaultTypeId": "UUID"
     "entities": [],
     "endpoints": [],
     "enums": [],
@@ -37,6 +38,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 
 * mainPackage: Nome completo do pacote do projeto
 * projectName: Nome do projeto
+* defaultTypeId: (string) Padrão do tipo das chaves primarias - Apenas necessário para DotNet
 * entities: Objeto de configuração das classes de entidades
 * endpoints: configuração para criação dos endpoints
 * enums: Criação das enumerations
