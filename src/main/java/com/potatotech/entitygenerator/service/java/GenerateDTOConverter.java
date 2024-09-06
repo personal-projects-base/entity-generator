@@ -83,6 +83,7 @@ public class GenerateDTOConverter {
             }
             else{
                 addDependencies(fieldType);
+
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
                 field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),fieldType,firstCharacterUpperCase(item.getFieldName()));
             }
@@ -106,7 +107,7 @@ public class GenerateDTOConverter {
             var tempField = fields.get();
 
             item = item.replace("Entity","").replace("DTO", "");
-            var dependency = String.format("%s@Autowired%s%sDTOConverter %sDtoConverter;","\n    ","\n    ",firstCharacterUpperCase(item),item.toLowerCase());
+            var dependency = String.format("%s@Autowired%s@Lazy%s%sDTOConverter %sDtoConverter;","\n    ","\n    ","\n    ",firstCharacterUpperCase(item),item.toLowerCase());
 
             tempField += dependency;
             fields.set(tempField);

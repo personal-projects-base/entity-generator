@@ -68,7 +68,7 @@ public class GenerateDTOConverter {
                 var fieldName = firstCharacterUpperCase(item.getFieldName()).concat("Id");
                 var fieldFk = String.format("entity.%s = dto.%s != null ? dto.%s.%s : null;",firstCharacterUpperCase(fieldName),item.getFieldName(),item.getFieldName(),loadFieldKey.getFieldName());
 
-                fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
+
                 if(!item.getRelationShips().isBidirectional()){
                     field = String.format("\n               %s",fieldFk);
                 }
