@@ -138,6 +138,7 @@ public class GenerateEndpoint {
         }
         return primitive
                 .replace("<<isAnonimous>>",anonymous)
+                .replace("<<routeName>>",firstCharacterLowerCase(fileName))
                 .replace("<<methodName>>",firstCharacterUpperCase(fileName))
                 .replace("<<input>>",setParameterInput(endpoints,fileName))
                 .replace("<<output>>",setParameterOutput(endpoints,fileName))
