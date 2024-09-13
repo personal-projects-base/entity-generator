@@ -147,6 +147,7 @@ abaixo um exemplo da sintaxe:
     {
       "methodName": "listCity",
       "httpMethod": "POST",
+      "grouper": "POST",
       "metadata": {
         "input": [
           {
@@ -167,6 +168,7 @@ abaixo um exemplo da sintaxe:
     }
 
 * methodName: nome do endpoint
+* grouper: Agrupador de primitivas(a mesma interface será implementado os metodos agrupados)
 * httpMethod: metodo do endpoint (GET,POST,PUT,DELETE) atualmente só possui suporte ao POST
 * metadata:
   * input: parametros de entrada

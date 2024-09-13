@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.common.Common.*;
+import static com.potatotech.entitygenerator.service.common.Validators.validRequestOrResponseData;
 
 
 public class GenerateEndpoint {
@@ -93,9 +94,7 @@ public class GenerateEndpoint {
 
     }
 
-    private static boolean validRequestOrResponseData(List<Parameters> parameters) {
-        return parameters.stream().anyMatch(item -> item.getParameterType().equalsIgnoreCase("requestdata") || item.getParameterType().equalsIgnoreCase("responsedata"));
-    }
+
 
 
     private static String loadModel(String type, String packageName,String className, String fields ) {
