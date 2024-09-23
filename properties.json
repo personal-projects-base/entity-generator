@@ -73,13 +73,18 @@
     },
     {
       "methodName": "ValidateCep",
-      "httpMethod": "POST",
+      "httpMethod": "GET",
       "grouper": "cep",
       "metadata": {
         "input": [
           {
             "parameterName": "cep",
             "parameterType": "string",
+            "list": false
+          },
+          {
+            "parameterName": "verifield",
+            "parameterType": "boolean",
             "list": false
           }
         ],

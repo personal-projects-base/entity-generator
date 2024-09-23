@@ -147,7 +147,21 @@ public class GenerateEndpoint {
 
     private static String setParameterInput(Endpoints endpoints, String fileName){
         if(!validRequestOrResponseData(endpoints.getMetadata().getInput())){
-            return setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input");
+            var output = "";
+            if(endpoints.getHttpMethod().equals("POST")){
+                output = setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input");
+            } else {
+                AtomicReference<String> parameters = new AtomicReference<>("");
+                endpoints.getMetadata().getInput().forEach(item -> {
+                    var type = FieldsMapper.getFieldTypeDto(item.getParameterType());
+                    parameters.set(parameters.get().concat(String.format("%s %s, ",type, item.getParameterName())));
+                });
+                if(!parameters.get().isEmpty()){
+                    output = parameters.get().substring(0, parameters.get().length()-2);
+                }
+
+            }
+            return output;
         } else {
             return setRequest(endpoints).concat("RequestData input");
         }
