@@ -44,13 +44,13 @@ public class GenerateEntity {
             String comments = Common.setComments(item.getComment());
             String anotations = setMetadata(item, entity);
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
-            var fieldIdentity = "";[[[[[[[[[ok]]]]]]]]]
+            var fieldIdentity = "";
             var containVirtual = "";
             if(fieldType.contains("Entity")){
                 containVirtual = "virtual";
                 if(!item.getRelationShips().isBidirectional()){
                     fieldIdentity = loadRelationship(item, entity);
-                }píphjk
+                }
             }
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
