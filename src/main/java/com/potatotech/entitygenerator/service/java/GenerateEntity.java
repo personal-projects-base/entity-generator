@@ -76,7 +76,12 @@ public class GenerateEntity {
         if(field.getMetadata() != null && field.getRelationShips() == null){
             if(field.getMetadata().isKey()){
                 metadata += "\n    @Id";
-                metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
+                if(field.getFieldProperties().getFieldType().equals("uuid")){
+                    metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
+                } else {
+                    metadata += "\n    @GeneratedValue(strategy = GenerationType.SEQUENCE)";
+                }
+
             }
             if(!field.getMetadata().isNullable()){
                 metadata += "\n    @Column(nullable = false, name = \""+splitByUppercase(field.getFieldName())+"\")";

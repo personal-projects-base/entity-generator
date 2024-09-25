@@ -78,10 +78,12 @@ public class GenerateDTOConverter {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             String field = "";
             if(!fieldType.contains("Entity")){
-                field = String.format("\n           dto.%s = entity.get%s();",item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
+                var op = fieldType == "boolean" ? "is" : "get";
+                field = String.format("\n           dto.%s = entity.%s%s();",item.getFieldName(),op,firstCharacterUpperCase(item.getFieldName()));
             }
             else{
                 addDependencies(fieldType);
+
                 fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
                 field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),fieldType,firstCharacterUpperCase(item.getFieldName()));
             }
@@ -105,7 +107,7 @@ public class GenerateDTOConverter {
             var tempField = fields.get();
 
             item = item.replace("Entity","").replace("DTO", "");
-            var dependency = String.format("%s@Autowired%s%sDTOConverter %sDtoConverter;","\n    ","\n    ",firstCharacterUpperCase(item),item.toLowerCase());
+            var dependency = String.format("%s@Autowired%s@Lazy%s%sDTOConverter %sDtoConverter;","\n    ","\n    ","\n    ",firstCharacterUpperCase(item),item.toLowerCase());
 
             tempField += dependency;
             fields.set(tempField);

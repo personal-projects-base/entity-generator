@@ -1,6 +1,7 @@
 package com.potatotech.entitygenerator.service.java;
 
 import com.potatotech.entitygenerator.model.Entities;
+import com.potatotech.entitygenerator.service.common.FieldsMapper;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,8 +32,12 @@ public class GenerateHandler {
 
     private static String configureFile(String mod,String packageName, Entities entity,String fileName){
 
+        var fieldTypeIdentity = entity.getEntityFields().stream().filter(item -> item.getMetadata().isKey()).findFirst().orElse(null);
+        var typeField = fieldTypeIdentity.getFieldProperties().getFieldType();
+        var fieldType = FieldsMapper.getFieldTypeEntity(typeField);
         return mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<entityNameLowerCase>>",fileName)
+                .replace("<<keyType>>", fieldType)
                 .replace("<<packageName>>",packageName.concat("_gen"));
     }
 

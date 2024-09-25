@@ -54,7 +54,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return output;
         }
 
-        public virtual <<entityName>>Entity FindById(int id, string displayFields = "")
+        public virtual <<entityName>>Entity FindById(<<keyType>> id, string displayFields = "")
         {
             IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
             if (displayFields != null && !displayFields.Equals(""))
@@ -69,7 +69,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
             return query.SingleOrDefault(p => p.Id == id);
         }
 
-        public virtual void Delete(int id)
+        public virtual void Delete(<<keyType>> id)
         {
             try
             {
@@ -83,7 +83,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
             }
         }
 
-        public virtual <<entityName>>Entity Update(int id, <<entityName>>Entity obj)
+        public virtual <<entityName>>Entity Update(<<keyType>> id, <<entityName>>Entity obj)
         {
             try
             {

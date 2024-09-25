@@ -59,11 +59,13 @@ public class GenerateDotNet {
         generateHandler(prop.getEntities(),prop.getMainPackage(),packagePath);
         generateHandlerImpl(prop.getEntities(),prop.getMainPackage(),packagePath);
 
-
         //Gera os DTOConverter
         GenerateDTOConverter.generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
 
-        // faz uma copia da properties.json para a pasta static
+        //Gera as primitivas
+        GenerateEndpoint.generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
+
+        // faz uma copia da properties_dot.json para a pasta static
         generateMetadata(prop);
 
         generateResources(prop.getEntities(),prop.getEndpoints());

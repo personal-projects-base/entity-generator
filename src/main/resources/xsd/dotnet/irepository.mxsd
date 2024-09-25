@@ -1,6 +1,6 @@
 namespace <<projetcName>>.<<nameSpaceName>>
 {
-    public interface I<<entityName>>Repository : IBaseRepository<<<entityName>>Entity>
+    public interface I<<entityName>>Repository : IBaseRepository<<<entityName>>Entity, <<keyType>>>
     {
 
     }

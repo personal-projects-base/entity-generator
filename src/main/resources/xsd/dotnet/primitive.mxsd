@@ -1,0 +1,4 @@
+        <<isAnonimous>>
+        [AcceptVerbs("<<httpMethod>>")]
+        [Route("action/<<routeName>>")]
+        public abstract <<output>> <<methodName>>(<<input>>);

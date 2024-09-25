@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("<<entityNameLowerCase>>")
-public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUID> {
+public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
 
     @Autowired
     <<entityName>>Repository repository;
@@ -28,7 +28,7 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     }
 
     @Override
-    public <<entityName>>DTO update(<<entityName>>DTO obj, UUID id) {
+    public <<entityName>>DTO update(<<entityName>>DTO obj, <<keyType>> id) {
         var entity = dtoConverter.toEntity(obj);
         entity.setId(id);
         entity = repository.save(entity);
@@ -36,12 +36,12 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, UUI
     }
 
     @Override
-    public void delete(UUID id) {
+    public void delete(<<keyType>> id) {
         repository.deleteById(id);
     }
 
     @Override
-    public <<entityName>>DTO get(UUID id) {
+    public <<entityName>>DTO get(<<keyType>> id) {
         return dtoConverter.toDTO(repository.getReferenceById(id));
     }
 

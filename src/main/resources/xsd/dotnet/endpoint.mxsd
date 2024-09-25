@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Runtime.Serialization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace <<projetcName>>.<<nameSpaceName>>{
 
@@ -11,8 +10,6 @@ namespace <<projetcName>>.<<nameSpaceName>>{
     public abstract class <<className>> : ControllerBase
     {
 
-        <<isAnonimous>>
-        [<<httpMethod>>("action/<<methodName>>")]
-        public <<output>> <<methodName>>(<<input>>);
+        <<primitives>>
     }
 }
