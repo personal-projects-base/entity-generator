@@ -79,7 +79,7 @@ public class GenerateEntity {
                 if(field.getFieldProperties().getFieldType().equals("uuid")){
                     metadata += "\n    @GeneratedValue(strategy = GenerationType.UUID)";
                 } else {
-                    metadata += "\n    @GeneratedValue(strategy = GenerationType.SEQUENCE)";
+                    metadata += "\n    @GeneratedValue(strategy = GenerationType.IDENTITY)";
                 }
 
             }

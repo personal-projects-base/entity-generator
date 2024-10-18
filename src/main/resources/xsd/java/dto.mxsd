@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 public class <<entityName>>DTO {
     <<entityFields>>
 
-    String createdBy;
-    LocalDateTime createdDate;
-    String lastModifiedBy;
-    LocalDateTime lastModifiedDate;
+    /**
+        String createdBy;
+        LocalDateTime createdDate;
+        String lastModifiedBy;
+        LocalDateTime lastModifiedDate;
+    **/
 }

@@ -20,10 +20,10 @@ public class <<entityName>>DTOConverter {
         var entity = new <<entityName>>Entity();
         if(dto != null) {
             <<simpleFieldsEntity>>
-           entity.setCreatedBy(dto.createdBy);
-           entity.setCreatedDate(dto.getCreatedDate());
-           entity.setLastModifiedBy(dto.lastModifiedBy);
-           entity.setLastModifiedDate(dto.getLastModifiedDate());
+           //entity.setCreatedBy(dto.createdBy);
+           //entity.setCreatedDate(dto.getCreatedDate());
+           //entity.setLastModifiedBy(dto.lastModifiedBy);
+           //entity.setLastModifiedDate(dto.getLastModifiedDate());
         }
 
         return entity;
@@ -34,10 +34,10 @@ public class <<entityName>>DTOConverter {
         var dto = new <<entityName>>DTO();
         if(entity != null){
             <<simpleFieldsDTO>>
-           dto.createdBy = entity.getCreatedBy();
-           dto.createdDate = entity.getCreatedDate();
-           dto.lastModifiedBy = entity.getLastModifiedBy();
-           dto.lastModifiedDate = entity.getLastModifiedDate();
+           //dto.createdBy = entity.getCreatedBy();
+           //dto.createdDate = entity.getCreatedDate();
+           //dto.lastModifiedBy = entity.getLastModifiedBy();
+           //dto.lastModifiedDate = entity.getLastModifiedDate();
         }
 
         return dto;

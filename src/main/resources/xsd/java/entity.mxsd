@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 public class <<entityName>>Entity {
 
     <<entityFields>>
-
+/**
     @Column(name = "created_by")
     private String createdBy;
 
@@ -46,4 +46,5 @@ public class <<entityName>>Entity {
             lastModifiedBy = TenantContext.getCurrentUser().getName();
         }
     }
+**/
 }
