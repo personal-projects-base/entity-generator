@@ -37,7 +37,7 @@ public class GenerateEntity {
     private static String configureFileEntity(String mod, String packageName, Entities entity, String fileName){
 
         String fields = getFields(entity);
-        return mod.replace("<<tableName>>",getTableName(entity))
+        return mod.replace("<<tableName>>", Common.splitByUppercase(getTableName(entity)))
                 .replace("<<entityName>>",firstCharacterUpperCase(fileName))
                 .replace("<<packageName>>",packageName.concat("_gen"))
                 .replace("<<entityFields>>",fields);
@@ -49,7 +49,7 @@ public class GenerateEntity {
         entity.getEntityFields().forEach(item -> {
             String tempField = fields.get();
             String comments = Common.setComments(item.getComment());
-            String anotations = setMetadata(item, entity).concat(setRelationsShip(item));
+            String anotations = setMetadata(item, entity).concat(setRelationsShip(item,entity.getEntityName()));
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
@@ -61,11 +61,16 @@ public class GenerateEntity {
         return fields.get();
     }
 
-    private static String setRelationsShip(EntityFields entity) {
+    private static String setRelationsShip(EntityFields entity, String entityName) {
 
         var metadata = "";
         if(entity.getRelationShips() != null){
-            metadata += String.format("\n    @%s(fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entity.getRelationShips().getFetchType());
+            if(entity.getRelationShips().isBidirectional()){
+                metadata += String.format("\n    @%s(mappedBy = \"%s\", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entityName,entity.getRelationShips().getFetchType());
+            } else {
+                metadata += String.format("\n    @%s(fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entity.getRelationShips().getFetchType());
+            }
+
         }
 
         return metadata;
@@ -94,7 +99,9 @@ public class GenerateEntity {
                 var joinTable = setJointTable(field, entity);
                 metadata += "\n    ".concat(joinTable);
             }else {
-                metadata += "\n    @JoinColumn(name = \""+splitByUppercase(field.getFieldName())+"\")";
+                if(!field.getRelationShips().isBidirectional()){
+                    metadata += "\n    @JoinColumn(name = \""+splitByUppercase(field.getFieldName())+"\")";
+                }
             }
 
         }

@@ -1,0 +1,295 @@
+{
+  "mainPackage": "BaseBackendDotNet",
+  "language": "DOTNET",
+  "projectName": "BaseBackendDotNet",
+  "entities": [
+    {
+      "entityName": "pessoa",
+      "tableName": "pessoa",
+      "entityFields": [
+        {
+          "comment": "Identificador Unico",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Nome da pessoa",
+          "fieldName": "name",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "relacionamento com pessoa Juridica",
+          "fieldName": "pessoaJuridica",
+          "fieldProperties": {
+            "fieldType": "pessoaJuridica",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "bidirectional": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com pessoa Telefone",
+          "fieldName": "phones",
+          "fieldProperties": {
+            "fieldType": "pessoatelefone",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToMany",
+            "bidirectional": true
+          },
+          "list": true,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true
+    },
+    {
+      "entityName": "pessoaJuridica",
+      "tableName": "pessoa_juridica",
+      "entityFields": [
+        {
+          "comment": "Identificador Unico",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "CNPJ",
+          "fieldName": "cnpj",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com a pessoa",
+          "fieldName": "pessoa",
+          "fieldProperties": {
+            "fieldType": "pessoa",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true
+    },
+    {
+      "entityName": "pessoaTelefone",
+      "tableName": "pessoa_telefone",
+      "entityFields": [
+        {
+          "comment": "Identificador Unico",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "numero telefone",
+          "fieldName": "phone",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com pessoa",
+          "fieldName": "pessoa",
+          "fieldProperties": {
+            "fieldType": "pessoa",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo do telefone",
+          "fieldName": "type",
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true
+    }
+  ],
+  "endpoints": []
+}

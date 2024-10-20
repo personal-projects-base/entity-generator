@@ -1,295 +1,168 @@
 {
-  "mainPackage": "BaseBackendDotNet",
-  "language": "DOTNET",
-  "projectName": "BaseBackendDotNet",
+  "mainPackage": "com.potatotech.entitygenerator",
+  "language": "JAVA",
+  "projectName": "entity-generator",
   "entities": [
     {
       "entityName": "pessoa",
       "tableName": "pessoa",
       "entityFields": [
         {
-          "comment": "Identificador Unico",
+          "comment": "Identificador único da pessoa",
           "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Nome da pessoa",
-          "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
+            "fieldType": "int",
             "required": true,
             "valueDefault": ""
           },
           "metadata": {
             "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
+            "key": true
           }
         },
         {
-          "comment": "relacionamento com pessoa Juridica",
+          "comment": "Nome Pessoa",
+          "fieldName": "name",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Pessoas Juridicas",
           "fieldName": "pessoaJuridica",
           "fieldProperties": {
             "fieldType": "pessoaJuridica",
             "required": false,
             "valueDefault": ""
           },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
           "relationShips": {
             "fetchType": "LAZY",
             "relationShip": "OneToOne",
             "bidirectional": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           }
         },
         {
-          "comment": "Relacionamento com pessoa Telefone",
-          "fieldName": "phones",
+          "comment": "Pessoas Telefone",
+          "fieldName": "pessoaTelefone",
+          "list": true,
           "fieldProperties": {
-            "fieldType": "pessoatelefone",
+            "fieldType": "pessoaTelefone",
             "required": false,
             "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
           },
           "relationShips": {
             "fetchType": "LAZY",
             "relationShip": "OneToMany",
             "bidirectional": true
-          },
-          "list": true,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           }
         }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true
+      ]
     },
     {
       "entityName": "pessoaJuridica",
-      "tableName": "pessoa_juridica",
+      "tableName": "pessoaJuridica",
       "entityFields": [
         {
-          "comment": "Identificador Unico",
+          "comment": "Identificador único da pessoa juridica",
           "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "uuid",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "CNPJ",
-          "fieldName": "cnpj",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com a pessoa",
-          "fieldName": "pessoa",
-          "fieldProperties": {
-            "fieldType": "pessoa",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true
-    },
-    {
-      "entityName": "pessoaTelefone",
-      "tableName": "pessoa_telefone",
-      "entityFields": [
-        {
-          "comment": "Identificador Unico",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
+            "fieldType": "int",
             "required": true,
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           }
         },
         {
-          "comment": "numero telefone",
-          "fieldName": "phone",
+          "comment": "CNPJ da pessoa Juridica",
+          "fieldName": "cnpj",
           "fieldProperties": {
             "fieldType": "string",
-            "required": false,
+            "required": true,
             "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           }
         },
         {
-          "comment": "Relacionamento com pessoa",
+          "comment": "Referencia de Pessoas",
           "fieldName": "pessoa",
           "fieldProperties": {
             "fieldType": "pessoa",
             "required": false,
             "valueDefault": ""
           },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne"
           }
-        },
+        }
+      ]
+    },
+    {
+      "entityName": "pessoaTelefone",
+      "tableName": "pessoaTelefone",
+      "classExtends" : "custom",
+      "entityFields": [
         {
-          "comment": "Tipo do telefone",
-          "fieldName": "type",
+          "comment": "Identificador único da pessoa juridica",
+          "fieldName": "id",
           "fieldProperties": {
             "fieldType": "int",
-            "required": false,
+            "required": true,
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
-            "key": false
+            "nullable": true,
+            "key": true
+          }
+        },
+        {
+          "comment": "Numero telefone",
+          "fieldName": "fone",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          }
+        },
+        {
+          "comment": "Relacionamento com a tabela pessoa",
+          "fieldName": "pessoa",
+          "fieldProperties": {
+            "fieldType": "pessoa",
+            "required": true,
+            "valueDefault": ""
           },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "ManyToOne"
           }
         }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true
+      ]
     }
   ],
-  "endpoints": []
+  "endpoints": [
+    {
+      "methodName": "cpfListQuery",
+      "httpMethod": "POST",
+      "metadata": {
+        "input": [
+          {
+            "parameterName": "id",
+            "parameterType": "string",
+            "list": false
+          }
+        ]
+      },
+      "anonymous": true
+    }
+  ],
+  "enums": [
+
+  ],
+  "events": [],
+  "listeners": []
 }

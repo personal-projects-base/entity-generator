@@ -17,47 +17,57 @@ public class <<entityName>>DTOConverter {
 
     public <<entityName>>Entity toEntity(<<entityName>>DTO dto){
 
-        var entity = new <<entityName>>Entity();
+
         if(dto != null) {
+            var entity = new <<entityName>>Entity();
             <<simpleFieldsEntity>>
            //entity.setCreatedBy(dto.createdBy);
            //entity.setCreatedDate(dto.getCreatedDate());
            //entity.setLastModifiedBy(dto.lastModifiedBy);
            //entity.setLastModifiedDate(dto.getLastModifiedDate());
+           return entity;
         }
 
-        return entity;
+        return null;
     }
 
     public <<entityName>>DTO toDTO(<<entityName>>Entity entity){
 
-        var dto = new <<entityName>>DTO();
+
         if(entity != null){
+            var dto = new <<entityName>>DTO();
             <<simpleFieldsDTO>>
            //dto.createdBy = entity.getCreatedBy();
            //dto.createdDate = entity.getCreatedDate();
            //dto.lastModifiedBy = entity.getLastModifiedBy();
            //dto.lastModifiedDate = entity.getLastModifiedDate();
+           return dto;
         }
-
-        return dto;
+        return null;
     }
 
     public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj){
-        var list = new ArrayList<<<entityName>>Entity>();
-        obj.forEach(dto -> {
-            var entity = toEntity(dto);
-            list.add(entity);
-        });
-        return list;
+        if(obj != null){
+            var list = new ArrayList<<<entityName>>Entity>();
+            obj.forEach(dto -> {
+                var entity = toEntity(dto);
+                list.add(entity);
+            });
+            return list;
+        }
+        return null;
     }
 
     public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj){
-        var list = new ArrayList<<<entityName>>DTO>();
-        obj.forEach(entity -> {
-            var dto = toDTO(entity);
-            list.add(dto);
-        });
-        return list;
+        if(obj != null) {
+            var list = new ArrayList<<<entityName>>DTO>();
+            obj.forEach(entity -> {
+                var dto = toDTO(entity);
+                list.add(dto);
+            });
+            return list;
+        }
+        return null;
+
     }
 }
