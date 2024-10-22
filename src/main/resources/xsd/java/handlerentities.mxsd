@@ -1,5 +1,7 @@
 package <<packageName>>;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,9 @@ import java.util.ArrayList;
 @RestController
 @RequestMapping("<<entityNameLowerCase>>")
 public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     <<entityName>>Repository repository;
@@ -23,7 +28,7 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<k
     @Override
     public <<entityName>>DTO save(<<entityName>>DTO obj) {
         var entity = dtoConverter.toEntity(obj);
-        entity = repository.save(entity);
+        entityManager.persist(entity);
         return dtoConverter.toDTO(entity);
     }
 
@@ -31,7 +36,7 @@ public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<k
     public <<entityName>>DTO update(<<entityName>>DTO obj, <<keyType>> id) {
         var entity = dtoConverter.toEntity(obj);
         entity.setId(id);
-        entity = repository.save(entity);
+        entityManager.merge(entity);
         return dtoConverter.toDTO(entity);
     }
 
