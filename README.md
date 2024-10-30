@@ -5,7 +5,7 @@ Modulo gerador de código fonte
 
 Este modulo faz a geração de models, repositories, DTOS, Classes de eventos e listeners e endpoints 
 
-[UI Criação entidades](https://personal-projects-base.github.io/entity-generator/)
+[UI Criação entidades](https://develop.smartverse.com.br/entity/)
 
 
 ### Configurações
