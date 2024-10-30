@@ -645,5 +645,13 @@
     }
   ],
   "endpoints": [],
-  "enums": []
+  "enums": [
+    {
+      "enumName": "Status",
+      "values": [
+        "ACTIVE",
+        "INATIVE"
+      ]
+    }
+  ]
 }

@@ -17,6 +17,7 @@ import static com.potatotech.entitygenerator.service.java.GenerateDTO.generateDT
 import static com.potatotech.entitygenerator.service.java.GenerateDTOConverter.generateDTOConverter;
 import static com.potatotech.entitygenerator.service.java.GenerateEndpoint.generateEndpoint;
 import static com.potatotech.entitygenerator.service.java.GenerateEntity.generateEntity;
+import static com.potatotech.entitygenerator.service.java.GenerateEnum.generateEnum;
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositories;
@@ -47,6 +48,8 @@ public class GenerateJava {
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
         generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
+        // Gera as classes Enumeration
+        generateEnum(prop.getEnums(),prop.getMainPackage(),packagePath);
 
         // gera os repositories
         generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
