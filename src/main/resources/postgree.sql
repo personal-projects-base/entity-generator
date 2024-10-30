@@ -73,18 +73,18 @@ CREATE TABLE IF NOT EXISTS pessoa_fisica(
 
 -- PKs
 
-ALTER TABLE pessoa  ADD CONSTRAINT ok_wwOmpxCtFZZrO8kmVeeG  PRIMARY KEY (id);
-ALTER TABLE pessoa_endereco  ADD CONSTRAINT ok_bDvmZy5GTN00guRe4BQS  PRIMARY KEY (id);
-ALTER TABLE city  ADD CONSTRAINT ok_XkIkP7p6MMRc3agE0wOT  PRIMARY KEY (id);
-ALTER TABLE state  ADD CONSTRAINT ok_dITOTkz68DgFTcfRBFZO  PRIMARY KEY (id);
-ALTER TABLE country  ADD CONSTRAINT ok_7rRkBObV9m3Oj9l6O8pa  PRIMARY KEY (id);
-ALTER TABLE pessoa_fisica  ADD CONSTRAINT ok_44pVqCtGJlFE7XwAM5eo  PRIMARY KEY (id);
+ALTER TABLE pessoa  ADD CONSTRAINT pk_pessoa  PRIMARY KEY (id);
+ALTER TABLE pessoa_endereco  ADD CONSTRAINT pk_pessoa_endereco  PRIMARY KEY (id);
+ALTER TABLE city  ADD CONSTRAINT pk_city  PRIMARY KEY (id);
+ALTER TABLE state  ADD CONSTRAINT pk_state  PRIMARY KEY (id);
+ALTER TABLE country  ADD CONSTRAINT pk_country  PRIMARY KEY (id);
+ALTER TABLE pessoa_fisica  ADD CONSTRAINT pk_pessoa_fisica  PRIMARY KEY (id);
 -- Fks
 
-ALTER TABLE pessoa_endereco ADD CONSTRAINT fk_FiuXLe330YOQlfSZ3A20 FOREIGN KEY (person) REFERENCES pessoa(id);
-ALTER TABLE pessoa_endereco ADD CONSTRAINT fk_SbYsBGxddkjthiluQC16 FOREIGN KEY (city) REFERENCES city(id);
-ALTER TABLE city ADD CONSTRAINT fk_7vuNVFX0xPbDycahFrF5 FOREIGN KEY (uf) REFERENCES state(id);
-ALTER TABLE state ADD CONSTRAINT fk_Oy0QPyZMUatK0I4KOBaN FOREIGN KEY (country) REFERENCES country(id);
-ALTER TABLE pessoa_fisica ADD CONSTRAINT fk_xSh9g5ZauzMmzWfeyYHU FOREIGN KEY (person) REFERENCES pessoa(id);
+ALTER TABLE pessoa_endereco ADD CONSTRAINT fk_pessoa_endereco_pessoa_person FOREIGN KEY (person) REFERENCES pessoa(id);
+ALTER TABLE pessoa_endereco ADD CONSTRAINT fk_pessoa_endereco_city_city FOREIGN KEY (city) REFERENCES city(id);
+ALTER TABLE city ADD CONSTRAINT fk_city_state_uf FOREIGN KEY (uf) REFERENCES state(id);
+ALTER TABLE state ADD CONSTRAINT fk_state_country_country FOREIGN KEY (country) REFERENCES country(id);
+ALTER TABLE pessoa_fisica ADD CONSTRAINT fk_pessoa_fisica_pessoa_person FOREIGN KEY (person) REFERENCES pessoa(id);
 --RelationShips
 

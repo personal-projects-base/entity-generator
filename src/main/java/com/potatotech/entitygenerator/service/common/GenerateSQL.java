@@ -93,7 +93,7 @@ public class GenerateSQL {
         });
 
         return pkModel.replace("<<fieldKey>>",pkFields.get())
-                .replace("<<idPk>>","ok_".concat(generateRandomString()))
+                .replace("<<idPk>>","pk_".concat(splitByUppercase(getTableName(entities))))
                 .replace("<<tableName>>",splitByUppercase(getTableName(entities)));
     }
 
@@ -113,11 +113,19 @@ public class GenerateSQL {
                     if(entity.isPresent()){
                         fieldReference = entity.get().getEntityFields().stream().filter(obj -> obj.getMetadata().isKey()).findFirst();
                     }
+
+                    var fkName = "fk_"
+                            .concat(splitByUppercase(getTableName(item)))
+                            .concat("_")
+                            .concat(splitByUppercase(getTableName(getEntity(entities, field.getFieldProperties().getFieldType()))))
+                            .concat("_")
+                            .concat(splitByUppercase(field.getFieldName()));
+
                     var tempFk = fkModel.replace("<<tableName>> ",splitByUppercase(getTableName(item)))
                             .replace("<<field>>",splitByUppercase(field.getFieldName()))
                             .replace("<<tableReference>>", splitByUppercase(getTableName(getEntity(entities, field.getFieldProperties().getFieldType()))))
                             .replace("<<fieldReference>>",splitByUppercase(fieldReference.get().getFieldName()))
-                            .replace("<<idFk>> ","fk_".concat(generateRandomString()));
+                            .replace("<<idFk>> ",fkName);
                     fkFields.set(fkFields.get().concat(tempFk));
                 }
             });

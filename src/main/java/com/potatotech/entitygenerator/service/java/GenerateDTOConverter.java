@@ -85,6 +85,7 @@ public class GenerateDTOConverter {
             String field = "";
             if(!fieldType.contains("Entity")){
                 var op = fieldType == "boolean" ? "is" : "get";
+                //var op = "get";
                 field = String.format("\n           dto.%s = entity.%s%s();",item.getFieldName(),op,firstCharacterUpperCase(item.getFieldName()));
             }
             else{
