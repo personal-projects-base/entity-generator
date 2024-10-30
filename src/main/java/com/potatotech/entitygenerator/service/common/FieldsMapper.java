@@ -22,12 +22,18 @@ public class FieldsMapper {
         if(typeFields.isEmpty()){
             setFieldTypesMap();
         }
+        if(properties.getEnums() != null && properties.getEnums().stream().anyMatch(e -> e.enumName.equalsIgnoreCase(type))){
+            return typeFields.getOrDefault(type,firstCharacterUpperCase(type));
+        }
         return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("Entity"));
     }
 
     public static String getFieldTypeDto(String type){
         if(typeFields.isEmpty()){
             setFieldTypesMap();
+        }
+        if(properties.getEnums() != null && properties.getEnums().stream().anyMatch(e -> e.enumName.equalsIgnoreCase(type))){
+            return typeFields.getOrDefault(type,firstCharacterUpperCase(type));
         }
         return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("DTO"));
     }
