@@ -105,7 +105,7 @@ public class GenerateSQL {
         AtomicReference<String> fkFields = new AtomicReference<>("");
         entities.forEach(item -> {
             item.getEntityFields().forEach(field -> {
-                if(field.getRelationShips() != null && !field.getRelationShips().isBidirectional()){
+                if(field.getRelationShips() != null && !field.getRelationShips().getRelationShip().equals("") && !field.getRelationShips().isBidirectional()){
 
                     var entity = entityReference.stream().filter(obj -> obj.getEntityName().equals(field.getFieldProperties().getFieldType())).findFirst();
 
@@ -113,7 +113,6 @@ public class GenerateSQL {
                     if(entity.isPresent()){
                         fieldReference = entity.get().getEntityFields().stream().filter(obj -> obj.getMetadata().isKey()).findFirst();
                     }
-
                     var tempFk = fkModel.replace("<<tableName>> ",splitByUppercase(getTableName(item)))
                             .replace("<<field>>",splitByUppercase(field.getFieldName()))
                             .replace("<<tableReference>>", splitByUppercase(getTableName(getEntity(entities, field.getFieldProperties().getFieldType()))))
