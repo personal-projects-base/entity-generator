@@ -36,6 +36,7 @@ public class GenerateHandler {
         var typeField = fieldTypeIdentity.getFieldProperties().getFieldType();
         var fieldType = FieldsMapper.getFieldTypeEntity(typeField);
         return mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
+                .replace("<<abstract>>",(entity.isHandlerAbstract() ? "abstract" : ""))
                 .replace("<<entityNameLowerCase>>",fileName)
                 .replace("<<keyType>>", fieldType)
                 .replace("<<packageName>>",packageName.concat("_gen"));

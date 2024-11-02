@@ -19,6 +19,7 @@ import static com.potatotech.entitygenerator.service.dotNet.GenerateHandler.gene
 import static com.potatotech.entitygenerator.service.dotNet.GenerateHandler.generateHandlerImpl;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateIRepositories;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
+import static com.potatotech.entitygenerator.service.java.GenerateEnum.generateEnum;
 
 
 public class GenerateDotNet {
@@ -44,6 +45,9 @@ public class GenerateDotNet {
 
         // Gera DynamicSchemaModelCacheKeyFactory
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "dynamicreplaceschemafactory", "DynamicSchemaModelCacheKeyFactory");
+
+        // Gera as classes Enumeration
+        generateEnum(prop.getEnums(),prop.getMainPackage(),packagePath);
 
         //Generate dbContext
         generateDbContext(prop.getEntities(),prop.getMainPackage(),packagePath);

@@ -11,19 +11,19 @@ import java.util.ArrayList;
 
 @RestController
 @RequestMapping("<<entityNameLowerCase>>")
-public class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
+public <<abstract>> class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    public EntityManager entityManager;
 
     @Autowired
-    <<entityName>>Repository repository;
+    public <<entityName>>Repository repository;
 
     @Autowired
-    <<entityName>>DTOConverter dtoConverter;
+    public <<entityName>>DTOConverter dtoConverter;
 
     @Autowired
-    SpecificationFilter<<<entityName>>Entity> especificationFilter;
+    public SpecificationFilter<<<entityName>>Entity> especificationFilter;
 
     @Override
     public <<entityName>>DTO save(<<entityName>>DTO obj) {

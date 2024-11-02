@@ -12,4 +12,5 @@ public class Entities {
     private String classExtends;
     private List<EntityFields> entityFields;
     private boolean generateDefaultHandlers = true;
+    private boolean handlerAbstract = false;
 }

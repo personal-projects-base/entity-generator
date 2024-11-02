@@ -17,7 +17,7 @@ import static com.potatotech.entitygenerator.service.common.Common.*;
 public class GenerateEnum {
 
 
-    protected static void generateEnum(List<Enums> enums, String packageName, Path packagePath){
+    public static void generateEnum(List<Enums> enums, String packageName, Path packagePath){
 
         String mod = loadWxsd("enum");
         enums.forEach(item -> {
@@ -38,6 +38,8 @@ public class GenerateEnum {
         String fields = getEnum(enumeration);
         return mod.replace("<<enumNameName>>",firstCharacterUpperCase(fileName))
                 .replace("<<packageName>>",packageName.concat("_gen"))
+                .replace("<<nameSpaceName>>",packageName.concat("_Gen"))
+                .replace("<<projetcName>>",packageName)
                 .replace("<<enumFields>>",fields);
     }
 

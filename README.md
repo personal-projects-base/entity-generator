@@ -61,6 +61,7 @@ O objeto entities deve ser configurado da seguinte forma:
       "tableName": "cpf",
       "classExtends" : "document",
       "generateDefaultHandlers": false,
+      "handlerAbstract": false,
       "entityFields": [
         {
           "comment": "Identificador único do cpf",
@@ -114,6 +115,7 @@ O objeto entities deve ser configurado da seguinte forma:
 * tableName: nome da tabela
 * classExtends: se extende de alguma outra classe
 * generateDefaultHandlers: se gera as interfaces de crud padrões
+* handlerAbstract: permite que o Handler seja sobrescrito (disponivel apenas para JAVA)
 * entityFields: Objeto que contém os campos da entidade
   * comment: Comentario do campo, este item é obrigatório
   * fieldName: Nome do campo
@@ -182,12 +184,23 @@ abaixo um exemplo da sintaxe:
   * anonymous: se o endpoint é anonimo
 
 ### Enums
+* (disponivel apenas para JAVA)
+Gera as enums do projeto
+
+ex:
+
+    {
+      "enumName": "Status",
+      "values": [
+        "ACTIVE",
+        "INACTIVE"
+      ]
+    }
 
 
 ### Events
-
-
+Não implementado
 ### Listeners
-
+Não implementado
 ### OBS:
   * Para geração correta dos arquivos estaticos para DotNet deve possuir a pasta "static"

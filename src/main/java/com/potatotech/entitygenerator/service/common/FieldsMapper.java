@@ -61,13 +61,17 @@ public class FieldsMapper {
 
 
         typeFields.put("integer","int");
-
         typeFields.put("long","Long");
         typeFields.put("decimal","Double");
         typeFields.put("double","Double");
     }
 
-
+    /**
+     * Converte o tipo, para o tipo do banco de dados
+     * @param type
+     * @param fields
+     * @return
+     */
     public static String getFieldTypeDb(String type, EntityFields fields){
         var output = "";
         if(typeFieldsDatabase.isEmpty()){
@@ -82,7 +86,12 @@ public class FieldsMapper {
             }
 
         }else {
-            output = typeFieldsDatabase.getOrDefault(type,"uuid");
+            if(properties.getEnums() != null && properties.getEnums().stream().anyMatch(e -> e.enumName.equalsIgnoreCase(type))){
+                output = typeFieldsDatabase.getOrDefault(type,"varchar");
+            } else {
+                output = typeFieldsDatabase.getOrDefault(type,"uuid");
+            }
+
         }
 
         // configuração especial para postgres, será alterado quando implementado geração pra sql server
