@@ -51,7 +51,7 @@ public class GenerateEndpoint {
 
             var request = setRequest(endpoints);
             if(request.contains("RequestBody")){
-                request.concat(firstCharacterUpperCase(fileName)+ "Input input");
+                request = request.concat(firstCharacterUpperCase(fileName)+ "Input input");
             } else {
                 request = setRequestParam(endpoints);
             }
