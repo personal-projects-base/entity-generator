@@ -1,7 +1,7 @@
 {
-  "mainPackage": "BaseBackendDotNet",
-  "language": "DOTNET",
-  "projectName": "BaseBackendDotNet",
+  "mainPackage": "com.potatotech.entitygenerator",
+  "language": "JAVA",
+  "projectName": "church-lite-backend",
   "entities": [
     {
       "entityName": "person",
@@ -804,6 +804,28 @@
           },
           {
             "parameterName": "status",
+            "parameterType": "boolean",
+            "list": false
+          }
+        ],
+        "anonymous": false
+      }
+    },
+    {
+      "methodName": "verifyURL",
+      "httpMethod": "GET",
+      "grouper": "",
+      "metadata": {
+        "input": [
+          {
+            "parameterName": "token",
+            "parameterType": "string",
+            "list": false
+          }
+        ],
+        "output": [
+          {
+            "parameterName": "authorize",
             "parameterType": "boolean",
             "list": false
           }

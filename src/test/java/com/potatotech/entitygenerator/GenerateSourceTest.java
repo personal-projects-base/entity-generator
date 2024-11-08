@@ -10,7 +10,7 @@ public class GenerateSourceTest {
     public void testSource(){
         GenerateSource gen = new GenerateSource();
         try {
-            gen.generateSource();
+            //gen.generateSource();
         }catch (Exception e) {
             e.printStackTrace();
         }

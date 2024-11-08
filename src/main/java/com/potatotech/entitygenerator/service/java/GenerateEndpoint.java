@@ -48,10 +48,35 @@ public class GenerateEndpoint {
 
     private static String setParameterInput(Endpoints endpoints, String fileName){
         if(!validRequestOrResponseData(endpoints.getMetadata().getInput())){
-            return setRequest(endpoints).concat(firstCharacterUpperCase(fileName)+ "Input input");
+
+            var request = setRequest(endpoints);
+            if(request.contains("RequestBody")){
+                request.concat(firstCharacterUpperCase(fileName)+ "Input input");
+            } else {
+                request = setRequestParam(endpoints);
+            }
+            return request;
         } else {
+            // Aqui é caso não possua nenhum parametro de entrada, ai seta o objeto RequestData como padrão
+            //(DOCUMENTAR)
             return setRequest(endpoints).concat("RequestData input");
         }
+    }
+
+    private static String setRequestParam(Endpoints endpoints) {
+        var reference = new AtomicReference<String>("");
+        endpoints.getMetadata().getInput().forEach(e -> {
+            var fieldType = FieldsMapper.getFieldTypeEntity(e.getParameterType());
+
+            var temp = String.format("@RequestParam(value=\"%s\",required=false) %s %s,",
+                    e.getParameterName(),
+                   fieldType,
+                    e.getParameterName()
+            );
+            temp += reference.get();
+            reference.set(String.format("\n        %s",temp));
+        });
+        return reference.get().substring(0, reference.get().lastIndexOf(",")).concat("\n    ");
     }
 
     private static String setParameterOutput(Endpoints endpoints, String fileName){
@@ -63,7 +88,7 @@ public class GenerateEndpoint {
     }
 
     private static String setRequest(Endpoints endpoints){
-        return endpoints.getMethodName().equals("GET") ? "@RequestParam " : "@RequestBody ";
+        return endpoints.getHttpMethod().equals("GET") ? "@RequestParam " : "@RequestBody ";
     }
 
     private static String[] isAnonimous(Metadata metadata) {

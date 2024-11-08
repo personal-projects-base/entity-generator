@@ -5,10 +5,6 @@ CREATE TABLE IF NOT EXISTS pessoa(
   id uuid,
   name varchar,
   active varchar
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
 );
 
 CREATE TABLE IF NOT EXISTS pessoa_endereco(
@@ -21,10 +17,6 @@ CREATE TABLE IF NOT EXISTS pessoa_endereco(
   city uuid,
   complement varchar,
   postal_code varchar
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
 );
 
 CREATE TABLE IF NOT EXISTS city(
@@ -33,10 +25,6 @@ CREATE TABLE IF NOT EXISTS city(
   name varchar,
   ibge varchar,
   state uuid
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
 );
 
 CREATE TABLE IF NOT EXISTS state(
@@ -45,20 +33,12 @@ CREATE TABLE IF NOT EXISTS state(
   name varchar,
   abreviation varchar,
   country uuid
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
 );
 
 CREATE TABLE IF NOT EXISTS country(
     
   id uuid,
   name varchar
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
 );
 
 CREATE TABLE IF NOT EXISTS pessoa_documentos(
@@ -69,11 +49,7 @@ CREATE TABLE IF NOT EXISTS pessoa_documentos(
   rg varchar,
   cnpj varchar,
   birth_date date,
-  type_person uuid
-  --created_by varchar(80),
-  --created_date timestamp,
-  --last_modified_by varchar(80),
-  --last_modified_date timestamp
+  type_person varchar
 );
 
 -- PKs

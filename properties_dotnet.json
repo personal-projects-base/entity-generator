@@ -1,7 +1,7 @@
 {
-  "mainPackage": "com.potatotech.entitygenerator",
-  "language": "JAVA",
-  "projectName": "church-lite-backend",
+  "mainPackage": "BaseBackendDotNet",
+  "language": "DOTNET",
+  "projectName": "BaseBackendDotNet",
   "entities": [
     {
       "entityName": "person",
