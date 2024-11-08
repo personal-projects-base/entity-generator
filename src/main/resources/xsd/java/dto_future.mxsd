@@ -15,4 +15,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class <<entityName>>DTO {
     <<entityFields>>
+
+
+    String createdBy;
+    LocalDateTime createdDate;
+    String lastModifiedBy;
+    LocalDateTime lastModifiedDate;
+
 }
