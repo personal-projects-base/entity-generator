@@ -9,5 +9,5 @@ public interface <<className>> {
 
     <<isAnonimous>>
     @<<httpMethod>>Mapping("<<methodName>>")
-    public <<output>> <<methodName>>(<<input>>);
+    public ResponseEntity<<<output>>> <<methodName>>(<<input>>);
 }
