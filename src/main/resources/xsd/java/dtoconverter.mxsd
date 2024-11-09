@@ -10,12 +10,16 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+
+
+
 @Component
 public class <<entityName>>DTOConverter {
 
     <<dependencies>>
 
-    public <<entityName>>Entity toEntity(<<entityName>>DTO dto){
+    public <<entityName>>Entity toEntity(<<entityName>>DTO dto, String displayFields){
+        displayFields = displayFields == null || displayFields.trim().isEmpty() ? "*" : displayFields;
 
 
         if(dto != null) {
@@ -27,8 +31,8 @@ public class <<entityName>>DTOConverter {
         return null;
     }
 
-    public <<entityName>>DTO toDTO(<<entityName>>Entity entity){
-
+    public <<entityName>>DTO toDTO(<<entityName>>Entity entity, String displayFields){
+        displayFields = displayFields == null || displayFields.trim().isEmpty() ? "*" : displayFields;
 
         if(entity != null){
             var dto = new <<entityName>>DTO();
@@ -38,11 +42,11 @@ public class <<entityName>>DTOConverter {
         return null;
     }
 
-    public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj){
+    public List<<<entityName>>Entity> toEntity(List<<<entityName>>DTO> obj, String displayFields){
         if(obj != null){
             var list = new ArrayList<<<entityName>>Entity>();
             obj.forEach(dto -> {
-                var entity = toEntity(dto);
+                var entity = toEntity(dto, displayFields);
                 list.add(entity);
             });
             return list;
@@ -50,11 +54,11 @@ public class <<entityName>>DTOConverter {
         return null;
     }
 
-    public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj){
+    public List<<<entityName>>DTO> toDTO(List<<<entityName>>Entity> obj, String displayFields){
         if(obj != null) {
             var list = new ArrayList<<<entityName>>DTO>();
             obj.forEach(entity -> {
-                var dto = toDTO(entity);
+                var dto = toDTO(entity, displayFields);
                 list.add(dto);
             });
             return list;

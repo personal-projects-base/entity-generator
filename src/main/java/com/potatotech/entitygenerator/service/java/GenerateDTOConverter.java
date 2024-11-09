@@ -64,10 +64,8 @@ public class GenerateDTOConverter {
                 var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(item.getFieldProperties().getFieldType())).findFirst().orElse(null);
                 var loadFieldRelationShip = entityforeignKey != null ? entityforeignKey.getEntityFields().stream().filter(e -> e.getFieldProperties().getFieldType().equals(entity.getEntityName())).findFirst().orElse(null) : null;
 
-                if(loadFieldRelationShip != null && loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
-                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
-                } else if(loadFieldRelationShip == null){
-                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
+                if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
+                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s, null));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
                 }
             }
 
@@ -85,9 +83,13 @@ public class GenerateDTOConverter {
             String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
             String field = "";
             if(!fieldType.contains("Entity")){
-                var op = fieldType == "boolean" ? "is" : "get";
-                //var op = "get";
-                field = String.format("\n           dto.%s = entity.%s%s();",item.getFieldName(),op,firstCharacterUpperCase(item.getFieldName()));
+                var op = fieldType.equals("boolean") ? "is" : "get";
+                field = String.format("\n           dto.%s = displayFields.contains(\"*\") || displayFields.contains(\"%s\") ? entity.%s%s() : null;"
+                        ,item.getFieldName(),
+                        item.getFieldName(),
+                        op,
+                        firstCharacterUpperCase(item.getFieldName())
+                );
             }
             else{
                 addDependencies(fieldType);
@@ -104,11 +106,14 @@ public class GenerateDTOConverter {
                         .findFirst().orElse(null)
                         : null;
 
-                if(loadFieldRelationShip != null && loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
-
-                    field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
-                } else if(loadFieldRelationShip == null){
-                    field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
+                if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
+                    field = String.format("\n           dto.%s = displayFields.contains(\"*\") || displayFields.contains(\"%s\") ? %sDtoConverter.toDTO(entity.get%s(), SpecificationFilter.displayFieldsEntity(displayFields,\"%s\")) : null;",
+                            item.getFieldName(),
+                            item.getFieldName(),
+                            item.getFieldName(),
+                            firstCharacterUpperCase(item.getFieldName()),
+                            item.getFieldName()
+                    );
                 }
 
             }
