@@ -55,7 +55,11 @@ public class SpecificationFilter<T> {
 
         var criteria = item.split("eq");
         if(criteria.length == 2){
-            return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
+            if (UUID.class.isAssignableFrom(root.get(criteria[0].trim()).getJavaType())){
+                return cb.equal(root.get(criteria[0].trim()), UUID.fromString(criteria[1].trim()));
+            }else {
+                return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
+            }
         }
         return null;
     }
