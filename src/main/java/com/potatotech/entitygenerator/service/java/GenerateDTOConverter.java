@@ -65,7 +65,8 @@ public class GenerateDTOConverter {
                 var loadFieldRelationShip = entityforeignKey != null ? entityforeignKey.getEntityFields().stream().filter(e -> e.getFieldProperties().getFieldType().equals(entity.getEntityName())).findFirst().orElse(null) : null;
 
                 if(loadFieldRelationShip != null && loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
-                    fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
+                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
+                } else if(loadFieldRelationShip == null){
                     field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
                 }
             }
@@ -104,7 +105,9 @@ public class GenerateDTOConverter {
                         : null;
 
                 if(loadFieldRelationShip != null && loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
-                    fieldType = fieldType.replace("Entity","").replace("DTO", "").toLowerCase();
+
+                    field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
+                } else if(loadFieldRelationShip == null){
                     field = String.format("\n           dto.%s = %sDtoConverter.toDTO(entity.get%s());",item.getFieldName(),item.getFieldName(),firstCharacterUpperCase(item.getFieldName()));
                 }
 
