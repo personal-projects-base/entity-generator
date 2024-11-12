@@ -66,7 +66,10 @@ public class GenerateDTOConverter {
 
                 if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
                     field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s, null));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
-                    field += String.format("\n           if (entity.get%s() != null) entity.get%s().set%s(entity);",firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(entity.getEntityName()));
+                }
+
+                if(item.getRelationShips() != null && item.getRelationShips().isBidirectional()){
+                    field += String.format("\n           if (entity.get%s() != null) entity.get%s().set%s(entity);", firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(entity.getEntityName()));
                 }
             }
 
