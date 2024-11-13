@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 import java.util.ArrayList;
+import java.util.Map;
 
 @RestController
 @RequestMapping("<<entityNameLowerCase>>")
@@ -51,7 +52,14 @@ public <<abstract>> class <<entityName>>Handler implements HandlerBase<<<entityN
     }
 
     @Override
-    public ResponseData getAll(RequestData input) {
+    public ResponseData getAll(@RequestParam Map<String, String> params) {
+
+        var input = new RequestData();
+        requestData.setSize(params.containsKey("size") ? Integer.parseInt(params.get("size")) : null);
+        requestData.setOffset(params.containsKey("offset") ? Integer.parseInt(params.get("offset")) : null);
+        requestData.setFilter(params.get("filter"));
+        requestData.setOrder(params.get("order"));
+        requestData.setDisplayFields(params.get("displayFields"));
 
          if(input.offset <= 0){
              input.offset = 1;

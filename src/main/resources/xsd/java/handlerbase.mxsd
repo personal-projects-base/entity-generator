@@ -3,6 +3,7 @@ package <<packageName>>;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 public interface HandlerBase<T,ID> {
 
@@ -24,5 +25,5 @@ public interface HandlerBase<T,ID> {
 
     @GetMapping
     @Transactional
-    public ResponseData getAll(@RequestBody RequestData input);
+    public ResponseData getAll(@RequestParam Map<String, String> params);
 }
