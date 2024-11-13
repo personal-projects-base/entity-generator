@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(origins="*")
 @RequestMapping("<<entityNameLowerCase>>")
 public <<abstract>> class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
 
@@ -55,11 +56,11 @@ public <<abstract>> class <<entityName>>Handler implements HandlerBase<<<entityN
     public ResponseData getAll(@RequestParam Map<String, String> params) {
 
         var input = new RequestData();
-        requestData.setSize(params.containsKey("size") ? Integer.parseInt(params.get("size")) : null);
-        requestData.setOffset(params.containsKey("offset") ? Integer.parseInt(params.get("offset")) : null);
-        requestData.setFilter(params.get("filter"));
-        requestData.setOrder(params.get("order"));
-        requestData.setDisplayFields(params.get("displayFields"));
+        input.size = params.containsKey("size") ? Integer.parseInt(params.get("size")) : null;
+        input.offset = params.containsKey("offset") ? Integer.parseInt(params.get("offset")) : null;
+        input.filter = params.get("filter");
+        input.order = params.get("order");
+        input.displayFields = params.get("displayFields");
 
          if(input.offset <= 0){
              input.offset = 1;
