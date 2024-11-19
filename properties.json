@@ -55,7 +55,7 @@
         },
         {
           "comment": "Se a pessoa esta ativa",
-          "fieldName": "active",
+          "fieldName": "status",
           "fieldProperties": {
             "fieldType": "status",
             "required": false,
@@ -131,10 +131,66 @@
             "reference": "",
             "enableFieldsFilter": false
           }
+        },
+        {
+          "comment": "Relacionamento Pessoa Telefones",
+          "fieldName": "personalTelphone",
+          "fieldProperties": {
+            "fieldType": "personalTelphone",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne",
+            "bidirectional": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento Pessoa Email",
+          "fieldName": "personalEmail",
+          "fieldProperties": {
+            "fieldType": "personalEmail",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne",
+            "bidirectional": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
         }
       ],
       "classExtends": "",
-      "generateDefaultHandlers": true,
+      "generateDefaultHandlers": false,
       "handlerAbstract": false
     },
     {
@@ -201,7 +257,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -224,7 +280,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -247,7 +303,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -270,7 +326,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "relationShips": {
@@ -298,7 +354,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -321,7 +377,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -337,7 +393,7 @@
         }
       ],
       "classExtends": "",
-      "generateDefaultHandlers": true,
+      "generateDefaultHandlers": false,
       "handlerAbstract": false
     },
     {
@@ -426,7 +482,7 @@
             "key": false
           },
           "relationShips": {
-            "fetchType": "LAZY",
+            "fetchType": "EAGER",
             "relationShip": "OneToOne",
             "bidirectional": false
           },
@@ -717,7 +773,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -740,7 +796,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -755,7 +811,7 @@
           }
         },
         {
-          "comment": "CNPF",
+          "comment": "Cnpj",
           "fieldName": "cnpj",
           "fieldProperties": {
             "fieldType": "string",
@@ -763,7 +819,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -786,7 +842,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -809,7 +865,30 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Inscrição estadual",
+          "fieldName": "ie",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
             "key": false
           },
           "list": false,
@@ -825,7 +904,7 @@
         }
       ],
       "classExtends": "",
-      "generateDefaultHandlers": true,
+      "generateDefaultHandlers": false,
       "handlerAbstract": false
     },
     {
@@ -905,6 +984,621 @@
         }
       ],
       "classExtends": ""
+    },
+    {
+      "entityName": "personalTelphone",
+      "tableName": "person_telphone",
+      "entityFields": [
+        {
+          "comment": "Identificação",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com pessoa",
+          "fieldName": "person",
+          "fieldProperties": {
+            "fieldType": "person",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "ManyToOne",
+            "bidirectional": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Telefone",
+          "fieldName": "phone",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Telefone Celular",
+          "fieldName": "cellPhone",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": false,
+      "handlerAbstract": false
+    },
+    {
+      "entityName": "personalEmail",
+      "tableName": "person_email",
+      "entityFields": [
+        {
+          "comment": "Identificação",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com pessoa",
+          "fieldName": "person",
+          "fieldProperties": {
+            "fieldType": "person",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne",
+            "bidirectional": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Email",
+          "fieldName": "email",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": false,
+      "handlerAbstract": false
+    },
+    {
+      "entityName": "positions",
+      "tableName": "position_members",
+      "entityFields": [
+        {
+          "comment": "Campo identificação",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Nome cargo",
+          "fieldName": "name",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição do cargo",
+          "fieldName": "description",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false
+    },
+    {
+      "entityName": "appointments",
+      "tableName": "appointments",
+      "entityFields": [
+        {
+          "comment": "Campo identificação",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo de agendamento",
+          "fieldName": "schedulerType",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "schedulerType",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne",
+            "bidirectional": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Observações",
+          "fieldName": "obs",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com pessoa Responsavel",
+          "fieldName": "person",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "person",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToOne",
+            "bidirectional": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false
+    },
+    {
+      "entityName": "schedulerType",
+      "tableName": "scheduler_type",
+      "entityFields": [
+        {
+          "comment": "Campo identificação",
+          "fieldName": "id",
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição do tipo de agenda",
+          "fieldName": "name",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Cor na agenda",
+          "fieldName": "color",
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "list": false,
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": "",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false
+    },
+    {
+      "entityName": "planAccount",
+      "tableName": "plan_account",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "Id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição",
+          "fieldName": "description",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Código da arvore",
+          "fieldName": "codeTree",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Código da arvore",
+          "fieldName": "type",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "typePlanAccount",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Código Pai",
+          "fieldName": "parentCode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "planAccount",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "reference": true,
+            "relationShip": "ManyToOne",
+            "bidirectional": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Arvore",
+          "fieldName": "children",
+          "list": true,
+          "fieldProperties": {
+            "fieldType": "planAccount",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "EAGER",
+            "relationShip": "OneToMany",
+            "bidirectional": true,
+            "mappedBy": "parentCode"
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
     }
   ],
   "endpoints": [
@@ -958,7 +1652,7 @@
       }
     }
   ],
-  "enums": [
+  "enums":  [
     {
       "enumName": "Status",
       "values": [
@@ -971,6 +1665,23 @@
       "values": [
         "NATURAL_PERSON",
         "LEGAL_PERSON"
+      ]
+    },
+    {
+      "enumName": "TypesMembers",
+      "values": [
+        "MEMBER",
+        "SUPPLIER",
+        "CHILD",
+        "VISITOR",
+        "NEW_CONVERT"
+      ]
+    },
+    {
+      "enumName": "TypePlanAccount",
+      "values": [
+        "ANALYTICAL",
+        "SYNTHETIC"
       ]
     }
   ]

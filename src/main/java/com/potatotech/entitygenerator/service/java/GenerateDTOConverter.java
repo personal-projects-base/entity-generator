@@ -8,7 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.potatotech.entitygenerator.service.common.Common.*;
@@ -17,7 +19,7 @@ import static com.potatotech.entitygenerator.service.common.Common.*;
 public class GenerateDTOConverter {
 
 
-    private static List<String> dependencies = new ArrayList<>();
+    private static Map<String, String> dependencies = new LinkedHashMap<>();
 
     protected static void generateDTOConverter(List<Entities> entities,String packageName, Path packagePath){
 
@@ -65,14 +67,20 @@ public class GenerateDTOConverter {
                 var loadFieldRelationShip = entityforeignKey != null ? entityforeignKey.getEntityFields().stream().filter(e -> e.getFieldProperties().getFieldType().equals(entity.getEntityName())).findFirst().orElse(null) : null;
 
                 if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
-                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s, null));",firstCharacterUpperCase(item.getFieldName()),item.getFieldName(),item.getFieldName());
+                    var dtoName = item.getFieldName();
+                    field = String.format("\n           entity.set%s(%sDtoConverter.toEntity(dto.%s, null));",firstCharacterUpperCase(item.getFieldName()),dtoName,item.getFieldName());
                 }
 
                 if(item.getRelationShips() != null && item.getRelationShips().isBidirectional()){
+                    var fieldName = entity.getEntityName();
+                    if(item.getRelationShips().getMappedBy() != null && !item.getRelationShips().getMappedBy().isEmpty()){
+                        fieldName = item.getRelationShips().getMappedBy();
+
+                    }
                     if(item.isList())
-                        field += String.format("\n           if (entity.get%s() != null) entity.get%s().forEach(e -> e.set%s(entity));", firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(entity.getEntityName()));
+                        field += String.format("\n           if (entity.get%s() != null) entity.get%s().forEach(e -> e.set%s(entity));", firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(fieldName));
                     else
-                        field += String.format("\n           if (entity.get%s() != null) entity.get%s().set%s(entity);", firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(entity.getEntityName()));
+                        field += String.format("\n           if (entity.get%s() != null) entity.get%s().set%s(entity);", firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(item.getFieldName()), firstCharacterUpperCase(fieldName));
                 }
             }
 
@@ -99,7 +107,7 @@ public class GenerateDTOConverter {
                 );
             }
             else{
-                addDependencies(fieldType);
+
 
                 var entityforeignKey = properties.getEntities().stream().filter(e -> e
                             .getEntityName()
@@ -113,16 +121,25 @@ public class GenerateDTOConverter {
                         .findFirst().orElse(null)
                         : null;
 
-                if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional()){
+
+                if(entity.getEntityName().equals(item.getFieldProperties().getFieldType())){
+                    addDependencies(entity.getEntityName(), item.getFieldName());
+
+                } else {
+                    addDependencies(item.getFieldName(), item.getFieldName());
+                }
+
+
+                if(loadFieldRelationShip == null || loadFieldRelationShip.getRelationShips() != null && !loadFieldRelationShip.getRelationShips().isBidirectional() && !item.getRelationShips().isReference()){
+                    var fieldTypeName = item.getFieldName();
                     field = String.format("\n           dto.%s = displayFields.contains(\"*\") || displayFields.contains(\"%s\") ? %sDtoConverter.toDTO(entity.get%s(), SpecificationFilter.displayFieldsEntity(displayFields,\"%s\")) : null;",
                             item.getFieldName(),
                             item.getFieldName(),
-                            item.getFieldName(),
+                            fieldTypeName,
                             firstCharacterUpperCase(item.getFieldName()),
                             item.getFieldName()
                     );
                 }
-
             }
 
             tempField += field;
@@ -132,19 +149,19 @@ public class GenerateDTOConverter {
     }
 
 
-    private static void addDependencies(String className){
-        dependencies.add(className);
+    private static void addDependencies(String className, String propertyName){
+        dependencies.put(propertyName, className);
     }
 
     private static String getDependencies(){
 
         AtomicReference<String> fields = new AtomicReference<>("");
 
-        dependencies.forEach(item -> {
+        dependencies.forEach((k, v) -> {
             var tempField = fields.get();
 
-            item = item.replace("Entity","").replace("DTO", "");
-            var dependency = String.format("%s@Autowired%s@Lazy%s%sDTOConverter %sDtoConverter;","\n    ","\n    ","\n    ",firstCharacterUpperCase(item), firstCharacterLowerCase(item));
+            var item =  v.replace("Entity","").replace("DTO", "");
+            var dependency = String.format("%s@Autowired%s@Lazy%s%sDTOConverter %sDtoConverter;","\n    ","\n    ","\n    ",firstCharacterUpperCase(item), firstCharacterLowerCase(k));
 
             tempField += dependency;
             fields.set(tempField);

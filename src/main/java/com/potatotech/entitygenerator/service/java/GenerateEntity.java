@@ -66,7 +66,11 @@ public class GenerateEntity {
         var metadata = "";
         if(entity.getRelationShips() != null){
             if(entity.getRelationShips().isBidirectional()){
-                metadata += String.format("\n    @%s(mappedBy = \"%s\", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entityName,entity.getRelationShips().getFetchType());
+                var mappedBy = entityName;
+                if(entity.getRelationShips().getMappedBy() != null && !entity.getRelationShips().getMappedBy().isEmpty()){
+                    mappedBy = entity.getRelationShips().getMappedBy();
+                }
+                metadata += String.format("\n    @%s(mappedBy = \"%s\", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),mappedBy,entity.getRelationShips().getFetchType());
             } else {
                 metadata += String.format("\n    @%s(fetch = FetchType.%s)",entity.getRelationShips().getRelationShip(),entity.getRelationShips().getFetchType());
             }

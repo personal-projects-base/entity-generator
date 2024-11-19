@@ -138,6 +138,8 @@ O objeto entities deve ser configurado da seguinte forma:
   * relationShips: Configurações de relacionamento
     * fetchType: (string) fetchType do campo: EAGER|LAZY
     * relationShip: (string) relacionamento ex: OneToOne, ManyToOne...
+    * reference: (boolean) - deve ser marcado como verdadeiro caso seja referencia de uma propriedade autoreferenciada
+    * mappedBy: (string) Em casos de classes autoReferenciada, o item que será bidirecional deve conter valor no mappedBy, referenciado a propriedade de referencia
     * bidirectional: (boolean) se é uma classe que terá um relacionamento bidirecional
 
 ### Endpoints
