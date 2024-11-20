@@ -74,7 +74,11 @@ public class SpecificationFilter<T> {
             } else {
                 if (UUID.class.isAssignableFrom(root.get(criteria[0].trim()).getJavaType())){
                     return cb.equal(root.get(criteria[0].trim()), UUID.fromString(criteria[1].trim()));
-                }else {
+                }
+                else if(root.get(criteria[0].trim()).getJavaType().isEnum()){
+                    return cb.equal(root.get(criteria[0].trim()), criteria[1].trim());
+                }
+                else {
                     return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
                 }
             }
