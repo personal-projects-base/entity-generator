@@ -4,6 +4,12 @@ package <<packageName>>;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Date;
+import java.time.LocalDate;
+import java.sql.Timestamp;
+import java.util.UUID;
+
 
 public interface <<className>> {
 
