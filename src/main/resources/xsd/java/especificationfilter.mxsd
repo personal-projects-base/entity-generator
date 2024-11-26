@@ -19,99 +19,114 @@ import java.util.regex.Pattern;
 @Component
 public class SpecificationFilter<T> {
 
-    public Specification<T> customFilter(String filter){
-        Specification<T> spec = Specification.where(null);
-        if(filter == null || filter.isEmpty()){
-            return spec;
+        public Specification<T> customFilter(String filter){
+            Specification<T> spec = Specification.where(null);
+            if(filter == null || filter.isEmpty()){
+                return spec;
+            }
+
+            return (root, query, cb) -> {
+                try{
+                    if (filter == null || filter.isEmpty()) {
+                        return null;
+                    }
+
+                    return parseExpression(filter, cb, root);
+                } catch (Exception ex){
+                    throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid filter: " + filter);
+                }
+            };
         }
 
-        return (root, query, cb) -> {
-            try{
-                if (filter == null || filter.isEmpty()) {
-                    return null;
-                }
 
-                Predicate predicateAnd = cb.conjunction();
-                Predicate predicateOr = cb.disjunction();
-                String[] and = null ;
-                String[] or = null ;
+        private Predicate parseExpression(String expression, CriteriaBuilder cb, Root<?> root) {
 
-                if(filter.contains("and")){
-                    and = filter.split("and");
-                    for(var i : and){
-                        predicateAnd = cb.and(predicateAnd,setEq(cb, i, root));
-                    }
+            expression = expression.trim();
+
+
+            if (expression.startsWith("(") && expression.endsWith(")")) {
+                return parseExpression(expression.substring(1, expression.length() - 1), cb, root);
+            }
+
+
+            String[] andParts = expression.split("(?i)\\s+and\\s+");
+            if (andParts.length > 1) {
+                Predicate andPredicate = cb.conjunction();
+                for (String part : andParts) {
+                    andPredicate = cb.and(andPredicate, parseExpression(part, cb, root));
                 }
-                else if(filter.contains("or")){
-                    or = filter.split("or");
-                    for(var i : or){
-                        predicateOr = cb.or(predicateOr,setEq(cb, i, root));
+                return andPredicate;
+            }
+
+
+            String[] orParts = expression.split("(?i)\\s+or\\s+");
+            if (orParts.length > 1) {
+                Predicate orPredicate = cb.disjunction();
+                for (String part : orParts) {
+                    orPredicate = cb.or(orPredicate, parseExpression(part, cb, root));
+                }
+                return orPredicate;
+            }
+
+
+            return setEq(cb, expression.trim(), (Root<T>) root);
+        }
+
+        private Predicate setEq(CriteriaBuilder cb, String item, Root<T> root) {
+
+            var criteria = item.split("eq");
+            if(criteria.length == 2){
+                var hasJoin = criteria[0].split("\\.");
+                if(hasJoin.length == 2){
+                    var join = createJoin(root, hasJoin[0]);
+
+                    if (UUID.class.isAssignableFrom(join.get(hasJoin[1].trim()).getJavaType())){
+                        return cb.equal(join.get(hasJoin[1].trim()), UUID.fromString(criteria[1].trim()));
+                    }else {
+                        return cb.like(cb.lower(join.get(hasJoin[1].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
                     }
                 } else {
-                    predicateAnd = cb.and(predicateAnd, setEq(cb, filter, root));
+                    if (UUID.class.isAssignableFrom(root.get(criteria[0].trim()).getJavaType())){
+                        return cb.equal(root.get(criteria[0].trim()), UUID.fromString(criteria[1].trim()));
+                    }
+                    else if(root.get(criteria[0].trim()).getJavaType().isEnum()){
+                        return cb.equal(root.get(criteria[0].trim()), criteria[1].trim());
+                    }
+                    else {
+                        return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
+                    }
                 }
 
-                return cb.or(predicateAnd,predicateOr);
-            } catch (Exception ex){
-                throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid filter: " + filter);
             }
-        };
-    }
-
-    private Predicate setEq(CriteriaBuilder cb, String item, Root<T> root) {
-
-        var criteria = item.split("eq");
-        if(criteria.length == 2){
-            var hasJoin = criteria[0].split("\\.");
-            if(hasJoin.length == 2){
-                var join = createJoin(root, hasJoin[0]);
-
-                if (UUID.class.isAssignableFrom(join.get(hasJoin[1].trim()).getJavaType())){
-                    return cb.equal(join.get(hasJoin[1].trim()), UUID.fromString(criteria[1].trim()));
-                }else {
-                    return cb.like(cb.lower(join.get(hasJoin[1].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
-                }
-            } else {
-                if (UUID.class.isAssignableFrom(root.get(criteria[0].trim()).getJavaType())){
-                    return cb.equal(root.get(criteria[0].trim()), UUID.fromString(criteria[1].trim()));
-                }
-                else if(root.get(criteria[0].trim()).getJavaType().isEnum()){
-                    return cb.equal(root.get(criteria[0].trim()), criteria[1].trim());
-                }
-                else {
-                    return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
-                }
-            }
-
+            return null;
         }
-        return null;
-    }
 
-    private static <T, R> Join<T, R> createJoin(Root<T> root, String relationship) {
-        return root.join(relationship);
-    }
-
-    public static String displayFieldsEntity(String displayFields,String entityName){
-        if(displayFields.equals("*")){
-            return "*";
-        } else{
-
-            Pattern pattern = Pattern.compile("\\b"+entityName+"(?:\\.[a-zA-Z_]+)+\\b");
-            Matcher matcher = pattern.matcher(displayFields);
-            var matches = new ArrayList<>();
-
-            while (matcher.find()) {
-                matches.add(matcher.group());
-            }
-
-            var display = new AtomicReference<>("");
-
-            matches.forEach(e -> {
-                display.set(String.format("%s%s;",display.get(),e.toString().replace(entityName+".","")));
-            });
-
-            return display.get().contains("*") ? "*" : display.get();
+        private static <T, R> Join<T, R> createJoin(Root<T> root, String relationship) {
+            return root.join(relationship);
         }
-    }
+
+        public static String displayFieldsEntity(String displayFields,String entityName){
+            if(displayFields.equals("*")){
+                return "*";
+            } else{
+
+                Pattern pattern = Pattern.compile("\\b"+entityName+"(?:\\.[a-zA-Z_]+)+\\b");
+                Matcher matcher = pattern.matcher(displayFields);
+                var matches = new ArrayList<>();
+
+                while (matcher.find()) {
+                    matches.add(matcher.group());
+                }
+
+                var display = new AtomicReference<>("");
+
+                matches.forEach(e -> {
+                    display.set(String.format("%s%s;",display.get(),e.toString().replace(entityName+".","")));
+                });
+
+                return display.get().contains("*") ? "*" : display.get();
+            }
+        }
+
 
 }
