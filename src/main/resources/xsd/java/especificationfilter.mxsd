@@ -74,7 +74,7 @@ public class SpecificationFilter<T> {
             var criteria = item.split("eq");
             if(criteria.length == 2){
                 var hasJoin = criteria[0].split("\\.");
-                if(hasJoin.length == 2){
+                if(hasJoin.length > 1){
 
                     var join = createDynamicJoin(root, hasJoin);
 
