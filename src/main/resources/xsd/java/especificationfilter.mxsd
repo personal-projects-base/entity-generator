@@ -78,12 +78,15 @@ public class SpecificationFilter<T> {
             if(criteria.length == 2){
                 var hasJoin = criteria[0].split("\\.");
                 if(hasJoin.length == 2){
-                    var join = createJoin(root, hasJoin[0]);
 
-                    if (UUID.class.isAssignableFrom(join.get(hasJoin[1].trim()).getJavaType())){
-                        return cb.equal(join.get(hasJoin[1].trim()), UUID.fromString(criteria[1].trim()));
+                    var join = createDynamicJoin(root, hasJoin);
+
+                    String finalProperty = hasJoin[hasJoin.length - 1];
+
+                    if (UUID.class.isAssignableFrom(join.get(finalProperty.trim()).getJavaType())){
+                        return cb.equal(join.get(finalProperty.trim()), UUID.fromString(criteria[1].trim()));
                     }else {
-                        return cb.like(cb.lower(join.get(hasJoin[1].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
+                        return cb.like(cb.lower(join.get(finalProperty.trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
                     }
                 } else {
                     if (UUID.class.isAssignableFrom(root.get(criteria[0].trim()).getJavaType())){
@@ -101,8 +104,13 @@ public class SpecificationFilter<T> {
             return null;
         }
 
-        private static <T, R> Join<T, R> createJoin(Root<T> root, String relationship) {
-            return root.join(relationship);
+        private static Join<?, ?> createDynamicJoin(From<?, ?> root, String[] properties){
+            var currentJoin = root;
+            for (int i = 0; i < properties.length - 1; i++) {
+                currentJoin = currentJoin.join(properties[i]);
+            }
+
+            return (Join<?, ?>) currentJoin;
         }
 
         public static String displayFieldsEntity(String displayFields,String entityName){
