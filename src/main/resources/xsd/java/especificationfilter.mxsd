@@ -65,8 +65,17 @@ public class SpecificationFilter<T> {
                 return orPredicate;
             }
 
-
-            return setEq(cb, expression.trim(), (Root<T>) root);
+            if(expression.trim().contains("eq")){
+                return setEq(cb, expression.trim(), (Root<T>) root);
+            }
+            else if(expression.trim().contains("isNull")){
+                return setIsNull(cb, expression.trim(), (Root<T>) root);
+            }
+            else if(expression.trim().contains("notNull")){
+                return setNotNull(cb, expression.trim(), (Root<T>) root);
+            } else {
+                throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid expression: " + expression);
+            }
         }
 
         private Predicate setEq(CriteriaBuilder cb, String item, Root<T> root) {
@@ -97,6 +106,46 @@ public class SpecificationFilter<T> {
                     }
                 }
 
+            }
+            return null;
+        }
+
+        private Predicate setIsNull(CriteriaBuilder cb, String item, Root<T> root) {
+
+            var criteria = item.split("isNull");
+            if(criteria.length == 1){
+                var hasJoin = criteria[0].split("\\.");
+                if(hasJoin.length > 1){
+
+                    var join = createDynamicJoin(root, hasJoin);
+
+                    String finalProperty = hasJoin[hasJoin.length - 1];
+
+                    return cb.isNull(join.get(finalProperty.trim()));
+
+                } else {
+                    return cb.isNull(root.get(criteria[0].trim()));
+                }
+            }
+            return null;
+        }
+
+        private Predicate setNotNull(CriteriaBuilder cb, String item, Root<T> root) {
+
+            var criteria = item.split("notNull");
+            if(criteria.length == 1){
+                var hasJoin = criteria[0].split("\\.");
+                if(hasJoin.length > 1){
+
+                    var join = createDynamicJoin(root, hasJoin);
+
+                    String finalProperty = hasJoin[hasJoin.length - 1];
+
+                    return cb.isNotNull(join.get(finalProperty.trim()));
+
+                } else {
+                    return cb.isNotNull(root.get(criteria[0].trim()));
+                }
             }
             return null;
         }
