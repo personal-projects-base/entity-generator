@@ -125,6 +125,8 @@ public class GenerateDTOConverter {
                 if(entity.getEntityName().equals(item.getFieldProperties().getFieldType())){
                     addDependencies(entity.getEntityName(), item.getFieldName());
 
+                } else if(!item.getFieldProperties().getFieldType().equals(item.getFieldName())) {
+                    addDependencies(item.getFieldProperties().getFieldType(), item.getFieldName());
                 } else {
                     addDependencies(item.getFieldName(), item.getFieldName());
                 }
