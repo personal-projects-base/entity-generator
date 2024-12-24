@@ -50,6 +50,7 @@ public class FieldsMapper {
             typeFields.put("byte","byte");
             typeFields.put("byte[]","byte[]");
             typeFields.put("inputStream","InputStream");
+            typeFields.put("map","Map<String, Object>");
         }
         else if(properties.getLanguage() == Language.DOTNET){
 
