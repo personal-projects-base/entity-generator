@@ -47,6 +47,9 @@ public class FieldsMapper {
             typeFields.put("date","LocalDate");
             typeFields.put("int","Integer");
             typeFields.put("boolean","boolean");
+            typeFields.put("byte","byte");
+            typeFields.put("byte[]","byte[]");
+            typeFields.put("inputStream","InputStream");
         }
         else if(properties.getLanguage() == Language.DOTNET){
 
