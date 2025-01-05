@@ -64,7 +64,7 @@ public class GenerateEntity {
 
     private static String loadRelationship(EntityFields field, Entities entity) {
 
-        var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(field.getFieldName())).findFirst().get();
+        var entityforeignKey = properties.getEntities().stream().filter(e -> e.getEntityName().equals(field.getFieldProperties().getFieldType())).findFirst().get();
 
         var loadFieldKey = entityforeignKey.getEntityFields().stream().filter(e -> e.getMetadata().isKey()).findFirst().get();
         var fieldType = FieldsMapper.getFieldTypeEntity(loadFieldKey.getFieldProperties().getFieldType());
