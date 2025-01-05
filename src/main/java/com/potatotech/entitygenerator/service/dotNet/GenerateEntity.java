@@ -52,10 +52,14 @@ public class GenerateEntity {
                     fieldIdentity = loadRelationship(item, entity);
                 }
             }
+            var isNullable = "";
+            if(!fieldType.contains("Guid"))
+                isNullable = item.getMetadata().isNullable() ? "?" : "";
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("    public %s %s %s { get; set; }\n    ",containVirtual,fieldType,firstCharacterUpperCase(item.getFieldName()));
+
+            String field = String.format("    public %s %s%s %s { get; set; }\n    ",containVirtual,fieldType,isNullable,firstCharacterUpperCase(item.getFieldName()));
             tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
             fields.set(tempField);
         });

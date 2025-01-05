@@ -54,7 +54,10 @@ public class GenerateDTO {
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("\n        public %s %s { get; set; } ",fieldType,item.getFieldName());
+            var isNullable = "";
+            if(!fieldType.contains("Guid"))
+                isNullable = item.getMetadata().isNullable() ? "?" : "";
+            String field = String.format("\n        public %s%s %s { get; set; } ",fieldType,isNullable,item.getFieldName());
             tempField += field;
             fields.set(tempField);
 
