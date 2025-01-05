@@ -1,0 +1,44 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace <<projetcName>>.<<nameSpaceName>>
+
+public static class QueryableExtensions
+{
+    public static IQueryable<T> IncludeAll<T>(this IQueryable<T> query, DbContext context) where T : class
+    {
+        var entityType = context.Model.FindEntityType(typeof(T));
+        if (entityType == null) return query;
+
+        var processedEntities = new HashSet<IEntityType>();
+        return IncludeNavigations(query, entityType, context, processedEntities);
+    }
+
+    private static IQueryable<T> IncludeNavigations<T>(
+    IQueryable<T> query,
+    IEntityType entityType,
+    DbContext context,
+    HashSet<IEntityType> processedEntities
+    ) where T : class
+    {
+
+        if (!processedEntities.Add(entityType))
+        {
+            return query;
+        }
+
+        foreach (var navigation in entityType.GetNavigations())
+        {
+
+            query = query.Include(navigation.Name);
+
+
+            var relatedEntityType = context.Model.FindEntityType(navigation.ClrType);
+            if (relatedEntityType != null)
+            {
+                query = IncludeNavigations(query, relatedEntityType, context, processedEntities);
+            }
+        }
+
+        return query;
+    }
+}
