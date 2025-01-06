@@ -31,7 +31,9 @@ namespace <<projetcName>>.<<nameSpaceName>>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured) {}
-            optionsBuilder.ReplaceService<IModelCacheKeyFactory, DynamicSchemaModelCacheKeyFactory>();
+            optionsBuilder
+                    .UseLazyLoadingProxies()
+                    .ReplaceService<IModelCacheKeyFactory, DynamicSchemaModelCacheKeyFactory>();
         }
 
         <<dbSet>>
