@@ -43,6 +43,10 @@ public class GenerateDotNet {
         // Gera IBaseRepository
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "ibaserepository", "IBaseRepository");
 
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "dynamicfilter", "DynamicFilter");
+
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "criteriaextension", "ExpressionExtensions");
+
         // Gera DynamicSchemaModelCacheKeyFactory
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "dynamicreplaceschemafactory", "DynamicSchemaModelCacheKeyFactory");
 

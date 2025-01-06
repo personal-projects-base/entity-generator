@@ -1,0 +1,83 @@
+using System.Linq.Expressions;
+
+namespace <<projetcName>>.<<nameSpaceName>>;
+
+public class DynamicFilter
+{
+    public static Expression<Func<T, bool>> CreateFilter<T>(string filterExpression)
+    {
+        var logicalOperators = new[] { "and", "or" };
+        var operators = logicalOperators.FirstOrDefault(op => filterExpression.Contains(op));
+        if (operators != null)
+        {
+            var conditions = filterExpression.Split(new[] { operators }, StringSplitOptions.RemoveEmptyEntries);
+            var filter = BuildFilter<T>(conditions, operators);
+            return filter;
+        }
+
+        return BuildFilter<T>(new[] { filterExpression }, null);
+    }
+
+    private static Expression<Func<T, bool>> BuildFilter<T>(string[] conditions, string logicalOperator)
+    {
+        Expression<Func<T, bool>> filter = null;
+
+        foreach (var condition in conditions)
+        {
+            var parts = condition.Split("eq", StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 2)
+            {
+                var propertyPath = parts[0].Trim();
+                var value = parts[1].Trim();
+
+                var predicate = BuildPredicate<T>(propertyPath, value);
+                filter = logicalOperator == "or" ? (filter == null ? predicate : filter.Or(predicate)) : (filter == null ? predicate : filter.And(predicate));
+            }
+        }
+
+        return filter;
+    }
+
+    private static Expression<Func<T, bool>> BuildPredicate<T>(string propertyPath, string value)
+    {
+        var parameter = Expression.Parameter(typeof(T), "x");
+        var property = GetPropertyExpression<T>(parameter, propertyPath);
+
+        if (Guid.TryParse(value, out Guid guidValue))
+        {
+            var constant = Expression.Constant(guidValue);
+            var equality = Expression.Equal(property, constant);
+            return Expression.Lambda<Func<T, bool>>(equality, parameter);
+        }
+        else if (property.Type == typeof(string))
+        {
+            property = Expression.Call(property, "ToLower", Type.EmptyTypes);
+
+            var constant = Expression.Constant(value.ToLower());
+            var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+            var call = Expression.Call(property, method, constant);
+            return Expression.Lambda<Func<T, bool>>(call, parameter);
+        }
+        else if (Enum.IsDefined(property.Type, value))
+        {
+            var constant = Expression.Constant(Enum.Parse(property.Type, value));
+            var equality = Expression.Equal(property, constant);
+            return Expression.Lambda<Func<T, bool>>(equality, parameter);
+        }
+
+        throw new NotSupportedException($"Unsupported filter type for {property.Type}");
+    }
+
+    private static Expression GetPropertyExpression<T>(ParameterExpression parameter, string propertyPath)
+    {
+        var propertyNames = propertyPath.Split('.');
+        Expression property = parameter;
+
+        foreach (var propertyName in propertyNames)
+        {
+            property = Expression.Property(property, propertyName);
+        }
+
+        return property;
+    }
+}

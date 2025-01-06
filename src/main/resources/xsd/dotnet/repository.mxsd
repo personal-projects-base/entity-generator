@@ -32,6 +32,12 @@ namespace <<projetcName>>.<<nameSpaceName>>
             var output = new ResponseData();
             IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
 
+            if (!string.IsNullOrEmpty(input.filter))
+            {
+                var filter = DynamicFilter.CreateFilter<<<entityName>>Entity>(input.filter);
+                query = query.Where(filter);
+            }
+
             var totalRegistry = query.Count();
             var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
 
@@ -48,15 +54,6 @@ namespace <<projetcName>>.<<nameSpaceName>>
         public virtual <<entityName>>Entity FindById(<<keyType>> id, string displayFields = "")
         {
             IQueryable<<<entityName>>Entity> query = _context.<<entityName>>Context;
-            if (displayFields != null && !displayFields.Equals(""))
-            {
-                var displays = displayFields.Split(";").ToList();
-                displays.ForEach(e =>
-                {
-                    query = query.Include(e);
-                });
-            }
-
             return query.SingleOrDefault(p => p.Id == id);
         }
 
