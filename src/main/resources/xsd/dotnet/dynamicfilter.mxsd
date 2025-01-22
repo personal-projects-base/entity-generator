@@ -36,14 +36,14 @@ public class DynamicFilter
         }
         Expression combined = null;
 
-        if (logicalOperator.Equals("and"))
+        if (!string.IsNullOrEmpty(logicalOperator) && logicalOperator.Equals("and"))
         {
             expressions.ForEach(e =>
                     {
                             combined = combined == null ? e : Expression.AndAlso(combined, e);
             });
 
-        } else if (logicalOperator.Equals("or"))
+        } else if (!string.IsNullOrEmpty(logicalOperator) && logicalOperator.Equals("or"))
         {
             expressions.ForEach(e =>
                     {
