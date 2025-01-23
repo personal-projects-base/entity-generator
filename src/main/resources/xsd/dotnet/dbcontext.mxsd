@@ -25,7 +25,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.HasDefaultSchema($"{_asyncThread.Value}");
+            modelBuilder.HasDefaultSchema($"{_asyncThread.Value.ToLower()}");
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
