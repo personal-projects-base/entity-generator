@@ -4,7 +4,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
 {
     [Serializable]
     [ApiController]
-    [Route("entities/<<entity>>")]
+    [Route("<<entity>>")]
     public abstract class <<entityName>>Handler : ControllerBase
     {
         public readonly I<<entityName>>Repository _<<entity>>Repository;
