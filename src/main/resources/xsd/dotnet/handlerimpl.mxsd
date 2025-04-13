@@ -10,7 +10,7 @@ namespace <<projetcName>>.<<nameSpaceName>>
         {
         }
 
-        public override ActionResult<ResponseData> GetAll(RequestData input)
+        public override ActionResult<ResponseData> GetAll([FromQuery] RequestData input)
         {
             var obj = _<<entity>>Repository.GetAll(input);
             return Ok(obj);
