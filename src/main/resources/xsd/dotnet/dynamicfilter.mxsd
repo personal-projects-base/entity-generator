@@ -30,7 +30,7 @@ public class DynamicFilter
             {
                 var propertyPath = parts[0].Trim();
                 var value = parts[1].Trim();
-                var binaryExpression = BuildPredicateB<T>(propertyPath, value, filterExpression, parameter);
+                var binaryExpression = BuildPredicateC<T>(propertyPath, value, filterExpression, parameter);
                 expressions.Add(binaryExpression);
             }
         }
@@ -74,6 +74,37 @@ public class DynamicFilter
         else if (property.Type == typeof(string))
         {
             return Expression.Equal(property, Expression.Constant(value));
+        }
+        else
+        {
+            var constant = Expression.Constant(Enum.Parse(property.Type, value));
+            return Expression.Equal(property, constant);
+        }
+
+    }
+
+    private static Expression BuildPredicateC<T>(string propertyPath, string value,string filterExpression, ParameterExpression parameter)
+    {
+
+        var property = GetPropertyExpression(parameter, propertyPath);
+
+
+        // uuid
+        if (Guid.TryParse(value, out Guid guidValue))
+        {
+            var constant = Expression.Constant(guidValue);
+            return Expression.Equal(property, constant);
+
+        }// String
+        else if (property.Type == typeof(string))
+        {
+            var toLowerMethod = typeof(string).GetMethod("ToLower", Type.EmptyTypes);
+            var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+
+            var loweredProperty = Expression.Call(property, toLowerMethod);
+            var loweredValue = Expression.Constant(value.ToLower());
+
+            return Expression.Call(loweredProperty, containsMethod, loweredValue);
         }
         else
         {
