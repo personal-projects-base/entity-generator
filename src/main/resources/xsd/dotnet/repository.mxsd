@@ -40,8 +40,8 @@ namespace <<projetcName>>.<<nameSpaceName>>
 
             var totalRegistry = query.Count();
             var totalPages = (int)Math.Ceiling(totalRegistry / (double)input.size);
-
-            var itens = query.OrderBy(p => p.Id).Skip((1-input.offset) * input.size).Take(input.size).ToList();
+            if (input.offset <= 0) input.offset = 1;
+            var itens = query.OrderBy(p => p.Id).Skip((input.offset - 1) * input.size).Take(input.size).ToList();
 
             output.total = totalRegistry;
             output.offset = input.offset;
