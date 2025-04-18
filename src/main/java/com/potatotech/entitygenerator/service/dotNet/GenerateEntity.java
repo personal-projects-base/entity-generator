@@ -53,7 +53,7 @@ public class GenerateEntity {
                 }
             }
             var isNullable = "";
-            if(!fieldType.contains("Guid"))
+            if(!fieldType.contains("Guid") || !fieldType.contains("int"))
                 isNullable = item.getMetadata().isNullable() ? "?" : "";
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
@@ -61,6 +61,7 @@ public class GenerateEntity {
 
             String field = String.format("    public %s %s%s %s { get; set; }\n    ",containVirtual,fieldType,isNullable,firstCharacterUpperCase(item.getFieldName()));
             tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
+            tempField = tempField.replace("??","?");
             fields.set(tempField);
         });
         return fields.get();

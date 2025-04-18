@@ -55,10 +55,11 @@ public class GenerateDTO {
                 fieldType = String.format("List<%s>",fieldType);
             }
             var isNullable = "";
-            if(!fieldType.contains("Guid"))
+            if(!fieldType.contains("Guid") || !fieldType.contains("int"))
                 isNullable = item.getMetadata().isNullable() ? "?" : "";
             String field = String.format("\n        public %s%s %s { get; set; } ",fieldType,isNullable,item.getFieldName());
-            tempField += field;
+            tempField += field.replace("??","?");
+
             fields.set(tempField);
 
         });

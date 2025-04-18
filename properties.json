@@ -1,25 +1,27 @@
 {
-  "mainPackage": "BaseBackendDotNet",
+  "mainPackage": "DataOnBackend",
   "language": "DOTNET",
-  "projectName": "BaseBackendDotNet",
+  "projectName": "DataOnBackend",
   "entities": [
     {
-      "entityName": "person",
-      "tableName": "person",
+      "entityName": "user",
+      "tableName": "users",
+      "generateDefaultHandlers": false,
+      "handlerAbstract": false,
       "entityFields": [
         {
-          "comment": "Identificação da pessoa",
+          "comment": "id do usuário",
           "fieldName": "id",
+          "list": false,
           "fieldProperties": {
             "fieldType": "uuid",
-            "required": true,
+            "required": false,
             "valueDefault": ""
           },
           "metadata": {
             "nullable": false,
             "key": true
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -31,265 +33,8 @@
           }
         },
         {
-          "comment": "Nome pessoa",
+          "comment": "Nome usuário",
           "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Se a pessoa esta ativa",
-          "fieldName": "status",
-          "fieldProperties": {
-            "fieldType": "status",
-            "required": false,
-            "valueDefault": "false"
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Pessoa Endereço",
-          "fieldName": "personAddress",
-          "fieldProperties": {
-            "fieldType": "personAddress",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento Pessoa Documentos",
-          "fieldName": "personalDocs",
-          "fieldProperties": {
-            "fieldType": "personalDocs",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento Pessoa Telefones",
-          "fieldName": "personalTelphone",
-          "fieldProperties": {
-            "fieldType": "personalTelphone",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento Pessoa Email",
-          "fieldName": "personalEmail",
-          "fieldProperties": {
-            "fieldType": "personalEmail",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Se a pessoa esta ativa",
-          "fieldName": "type",
-          "fieldProperties": {
-            "fieldType": "typePersonChurch",
-            "required": false,
-            "valueDefault": "false"
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Sexo",
-          "fieldName": "gender",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "gender",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Nacionalidade",
-          "fieldName": "nationality",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "country",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "estado civil",
-          "fieldName": "maritalStatus",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "maritalStatus",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Naturalidade",
-          "fieldName": "birthplace",
           "list": false,
           "fieldProperties": {
             "fieldType": "string",
@@ -297,7 +42,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": true,
+            "nullable": false,
             "key": false
           },
           "frontendProperties": {
@@ -311,8 +56,8 @@
           }
         },
         {
-          "comment": "foto",
-          "fieldName": "image",
+          "comment": "Email",
+          "fieldName": "email",
           "list": false,
           "fieldProperties": {
             "fieldType": "string",
@@ -320,7 +65,7 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": true,
+            "nullable": false,
             "key": false
           },
           "frontendProperties": {
@@ -334,10 +79,11 @@
           }
         },
         {
-          "comment": "Relacionamento Pessoa Mmebros",
-          "fieldName": "personMember",
+          "comment": "Senha",
+          "fieldName": "password",
+          "list": false,
           "fieldProperties": {
-            "fieldType": "personMember",
+            "fieldType": "string",
             "required": false,
             "valueDefault": ""
           },
@@ -345,12 +91,75 @@
             "nullable": false,
             "key": false
           },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "bidirectional": true
-          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tenant",
+          "fieldName": "tenant",
           "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Se está ativo",
+          "fieldName": "active",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "boolean",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Se o usuario confirmou conta",
+          "fieldName": "userConfirm",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "boolean",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -362,17 +171,18 @@
           }
         }
       ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
+      "classExtends": ""
     },
     {
-      "entityName": "personAddress",
-      "tableName": "person_address",
+      "entityName": "userConfirmation",
+      "tableName": "user_confirmation",
+      "generateDefaultHandlers": false,
+      "handlerAbstract": false,
       "entityFields": [
         {
           "comment": "Identificação",
           "fieldName": "id",
+          "list": false,
           "fieldProperties": {
             "fieldType": "uuid",
             "required": true,
@@ -382,7 +192,6 @@
             "nullable": false,
             "key": true
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -394,10 +203,11 @@
           }
         },
         {
-          "comment": "Relacionamento com pessoa",
-          "fieldName": "person",
+          "comment": "Id Usuario",
+          "fieldName": "userId",
+          "list": false,
           "fieldProperties": {
-            "fieldType": "person",
+            "fieldType": "uuid",
             "required": false,
             "valueDefault": ""
           },
@@ -405,12 +215,6 @@
             "nullable": false,
             "key": false
           },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -422,138 +226,18 @@
           }
         },
         {
-          "comment": "Endereço",
-          "fieldName": "address",
+          "comment": "Hash de confirmação",
+          "fieldName": "hash",
+          "list": false,
           "fieldProperties": {
             "fieldType": "string",
             "required": false,
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": true,
+            "nullable": false,
             "key": false
           },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Bairro",
-          "fieldName": "neighborhood",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Numero",
-          "fieldName": "number",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com cidade",
-          "fieldName": "city",
-          "fieldProperties": {
-            "fieldType": "city",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Complemento",
-          "fieldName": "complement",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Cep",
-          "fieldName": "postalCode",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -565,9 +249,7 @@
           }
         }
       ],
-      "classExtends": "",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false
+      "classExtends": ""
     },
     {
       "entityName": "city",
@@ -778,7 +460,7 @@
         }
       ],
       "classExtends": "",
-      "generateDefaultHandlers": false,
+      "generateDefaultHandlers": true,
       "handlerAbstract": false
     },
     {
@@ -883,211 +565,13 @@
       "handlerAbstract": false
     },
     {
-      "entityName": "personalDocs",
-      "tableName": "person_docs",
-      "entityFields": [
-        {
-          "comment": "Identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com pessoa",
-          "fieldName": "person",
-          "fieldProperties": {
-            "fieldType": "person",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Cpf",
-          "fieldName": "cpf",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "RG",
-          "fieldName": "rg",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Cnpj",
-          "fieldName": "cnpj",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data Nascimento",
-          "fieldName": "birthDate",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tipo Pessoa",
-          "fieldName": "typePerson",
-          "fieldProperties": {
-            "fieldType": "typePerson",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Inscrição estadual",
-          "fieldName": "ie",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "userConfirmation",
-      "tableName": "user_confirmation",
-      "generateDefaultHandlers": false,
+      "entityName": "jobPosition",
+      "tableName": "job_position",
+      "generateDefaultHandlers": true,
       "handlerAbstract": false,
       "entityFields": [
         {
-          "comment": "Identificação",
+          "comment": "id",
           "fieldName": "id",
           "list": false,
           "fieldProperties": {
@@ -1110,35 +594,12 @@
           }
         },
         {
-          "comment": "Id Usuario",
-          "fieldName": "userId",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Hash de confirmação",
-          "fieldName": "hash",
+          "comment": "Descrição da profissão",
+          "fieldName": "description",
           "list": false,
           "fieldProperties": {
             "fieldType": "string",
-            "required": false,
+            "required": true,
             "valueDefault": ""
           },
           "metadata": {
@@ -1159,12 +620,15 @@
       "classExtends": ""
     },
     {
-      "entityName": "personalTelphone",
-      "tableName": "person_telphone",
+      "entityName": "religion",
+      "tableName": "religion",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
       "entityFields": [
         {
-          "comment": "Identificação",
+          "comment": "id",
           "fieldName": "id",
+          "list": false,
           "fieldProperties": {
             "fieldType": "uuid",
             "required": true,
@@ -1174,7 +638,6 @@
             "nullable": false,
             "key": true
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -1186,10 +649,330 @@
           }
         },
         {
-          "comment": "Relacionamento com pessoa",
-          "fieldName": "person",
+          "comment": "Descrição da profissão",
+          "fieldName": "description",
+          "list": false,
           "fieldProperties": {
-            "fieldType": "person",
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "levelOfEducation",
+      "tableName": "level_of_education",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição da profissão",
+          "fieldName": "description",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "media",
+      "tableName": "media",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição da profissão",
+          "fieldName": "description",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "tagsCustomer",
+      "tableName": "tags_customer",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Descrição da profissão",
+          "fieldName": "description",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "person",
+      "tableName": "person",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Data Cadastros",
+          "fieldName": "registrationDate",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "date",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Nome",
+          "fieldName": "name",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo",
+          "fieldName": "type",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "typePerson",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com Pessoa Cliente",
+          "fieldName": "personCustomer",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "personCustomer",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com Pessoa Clinica",
+          "fieldName": "personClinical",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "personClinical",
             "required": false,
             "valueDefault": ""
           },
@@ -1198,11 +981,12 @@
             "key": false
           },
           "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "ManyToOne",
-            "bidirectional": false
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -1214,7 +998,1311 @@
           }
         },
         {
-          "comment": "Telefone",
+          "comment": "Relacionamento com Pessoa Emails",
+          "fieldName": "personEmail",
+          "list": true,
+          "fieldProperties": {
+            "fieldType": "personEmail",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToMany",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com Pessoa Telefones",
+          "fieldName": "personPhone",
+          "list": true,
+          "fieldProperties": {
+            "fieldType": "personPhone",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToMany",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com Pessoa Endereços",
+          "fieldName": "personAddress",
+          "list": true,
+          "fieldProperties": {
+            "fieldType": "personAddress",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToMany",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Relacionamento com Pessoa Clinica",
+          "fieldName": "personTaxSettings",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "personTaxSettings",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": true,
+            "reference": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "personCustomer",
+      "tableName": "person_customer",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Status",
+          "fieldName": "status",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "status",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "foto",
+          "fieldName": "image",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Permite SMS",
+          "fieldName": "sms",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Permite Email",
+          "fieldName": "email",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Ligação com midia",
+          "fieldName": "media",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "media",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": false,
+            "reference": false
+          }
+        },
+        {
+          "comment": "Ligação com religião",
+          "fieldName": "religion",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "religion",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": false,
+            "reference": false
+          }
+        },
+        {
+          "comment": "Renda mensal",
+          "fieldName": "monthlyIncome",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "decimal",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Limite de crédito",
+          "fieldName": "creditiLimit",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "decimal",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Ligação com classificação",
+          "fieldName": "tagsCustomer",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "tagsCustomer",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          },
+          "relationShips": {
+            "fetchType": "LAZY",
+            "relationShip": "OneToOne",
+            "mappedBy": "",
+            "bidirectional": false,
+            "reference": false
+          }
+        },
+        {
+          "comment": "Tipo Contribuinte",
+          "fieldName": "taxpayerType",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "taxpayerType",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Retenção do ISS",
+          "fieldName": "ISS",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Optante Simples Naciona",
+          "fieldName": "simplesNacional",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Observações Gerais",
+          "fieldName": "obsGeneral",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Saldo de crédito",
+          "fieldName": "creditBalance",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "decimal",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "personEmail",
+      "tableName": "person_email",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo de contato",
+          "fieldName": "type",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "typeContact",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Email",
+          "fieldName": "email",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Observações",
+          "fieldName": "notes",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "personClinical",
+      "tableName": "person_clinical",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "SusCNES",
+          "fieldName": "susCNES",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "SusCodigoOrgaoLocal",
+          "fieldName": "susLocalAgencyCode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "SusOrgaoEmissor",
+          "fieldName": "susIssuingAgency",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo",
+          "fieldName": "type",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "EnderecoFaturamento",
+          "fieldName": "billingAddress",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "TextoCabecalhoRelatorios",
+          "fieldName": "reportHeaderText",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "LogoMarca",
+          "fieldName": "logo",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Inativa",
+          "fieldName": "status",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "status",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Site",
+          "fieldName": "website",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFeHabilitada",
+          "fieldName": "nfeEnabled",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeHabilitada",
+          "fieldName": "nfceEnabled",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFSeHabilitada",
+          "fieldName": "nfseEnabled",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "confirm",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "CertificadoDigital",
+          "fieldName": "digitalCertificate",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "CertificadoDigitalSenha",
+          "fieldName": "digitalCertificatePassword",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFeAmbiente",
+          "fieldName": "nfeEnvironment",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "environment",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFeSerie",
+          "fieldName": "nfeSeries",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFeNumeroInicial",
+          "fieldName": "nfeInitialNumber",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFSeAmbiente",
+          "fieldName": "nfseEnvironment",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "environment",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFSeSerie",
+          "fieldName": "nfseSeries",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFSeNumeracaoLote",
+          "fieldName": "nfseBatchNumber",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFSeNumeracaoRPS",
+          "fieldName": "nfseRpsNumber",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeAmbiente",
+          "fieldName": "nfceEnvironment",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "environment",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeSerie",
+          "fieldName": "nfceSeries",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeNumeroInicial",
+          "fieldName": "nfceInitialNumber",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeCscToken",
+          "fieldName": "nfceCscToken",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "NFCeCodigoContribuinte",
+          "fieldName": "nfceContributorCode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Assinatura",
+          "fieldName": "signature",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        }
+      ],
+      "classExtends": ""
+    },
+    {
+      "entityName": "personPhone",
+      "tableName": "person_phone",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
+      "entityFields": [
+        {
+          "comment": "id",
+          "fieldName": "id",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "uuid",
+            "required": true,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": true
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Tipo de contato",
+          "fieldName": "type",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "typeContact",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": false,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "phone",
           "fieldName": "phone",
           "list": false,
           "fieldProperties": {
@@ -1237,551 +2325,17 @@
           }
         },
         {
-          "comment": "Telefone Celular",
-          "fieldName": "cellPhone",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "personalEmail",
-      "tableName": "person_email",
-      "entityFields": [
-        {
-          "comment": "Identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com pessoa",
-          "fieldName": "person",
-          "fieldProperties": {
-            "fieldType": "person",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Email",
-          "fieldName": "email",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "positions",
-      "tableName": "position_members",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Nome cargo",
-          "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descrição do cargo",
-          "fieldName": "description",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "appointments",
-      "tableName": "appointments",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tipo de agendamento",
-          "fieldName": "schedulerType",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "schedulerType",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
           "comment": "Observações",
-          "fieldName": "obs",
+          "fieldName": "notes",
           "list": false,
           "fieldProperties": {
             "fieldType": "string",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com pessoa Responsavel",
-          "fieldName": "person",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "person",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "schedulerType",
-      "tableName": "scheduler_type",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descrição do tipo de agenda",
-          "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Cor na agenda",
-          "fieldName": "color",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descrição do evento",
-          "fieldName": "description",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "planAccount",
-      "tableName": "plan_account",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true,
-      "entityFields": [
-        {
-          "comment": "Id",
-          "fieldName": "id",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descrição",
-          "fieldName": "description",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código da arvore",
-          "fieldName": "codeTree",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código da arvore",
-          "fieldName": "type",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "typePlanAccount",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código Pai",
-          "fieldName": "parentCode",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "planAccount",
             "required": false,
             "valueDefault": ""
           },
           "metadata": {
             "nullable": true,
             "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "ManyToOne",
-            "bidirectional": false,
-            "reference": true
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Arvore",
-          "fieldName": "children",
-          "list": true,
-          "fieldProperties": {
-            "fieldType": "planAccount",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToMany",
-            "bidirectional": true,
-            "mappedBy": "parentCode"
           },
           "frontendProperties": {
             "label": "",
@@ -1797,13 +2351,13 @@
       "classExtends": ""
     },
     {
-      "entityName": "costCenter",
-      "tableName": "cost_center",
+      "entityName": "personAddress",
+      "tableName": "person_address",
       "generateDefaultHandlers": true,
-      "handlerAbstract": true,
+      "handlerAbstract": false,
       "entityFields": [
         {
-          "comment": "Id",
+          "comment": "id",
           "fieldName": "id",
           "list": false,
           "fieldProperties": {
@@ -1826,284 +2380,17 @@
           }
         },
         {
-          "comment": "Descrição",
-          "fieldName": "description",
+          "comment": "Cidade",
+          "fieldName": "city",
           "list": false,
           "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código da arvore",
-          "fieldName": "codeTree",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código Pai",
-          "fieldName": "parentCode",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "costCenter",
+            "fieldType": "city",
             "required": false,
             "valueDefault": ""
           },
           "metadata": {
             "nullable": true,
             "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "ManyToOne",
-            "bidirectional": false,
-            "reference": true
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Arvore",
-          "fieldName": "children",
-          "list": true,
-          "fieldProperties": {
-            "fieldType": "costCenter",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToMany",
-            "bidirectional": true,
-            "mappedBy": "parentCode"
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": ""
-    },
-    {
-      "entityName": "bank",
-      "tableName": "bank",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Nome Banco",
-          "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Código banco",
-          "fieldName": "code",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "cash",
-      "tableName": "cash",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descriçãop do caixa ou conta bancária",
-          "fieldName": "description",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tipo se é conta bancária ou caixa",
-          "fieldName": "typeCash",
-          "fieldProperties": {
-            "fieldType": "typeCash",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Caso seja banco fazer referencia ao cadastro de bancos",
-          "fieldName": "bank",
-          "fieldProperties": {
-            "fieldType": "bank",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           },
           "relationShips": {
             "fetchType": "LAZY",
@@ -2111,21 +2398,7 @@
             "mappedBy": "",
             "bidirectional": false,
             "reference": false
-          }
-        },
-        {
-          "comment": "Numero da conta",
-          "fieldName": "numberAccount",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
           },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -2137,18 +2410,18 @@
           }
         },
         {
-          "comment": "Digito Conta",
-          "fieldName": "digit",
+          "comment": "tipo endereço",
+          "fieldName": "typeAddress",
+          "list": false,
           "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
+            "fieldType": "typeAddress",
+            "required": false,
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": true,
+            "nullable": false,
             "key": false
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -2160,50 +2433,133 @@
           }
         },
         {
-          "comment": "Status Caxa",
+          "comment": "CEP",
+          "fieldName": "zipCode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Endereco",
+          "fieldName": "address",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Bairro",
+          "fieldName": "neighborhood",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Complemento",
+          "fieldName": "complement",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "Numero",
+          "fieldName": "number",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "string",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "status",
           "fieldName": "status",
-          "fieldProperties": {
-            "fieldType": "transactionOperation",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
           "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "financial",
-      "tableName": "financial",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
           "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
+            "fieldType": "status",
+            "required": false,
             "valueDefault": ""
           },
           "metadata": {
             "nullable": false,
-            "key": true
+            "key": false
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -2215,110 +2571,11 @@
           }
         },
         {
-          "comment": "Descrição duplicata",
-          "fieldName": "description",
+          "comment": "Observacao",
+          "fieldName": "notes",
+          "list": false,
           "fieldProperties": {
             "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tipo duplicata",
-          "fieldName": "typeFinancial",
-          "fieldProperties": {
-            "fieldType": "typeFinancial",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Caixa ou conta bancaria",
-          "fieldName": "cash",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "cash",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Valor",
-          "fieldName": "value",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "decimal",
-            "required": false,
-            "valueDefault": "0"
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Pessoa",
-          "fieldName": "person",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "person",
             "required": false,
             "valueDefault": ""
           },
@@ -2326,13 +2583,6 @@
             "nullable": true,
             "key": false
           },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -2344,569 +2594,8 @@
           }
         },
         {
-          "comment": "Plano de contas",
-          "fieldName": "planAccount",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "planAccount",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Centro de custo",
-          "fieldName": "costCenter",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "costCenter",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data de emissão",
-          "fieldName": "issueDate",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data de vencimento",
-          "fieldName": "dueDate",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data dePagamento recebimento",
-          "fieldName": "paymentReceiptDate",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true
-    },
-    {
-      "entityName": "transactions",
-      "tableName": "transactions",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Descrição movimentação",
-          "fieldName": "description",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Valor",
-          "fieldName": "value",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "decimal",
-            "required": false,
-            "valueDefault": "0"
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tipo da movimentação",
-          "fieldName": "transactionOperation",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "transactionOperation",
-            "required": false,
-            "valueDefault": "0"
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Pessoa",
-          "fieldName": "person",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "person",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Duplicata vinculada",
-          "fieldName": "financial",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "financial",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data",
-          "fieldName": "dateTransaction",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "ID Caixa Movimento",
-          "fieldName": "cashTransaction",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true
-    },
-    {
-      "entityName": "userConfiguration",
-      "tableName": "user_configuration",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Nome do usuário",
-          "fieldName": "name",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Foto Usuário",
-          "fieldName": "userPhoto",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Tema",
-          "fieldName": "theme",
-          "fieldProperties": {
-            "fieldType": "theme",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Linguagem sistema",
-          "fieldName": "lang",
-          "fieldProperties": {
-            "fieldType": "language",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Email",
-          "fieldName": "email",
-          "fieldProperties": {
-            "fieldType": "string",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "ID do usuário",
-          "fieldName": "hash",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true
-    },
-    {
-      "entityName": "cashTransactions",
-      "tableName": "cash_transactions",
-      "entityFields": [
-        {
-          "comment": "Campo identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data abertura",
-          "fieldName": "startDate",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "saldo",
-          "fieldName": "balance",
+          "comment": "Latitude",
+          "fieldName": "latitude",
           "list": false,
           "fieldProperties": {
             "fieldType": "decimal",
@@ -2928,8 +2617,8 @@
           }
         },
         {
-          "comment": "Saldo Inicial",
-          "fieldName": "initialBalance",
+          "comment": "Longitude",
+          "fieldName": "longitude",
           "list": false,
           "fieldProperties": {
             "fieldType": "decimal",
@@ -2938,82 +2627,6 @@
           },
           "metadata": {
             "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Saldo Final",
-          "fieldName": "finalBalance",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "decimal",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "caixa",
-          "fieldName": "cash",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "cash",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data fechamento",
-          "fieldName": "endDate",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
             "key": false
           },
           "frontendProperties": {
@@ -3027,17 +2640,18 @@
           }
         }
       ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true
+      "classExtends": ""
     },
     {
-      "entityName": "schedulerEvents",
-      "tableName": "scheduler_events",
+      "entityName": "personTaxSettings",
+      "tableName": "person_tax_settings",
+      "generateDefaultHandlers": true,
+      "handlerAbstract": false,
       "entityFields": [
         {
-          "comment": "Campo identificação",
+          "comment": "id",
           "fieldName": "id",
+          "list": false,
           "fieldProperties": {
             "fieldType": "uuid",
             "required": true,
@@ -3047,7 +2661,6 @@
             "nullable": false,
             "key": true
           },
-          "list": false,
           "frontendProperties": {
             "label": "",
             "size": 0,
@@ -3059,76 +2672,16 @@
           }
         },
         {
-          "comment": "Tipo de evento",
-          "fieldName": "schedulerType",
-          "fieldProperties": {
-            "fieldType": "schedulerType",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          }
-        },
-        {
-          "comment": "Usuário",
-          "fieldName": "user",
-          "fieldProperties": {
-            "fieldType": "userConfiguration",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          }
-        },
-        {
-          "comment": "Data inicial",
-          "fieldName": "initialDate",
+          "comment": "CodigoRegimeTributario",
+          "fieldName": "taxRegimeCode",
           "list": false,
           "fieldProperties": {
-            "fieldType": "datetime",
+            "fieldType": "int",
             "required": false,
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
             "key": false
           },
           "frontendProperties": {
@@ -3142,31 +2695,8 @@
           }
         },
         {
-          "comment": "Data final",
-          "fieldName": "finalDate",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "datetime",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Local",
-          "fieldName": "local",
+          "comment": "IESubstitutoTributario",
+          "fieldName": "taxSubstituteIe",
           "list": false,
           "fieldProperties": {
             "fieldType": "string",
@@ -3174,7 +2704,306 @@
             "valueDefault": ""
           },
           "metadata": {
-            "nullable": false,
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "CodigoRegimeEspecialTributacao",
+          "fieldName": "specialTaxRegimeCode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "OptanteSimplesNacional",
+          "fieldName": "simpleNationalOpting",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IncentivadorCultural",
+          "fieldName": "culturalIncentivizer",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "ModalidadeTributacao",
+          "fieldName": "taxationMode",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IndicadorIncidenciaTributaria",
+          "fieldName": "taxIncidenceIndicator",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IndicadorMetodoApropriacaoCreditos",
+          "fieldName": "creditAppropriationMethodIndicator",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IndicadorTipoContribuicao",
+          "fieldName": "contributionTypeIndicator",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IndicadorCriterioEscrituracao",
+          "fieldName": "bookkeepingCriterionIndicator",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "PisCofinsNaturezaJuridica",
+          "fieldName": "pisCofinsLegalNature",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "PisCofinsTipoAtividadePreponderante",
+          "fieldName": "pisCofinsMainActivityType",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "TipoRegime",
+          "fieldName": "regimeType",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "PercentualLucroPresumido",
+          "fieldName": "presumedProfitPercentage",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "decimal",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
+            "key": false
+          },
+          "frontendProperties": {
+            "label": "",
+            "size": 0,
+            "hidden": false,
+            "order": 0,
+            "guidance": "",
+            "reference": "",
+            "enableFieldsFilter": false
+          }
+        },
+        {
+          "comment": "IndicadorPerfil",
+          "fieldName": "profileIndicator",
+          "list": false,
+          "fieldProperties": {
+            "fieldType": "int",
+            "required": false,
+            "valueDefault": ""
+          },
+          "metadata": {
+            "nullable": true,
             "key": false
           },
           "frontendProperties": {
@@ -3188,459 +3017,62 @@
           }
         }
       ],
-      "classExtends": "",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": false
-    },
-    {
-      "entityName": "personMember",
-      "tableName": "person_member",
-      "entityFields": [
-        {
-          "comment": "Identificação",
-          "fieldName": "id",
-          "fieldProperties": {
-            "fieldType": "uuid",
-            "required": true,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": true
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com pessoa",
-          "fieldName": "person",
-          "fieldProperties": {
-            "fieldType": "person",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": false,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "EAGER",
-            "relationShip": "OneToOne",
-            "bidirectional": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data ingresso na igreja",
-          "fieldName": "entryDate",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Data de batismo",
-          "fieldName": "dateBaptism",
-          "fieldProperties": {
-            "fieldType": "date",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "list": false,
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        },
-        {
-          "comment": "Relacionamento com cargos",
-          "fieldName": "position",
-          "list": false,
-          "fieldProperties": {
-            "fieldType": "positions",
-            "required": false,
-            "valueDefault": ""
-          },
-          "metadata": {
-            "nullable": true,
-            "key": false
-          },
-          "relationShips": {
-            "fetchType": "LAZY",
-            "relationShip": "OneToOne",
-            "mappedBy": "",
-            "bidirectional": false,
-            "reference": false
-          },
-          "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": false,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
-          }
-        }
-      ],
-      "classExtends": "",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false
+      "classExtends": ""
     }
   ],
-  "endpoints": [
-    {
-      "methodName": "verifyURL",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "input": [
-          {
-            "parameterName": "token",
-            "parameterType": "string",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "authorize",
-            "parameterType": "boolean",
-            "list": false
-          }
-        ],
-        "anonymous": true
-      }
-    },
-    {
-      "methodName": "requestUpload",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "fileName",
-            "parameterType": "string",
-            "list": false
-          },
-          {
-            "parameterName": "expired",
-            "parameterType": "int",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "url",
-            "parameterType": "string",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "requestUrl",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "fileName",
-            "parameterType": "string",
-            "list": false
-          },
-          {
-            "parameterName": "expired",
-            "parameterType": "int",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "url",
-            "parameterType": "string",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "deleteObject",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "fileName",
-            "parameterType": "string",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "output",
-            "parameterType": "boolean",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "getUser",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "hash",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "output",
-            "parameterType": "userConfiguration",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "getIDCashTransaction",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "cash",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "cashTransaction",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "getSumValuesCash",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "cashTransaction",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "revenues",
-            "parameterType": "decimal",
-            "list": false
-          },
-          {
-            "parameterName": "expenses",
-            "parameterType": "decimal",
-            "list": false
-          },
-          {
-            "parameterName": "initialBalance",
-            "parameterType": "decimal",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "getBalanceBankAccount",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "bankAccount",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "revenues",
-            "parameterType": "decimal",
-            "list": false
-          },
-          {
-            "parameterName": "expenses",
-            "parameterType": "decimal",
-            "list": false
-          }
-        ]
-      }
-    },
-    {
-      "methodName": "getResumeTransaction",
-      "httpMethod": "GET",
-      "grouper": "",
-      "metadata": {
-        "anonymous": false,
-        "input": [
-          {
-            "parameterName": "cash",
-            "parameterType": "uuid",
-            "list": false
-          }
-        ],
-        "output": [
-          {
-            "parameterName": "output",
-            "parameterType": "cashTransactions",
-            "list": false
-          }
-        ]
-      }
-    }
-  ],
+  "endpoints": [],
   "enums": [
     {
-      "enumName": "Status",
+      "enumName": "typePerson",
+      "values": [
+        "FISICA",
+        "JURIDICA"
+      ]
+    },
+    {
+      "enumName": "status",
       "values": [
         "ACTIVE",
         "INACTIVE"
       ]
     },
     {
-      "enumName": "TypePerson",
+      "enumName": "confirm",
       "values": [
-        "NATURAL_PERSON",
-        "LEGAL_PERSON"
+        "YES",
+        "NO"
       ]
     },
     {
-      "enumName": "TypePersonChurch",
+      "enumName": "taxpayerType",
       "values": [
-        "MEMBER",
-        "SUPPLIER",
-        "CHILD",
-        "VISITOR",
-        "NEW_CONVERT",
-        "CHURCH"
+        "ICMS = 1",
+        "ISENTO = 2",
+        "NAO_CONTRIBUINTE = 9"
       ]
     },
     {
-      "enumName": "TypePlanAccount",
+      "enumName": "typeContact",
       "values": [
-        "ANALYTICAL",
-        "SYNTHETIC"
+        "RESIDENTIAL",
+        "BUSINES",
+        "MOBILE",
+        "OUTHER"
       ]
     },
     {
-      "enumName": "typeCash",
+      "enumName": "environment",
       "values": [
-        "CASH",
-        "BANK"
+        "HOMOLOG",
+        "PRODUCTION"
       ]
     },
     {
-      "enumName": "typeFinancial",
+      "enumName": "typeAddress",
       "values": [
-        "REVENUE",
-        "EXPENSE"
-      ]
-    },
-    {
-      "enumName": "theme",
-      "values": [
-        "DARK",
-        "LIGHT"
-      ]
-    },
-    {
-      "enumName": "transactionOperation",
-      "values": [
-        "OPEN_CASH",
-        "CLOSE_CASH",
-        "REVENUE",
-        "EXPENSE"
-      ]
-    },
-    {
-      "enumName": "language",
-      "values": [
-        "PORTUGUESE",
-        "ENGLISH",
-        "SPANISH"
-      ]
-    },
-    {
-      "enumName": "gender",
-      "values": [
-        "MALE",
-        "FEMALE"
-      ]
-    },
-    {
-      "enumName": "maritalStatus",
-      "values": [
-        "SINGLE",
-        "MARRIED",
-        "DIVORCED",
-        "WIDOWED",
-        "SEPARATED",
-        "CIVIL_UNION"
+        "RESIDENTIAL",
+        "BUSINES",
+        "OUTHER"
       ]
     }
   ]
