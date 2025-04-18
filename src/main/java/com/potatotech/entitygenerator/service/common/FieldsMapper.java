@@ -91,7 +91,7 @@ public class FieldsMapper {
 
         }else {
             if(properties.getEnums() != null && properties.getEnums().stream().anyMatch(e -> e.enumName.equalsIgnoreCase(type))){
-                output = typeFieldsDatabase.getOrDefault(type,"varchar");
+                output = typeFieldsDatabase.getOrDefault(type,"int");
             } else {
                 output = typeFieldsDatabase.getOrDefault(type,"uuid");
             }
