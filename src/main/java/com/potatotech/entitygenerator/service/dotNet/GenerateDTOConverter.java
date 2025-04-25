@@ -73,7 +73,7 @@ public class GenerateDTOConverter {
                     field = String.format("\n               %s",fieldFk);
                 }
 
-                field += String.format("\n               entity.%s = %sDTOConverter.ToEntity(dto.%s);",firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldProperties().getFieldType()),item.getFieldName());
+                field += String.format("\n               //entity.%s = %sDTOConverter.ToEntity(dto.%s);",firstCharacterUpperCase(item.getFieldName()),firstCharacterUpperCase(item.getFieldProperties().getFieldType()),item.getFieldName());
 
             }
 
