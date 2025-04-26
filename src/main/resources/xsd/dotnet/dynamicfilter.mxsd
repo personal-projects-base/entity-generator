@@ -85,10 +85,45 @@ public class DynamicFilter
 
     private static Expression BuildPredicateC<T>(string propertyPath, string value,string filterExpression, ParameterExpression parameter)
     {
+        var propertyParts = propertyPath.Split('.');
+        Expression property;
 
-        var property = GetPropertyExpression(parameter, propertyPath);
+        // Lista
+        if (propertyPath.Contains("*"))
+        {
 
+            var remainingPath = string.Join(".", propertyParts.SkipWhile(p => p.EndsWith("*") == false).Skip(1));
 
+            property = GetPropertyExpressionList(parameter, propertyPath);
+
+            var collectionType = property.Type.GetGenericArguments()[0];
+            var itemParam = Expression.Parameter(collectionType, "x");
+
+            var itemProperty = Expression.Property(itemParam, remainingPath);
+
+            Expression constant;
+            if (itemProperty.Type.IsEnum)
+            {
+                var enumValue = Enum.Parse(itemProperty.Type, value.ToString());
+                constant = Expression.Constant(enumValue);
+            }
+            else
+            {
+                constant = Expression.Constant(Convert.ChangeType(value, itemProperty.Type));
+            }
+
+            var comparison = Expression.Equal(itemProperty, constant);
+            var lambda = Expression.Lambda(comparison, itemParam);
+
+            var anyMethod = typeof(Enumerable)
+                    .GetMethods()
+                    .First(m => m.Name == "Any" && m.GetParameters().Length == 2)
+                    .MakeGenericMethod(collectionType);
+
+            return Expression.Call(anyMethod, property, lambda);
+        }
+
+        property = GetPropertyExpression(parameter, propertyPath);
         // uuid
         if (Guid.TryParse(value, out Guid guidValue))
         {
@@ -130,6 +165,31 @@ public class DynamicFilter
             property = Expression.Property(property, propertyName);
         }
 
+        return property;
+    }
+
+    private static Expression GetPropertyExpressionList(ParameterExpression parameter, string propertyPath)
+    {
+        var propertyParts = propertyPath.Split('.');
+        Expression property = parameter;
+        Type currentType = parameter.Type;
+
+        foreach (var part in propertyParts)
+        {
+            var cleanPart = part.TrimEnd('*');
+            property = Expression.Property(property, cleanPart);
+
+            var propInfo = currentType.GetProperty(cleanPart);
+            if (propInfo == null)
+                throw new ArgumentException($"Property '{cleanPart}' not found on type '{currentType.Name}'");
+
+            currentType = propInfo.PropertyType;
+
+            if (part.EndsWith("*"))
+            {
+                break;
+            }
+        }
         return property;
     }
 }
