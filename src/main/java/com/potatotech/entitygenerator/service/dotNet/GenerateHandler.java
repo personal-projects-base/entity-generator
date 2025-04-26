@@ -19,13 +19,11 @@ public class GenerateHandler {
         String mod = loadWxsd("handlerbase");
         entities.forEach(item -> {
             try{
-                if(item.isGenerateDefaultHandlers()){
-                    String fileName = stringFormaterJava(firstCharacterUpperCase(item.getEntityName()),"Handler", packagePath.toString());
-                    var path = Path.of(fileName);
-                    var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),"");
-                    Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
-                    System.out.println("@GenerateData");
-                }
+                String fileName = stringFormaterJava(firstCharacterUpperCase(item.getEntityName()),"Handler", packagePath.toString());
+                var path = Path.of(fileName);
+                var entity = configureFileEntity(mod,packageName,item,item.getEntityName(),"");
+                Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                System.out.println("@GenerateData");
             }catch (IOException ex){
                 ex.printStackTrace();
             }
