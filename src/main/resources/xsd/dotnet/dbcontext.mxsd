@@ -30,10 +30,22 @@ namespace <<projetcName>>.<<nameSpaceName>>
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (!optionsBuilder.IsConfigured) {}
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseNpgsql(DBMigrator._connectionString);
+            }
             optionsBuilder
                     .UseLazyLoadingProxies()
                     .ReplaceService<IModelCacheKeyFactory, DynamicSchemaModelCacheKeyFactory>();
+        }
+
+        public static CustomDbContext CreateContextForSchemaPostgres()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<CustomDbContext>();
+            optionsBuilder.UseNpgsql(DBMigrator._connectionString);
+
+            var context = new ApiDbContext();
+            return context;
         }
 
         <<dbSet>>
