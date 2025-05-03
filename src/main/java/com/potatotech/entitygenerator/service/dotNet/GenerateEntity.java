@@ -40,29 +40,34 @@ public class GenerateEntity {
     private static String getFields(Entities entity) {
         AtomicReference<String> fields = new AtomicReference<>("");
         entity.getEntityFields().forEach(item -> {
-            String tempField = fields.get();
-            String comments = Common.setComments(item.getComment());
-            String anotations = setMetadata(item, entity);
-            String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
-            var fieldIdentity = "";
-            var containVirtual = "";
-            if(fieldType.contains("Entity")){
-                containVirtual = "virtual";
-                if(!item.getRelationShips().isBidirectional()){
-                    fieldIdentity = loadRelationship(item, entity);
+            try{
+                String tempField = fields.get();
+                String comments = Common.setComments(item.getComment());
+                String anotations = setMetadata(item, entity);
+                String fieldType = FieldsMapper.getFieldTypeEntity(item.getFieldProperties().getFieldType());
+                var fieldIdentity = "";
+                var containVirtual = "";
+                if(fieldType.contains("Entity")){
+                    containVirtual = "virtual";
+                    if(!item.getRelationShips().isBidirectional()){
+                        fieldIdentity = loadRelationship(item, entity);
+                    }
                 }
-            }
-            var isNullable = "";
-            if(!fieldType.contains("Guid") || !fieldType.contains("int"))
-                isNullable = item.getMetadata().isNullable() ? "?" : "";
-            if(item.isList()){
-                fieldType = String.format("List<%s>",fieldType);
+                var isNullable = "";
+                if(!fieldType.contains("Guid") || !fieldType.contains("int"))
+                    isNullable = item.getMetadata().isNullable() ? "?" : "";
+                if(item.isList()){
+                    fieldType = String.format("List<%s>",fieldType);
+                }
+
+                String field = String.format("    public %s %s%s %s { get; set; }\n    ",containVirtual,fieldType,isNullable,firstCharacterUpperCase(item.getFieldName()));
+                tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
+                tempField = tempField.replace("??","?");
+                fields.set(tempField);
+            } catch (Exception ex){
+                System.err.println(String.format("Entidade %s tentou gerar o campo %s mas não encontrou a entidade ou enum configurada",entity.getEntityName(), item.getFieldProperties().getFieldType()));
             }
 
-            String field = String.format("    public %s %s%s %s { get; set; }\n    ",containVirtual,fieldType,isNullable,firstCharacterUpperCase(item.getFieldName()));
-            tempField += comments.concat(anotations).concat(fieldIdentity).concat("\n    ").concat(field);
-            tempField = tempField.replace("??","?");
-            fields.set(tempField);
         });
         return fields.get();
     }

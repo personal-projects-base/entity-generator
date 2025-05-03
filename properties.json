@@ -3568,6 +3568,21 @@
         "NATURAL",
         "LEGAL"
       ]
+    },
+    {
+      "enumName": "theme",
+      "values": [
+        "DARK",
+        "LIGHT"
+      ]
+    },
+    {
+      "enumName": "language",
+      "values": [
+        "PORTUGUESE",
+        "ENGLISH",
+        "SPANISH"
+      ]
     }
   ]
 }
