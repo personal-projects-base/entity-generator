@@ -76,7 +76,13 @@ public class GenerateEndpoint {
             temp += reference.get();
             reference.set(String.format("\n        %s",temp));
         });
-        return reference.get().substring(0, reference.get().lastIndexOf(",")).concat("\n    ");
+        
+        if(!reference.get().equals("")){
+            return reference.get().substring(0, reference.get().lastIndexOf(",")).concat("\n    ");
+        } else {
+            return reference.get();
+        }
+
     }
 
     private static String setParameterOutput(Endpoints endpoints, String fileName){
