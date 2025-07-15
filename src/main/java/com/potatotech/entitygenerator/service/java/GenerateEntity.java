@@ -23,10 +23,12 @@ public class GenerateEntity {
         String mod = loadWxsd("entity");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormaterJava(item.getEntityName(),"Entity", packagePath.toString());
-                var path = Path.of(fileName);
-                var entity = configureFileEntity(mod,packageName,item,item.getEntityName());
-                Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                if(!item.isOnlyDTO()){
+                    String fileName = stringFormaterJava(item.getEntityName(),"Entity", packagePath.toString());
+                    var path = Path.of(fileName);
+                    var entity = configureFileEntity(mod,packageName,item,item.getEntityName());
+                    Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                }
             }catch (IOException ex){
                 ex.printStackTrace();
             }
@@ -111,7 +113,6 @@ public class GenerateEntity {
         }
         return metadata;
     }
-
 
     private static String setJointTable(EntityFields field, Entities entity){
 

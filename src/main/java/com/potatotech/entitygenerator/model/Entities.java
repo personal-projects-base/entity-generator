@@ -13,4 +13,5 @@ public class Entities {
     private List<EntityFields> entityFields;
     private boolean generateDefaultHandlers = true;
     private boolean handlerAbstract = false;
+    private boolean onlyDTO = false;
 }

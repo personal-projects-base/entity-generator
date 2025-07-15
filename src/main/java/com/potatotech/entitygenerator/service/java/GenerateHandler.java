@@ -18,7 +18,7 @@ public class GenerateHandler {
         String mod = loadWxsd("handlerentities");
         entities.forEach(item -> {
             try{
-                if(item.isGenerateDefaultHandlers()){
+                if(item.isGenerateDefaultHandlers() && !item.isOnlyDTO()){
                     String fileName = stringFormaterJava(item.getEntityName(),"Handler", packagePath.toString());
                     var path = Path.of(fileName);
                     var entity = configureFile(mod,packageName,item,item.getEntityName());

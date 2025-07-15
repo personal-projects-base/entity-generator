@@ -26,11 +26,13 @@ public class GenerateDTOConverter {
         String mod = loadWxsd("dtoconverter");
         entities.forEach(item -> {
             try{
-                String fileName = stringFormaterJava(item.getEntityName(),"DTOConverter", packagePath.toString());
-                var path = Path.of(fileName);
-                var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
-                dependencies.clear();
-                Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                if(!item.isOnlyDTO()){
+                    String fileName = stringFormaterJava(item.getEntityName(),"DTOConverter", packagePath.toString());
+                    var path = Path.of(fileName);
+                    var entity = configureFileDTO(mod,packageName,item,item.getEntityName());
+                    dependencies.clear();
+                    Files.write(path, entity.getBytes(), StandardOpenOption.CREATE);
+                }
             }catch (IOException ex){
                 ex.printStackTrace();
             }
