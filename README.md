@@ -18,6 +18,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 
     "mainPackage": "com.potatotech.entitygenerator",  
     "projectName": "entity-generator",
+    "language": "JAVA"
     "entities": [],
     "endpoints": [],
     "enums": [],
@@ -28,6 +29,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 
     "mainPackage": "EntityGenerator",  
     "projectName": "EntityGenerator",
+    "language": "DOTNET"
     "defaultTypeId": "UUID"
     "entities": [],
     "endpoints": [],
@@ -38,6 +40,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 
 * mainPackage: Nome completo do pacote do projeto
 * projectName: Nome do projeto
+* language: JAVA ou DOTNET
 * defaultTypeId: (string) Padrão do tipo das chaves primarias - Apenas necessário para DotNet
 * entities: Objeto de configuração das classes de entidades
 * endpoints: configuração para criação dos endpoints
@@ -62,6 +65,7 @@ O objeto entities deve ser configurado da seguinte forma:
       "classExtends" : "document",
       "generateDefaultHandlers": false,
       "handlerAbstract": false,
+      "onlyDTO": false,
       "entityFields": [
         {
           "comment": "Identificador único do cpf",
@@ -74,15 +78,6 @@ O objeto entities deve ser configurado da seguinte forma:
           "metadata": {
             "nullable": true,
             "key": true
-          },
-	        "frontendProperties": {
-            "label": "",
-            "size": 0,
-            "hidden": true,
-            "order": 0,
-            "guidance": "",
-            "reference": "",
-            "enableFieldsFilter": false
           }
         },
         {
@@ -116,6 +111,7 @@ O objeto entities deve ser configurado da seguinte forma:
 * classExtends: se extende de alguma outra classe
 * generateDefaultHandlers: se gera as interfaces de crud padrões
 * handlerAbstract: permite que o Handler seja sobrescrito (disponivel apenas para JAVA)
+* onlyDTO: é gerrado apenas a classe DTO, nenhum conversor, ou repository alem de crud é gerado
 * entityFields: Objeto que contém os campos da entidade
   * comment: Comentario do campo, este item é obrigatório
   * fieldName: Nome do campo
@@ -127,14 +123,6 @@ O objeto entities deve ser configurado da seguinte forma:
   * metadata: Outras configurações
     * key: se é uma chave primaria
     * nullable: se aceita valor nulo
-  * frontendProperties: configurações do campo para o frontend
-    * label: (string) - Texto da label default (fieldName)
-    * size: (int) tamanho do campo
-    * hidden: (boolean) - Se é pra ser oculto ou não
-    * order: (int) - ordem do campo na tela
-    * guidance: (string) orientação 
-    * reference: não lembro quando criei
-    * enableFieldsFilter: (boolean) - Se é um campo habilitado a filtros
   * relationShips: Configurações de relacionamento
     * fetchType: (string) fetchType do campo: EAGER|LAZY
     * relationShip: (string) relacionamento ex: OneToOne, ManyToOne...
@@ -142,6 +130,7 @@ O objeto entities deve ser configurado da seguinte forma:
     * mappedBy: (string) Em casos de classes autoReferenciada, o item que será bidirecional deve conter valor no mappedBy, referenciado a propriedade de referencia
     * bidirectional: (boolean) se é uma classe que terá um relacionamento bidirecional
 
+OBS: Em caso de classes auto-referenciada, o campo de onde referencia o código pai, deve vir primeiro que a classe referenciada o filho no caso
 ### Endpoints
 
 Neste objeto deverá ser implementado os endpoints que deseja ser gerado
@@ -152,6 +141,7 @@ abaixo um exemplo da sintaxe:
       "methodName": "listCity",
       "httpMethod": "POST",
       "grouper": "POST",
+      "anonymous": true,
       "metadata": {
         "input": [
           {
@@ -166,14 +156,13 @@ abaixo um exemplo da sintaxe:
             "parameterType": "city",
             "list": true
           }
-        ],
-        "anonymous": true
+        ]
       }
     }
 
 * methodName: nome do endpoint
 * grouper: Agrupador de primitivas(a mesma interface será implementado os metodos agrupados)
-* httpMethod: metodo do endpoint (GET,POST,PUT,DELETE) atualmente só possui suporte ao POST
+* httpMethod: metodo do endpoint GET,POST
 * metadata:
   * input: parametros de entrada
     * parameterName: nome do parametro
@@ -184,9 +173,7 @@ abaixo um exemplo da sintaxe:
     * parameterType: tipo do parametro
     * list: se o objeto é do tipo lista
   * anonymous: se o endpoint é anonimo
-
 ### Enums
-* (disponivel apenas para JAVA)
 Gera as enums do projeto
 
 ex:
@@ -198,11 +185,27 @@ ex:
         "INACTIVE"
       ]
     }
-
-
 ### Events
 Não implementado
 ### Listeners
 Não implementado
 ### OBS:
   * Para geração correta dos arquivos estaticos para DotNet deve possuir a pasta "static"
+### Tipos de dados
+
+| fieldType | Campo gerado                        |
+|-----------|-------------------------------------|
+| uuid      | UUID ou Guid                        |
+| string    | String                              |
+| password  | String                              |
+| datetime  | LocalDateTime(Java) ou DateTime(C#) |
+| date      | LocalDate(Java) ou DateTime(C#)     |
+| int       | Integer(Java) ou int(C#)            |
+| integer   | int                                 |
+| long      | Long                                |
+| decimal   | Double                              |
+| double    | Double                              |
+| boolean   | boolean(Java) ou bool(C#)           |
+| byte      | byte(apenas java)                   |
+| byte[]    | InputStream(apenas Java)            |
+| map       | Map<String, Object>(apenas Java)    |
