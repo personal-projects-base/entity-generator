@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.Map;
+import java.time.LocalDateTime;
+
 
 public class <<entityName>><<operation>> {
     <<entityFields>>
