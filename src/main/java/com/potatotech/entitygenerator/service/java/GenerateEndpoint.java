@@ -87,7 +87,7 @@ public class GenerateEndpoint {
 
     private static String setParameterOutput(Endpoints endpoints, String fileName){
         if(!validRequestOrResponseData(endpoints.getMetadata().getInput())){
-            return !endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "void";
+            return !endpoints.getMetadata().getOutput().isEmpty() ? firstCharacterUpperCase(fileName)+ "Output" : "Void";
         } else {
             return !endpoints.getMetadata().getOutput().isEmpty() ?  "ResponseData" : "?";
         }

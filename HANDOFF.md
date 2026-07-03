@@ -1,0 +1,295 @@
+# Handoff — entity-generator
+
+## Objetivo
+
+`entity-generator` é um gerador de código distribuído como Maven Plugin (`com.potatotech:entity-generator`). Ele lê `properties.json` no diretório em que o Maven/JAR foi executado e gera uma camada de persistência/API para projetos Java ou .NET, além de um script PostgreSQL e metadados de permissões.
+
+Este documento descreve o comportamento observado no código da versão `0.0.24-SNAPSHOT`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
+
+## Como consumir
+
+Pré-requisitos do gerador:
+
+- JDK 11 ou superior;
+- Maven com acesso ao repositório onde o plugin foi publicado;
+- um `properties.json` na raiz do serviço consumidor;
+- para .NET, uma pasta `static/` já criada na raiz do serviço.
+
+Exemplo de declaração no `pom.xml` do serviço Java:
+
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>com.potatotech</groupId>
+      <artifactId>entity-generator</artifactId>
+      <version>0.0.24-SNAPSHOT</version>
+    </plugin>
+  </plugins>
+</build>
+```
+
+Execute na mesma pasta do `properties.json`:
+
+```bash
+mvn entity-generator:generate-sources
+```
+
+O plugin não está associado automaticamente a uma fase do lifecycle. Se a geração precisar ocorrer em todo build, declare uma `execution` com o goal `generate-sources` e uma fase apropriada no serviço consumidor.
+
+Também existe execução como JAR (`Main`), com o mesmo diretório de trabalho e o mesmo arquivo de configuração.
+
+## Configuração mínima segura
+
+As três coleções abaixo devem estar presentes, mesmo vazias. A implementação percorre todas elas sem proteção contra `null`.
+
+```json
+{
+  "mainPackage": "com.example.service",
+  "projectName": "service-name",
+  "language": "JAVA",
+  "entities": [],
+  "endpoints": [],
+  "enums": []
+}
+```
+
+Valores aceitos em `language`: `JAVA` e `DOTNET` (maiúsculos).
+
+Notas sobre propriedades documentadas anteriormente:
+
+- `defaultTypeId` não existe no modelo atual e é ignorado pelo Gson;
+- `events` e `listeners` não existem no modelo atual e não geram código;
+- `projectName` é desserializado, mas praticamente não participa da geração; os namespaces/pacotes usam `mainPackage`;
+- propriedades desconhecidas são silenciosamente ignoradas.
+
+## Entidades
+
+Exemplo completo:
+
+```json
+{
+  "comment": "Cadastro de clientes",
+  "entityName": "customer",
+  "tableName": "customer",
+  "classExtends": "",
+  "generateDefaultHandlers": true,
+  "handlerAbstract": false,
+  "onlyDTO": false,
+  "entityFields": [
+    {
+      "comment": "Identificador",
+      "fieldName": "id",
+      "list": false,
+      "fieldProperties": {
+        "fieldType": "uuid",
+        "required": true,
+        "valueDefault": ""
+      },
+      "metadata": {
+        "nullable": false,
+        "key": true
+      }
+    }
+  ]
+}
+```
+
+Contrato efetivo:
+
+- `entityName`: nome base das classes e, quando `tableName` é `null`, da tabela em snake_case;
+- `tableName`: nome da tabela. Use `null`/omita para derivar o nome; string vazia não ativa a derivação;
+- `comment`: usado na descrição do recurso gerado;
+- `entityFields`: precisa conter ao menos um campo e, para geração normal, uma chave com `metadata.key: true`;
+- `generateDefaultHandlers`: padrão `true`; controla handler CRUD Java e implementação de handler .NET;
+- `handlerAbstract`: afeta apenas o handler Java;
+- `onlyDTO`: implementado somente no fluxo Java; evita Entity, converter, repository e handler, mas ainda gera DTO. A entidade continua entrando no SQL gerado;
+- `classExtends`: está no modelo, mas não é aplicado pelos geradores atuais.
+
+Contrato dos campos:
+
+- `comment`, `fieldName`, `fieldProperties` e `metadata` devem ser informados;
+- `list` envolve o tipo em `List<T>`;
+- `fieldProperties.required` e `valueDefault` existem no modelo, mas não controlam de forma consistente o código gerado;
+- `metadata.nullable` controla anotações/nullable em partes dos geradores;
+- `metadata.key` identifica a PK;
+- para tipos que representam outra entidade, `relationShips` deve existir para evitar falhas durante a geração.
+
+Relacionamentos:
+
+```json
+"relationShips": {
+  "fetchType": "LAZY",
+  "relationShip": "ManyToOne",
+  "mappedBy": "",
+  "bidirectional": false,
+  "reference": true
+}
+```
+
+- `relationShip`: esperado como `OneToOne`, `OneToMany`, `ManyToOne` ou `ManyToMany`;
+- `fetchType`: inserido nas anotações Java, normalmente `LAZY` ou `EAGER`;
+- `bidirectional`: evita coluna/FK no lado inverso;
+- `mappedBy`: nome do campo proprietário, especialmente em autorrelacionamentos;
+- `reference`: usado pelo conversor Java para impedir recursão;
+- em autorrelacionamentos, declare primeiro o campo proprietário/referência e depois o inverso.
+
+## Tipos reconhecidos
+
+| Configuração | Java | .NET | PostgreSQL |
+|---|---|---|---|
+| `uuid` | `UUID` | `Guid?` | `uuid` |
+| `string`, `password` | `String` | `string` | `varchar` |
+| `datetime` | `LocalDateTime` | `DateTime` | `timestamp` |
+| `date` | `LocalDate` | `DateTime` | `date` |
+| `int` | `Integer` | `int?` | `integer`/`serial` para PK |
+| `integer` | `int` | `int` | `integer`/`serial` para PK |
+| `long` | `Long` | `Long` | `integer` |
+| `decimal`, `double` | `Double` | `Double` | `numeric` |
+| `boolean` | `boolean` | `bool` | `boolean` |
+| `byte`, `byte[]`, `inputStream`, `map` | suportados apenas no mapeamento Java | não suportados corretamente | sem mapeamento completo |
+
+Um tipo que não seja primitivo nem enum é tratado como entidade: `FooEntity`/`FooDTO`. Portanto, o nome deve corresponder a um `entityName` configurado. Enums são comparados sem diferenciar maiúsculas/minúsculas.
+
+## Endpoints
+
+```json
+{
+  "comment": "Consulta clientes",
+  "methodName": "listCustomer",
+  "httpMethod": "GET",
+  "grouper": "customer",
+  "metadata": {
+    "anonymous": false,
+    "input": [],
+    "output": [
+      {
+        "parameterName": "customers",
+        "parameterType": "customer",
+        "list": true
+      }
+    ]
+  },
+  "permissions": {
+    "description": "",
+    "resource": "",
+    "premissions": ["VIEW"],
+    "permissionDefault": false
+  }
+}
+```
+
+- `metadata.input` e `metadata.output` devem existir, mesmo vazios;
+- use `GET` ou `POST`; outras strings podem produzir código inválido;
+- Java gera uma interface por endpoint e ignora `grouper`;
+- .NET usa `grouper` para reunir métodos em uma classe `*Primitive`; use `""` quando não houver grupo;
+- `metadata.anonymous: true` gera `@Anonymous` no Java ou `[AllowAnonymous]` no .NET;
+- um parâmetro de entrada com tipo `requestdata`/`responsedata` ativa os envelopes genéricos e impede a geração da classe Input/Output específica;
+- a grafia `premissions` está errada no código, mas é a chave JSON que deve ser usada;
+- permissões aceitas: `ALL`, `VIEW`, `CREATE`, `UPDATE`, `DELETE`.
+
+## Enums
+
+```json
+{
+  "enumName": "Status",
+  "values": ["ACTIVE", "INACTIVE"]
+}
+```
+
+`values` não pode estar vazio, pois o gerador remove a última vírgula assumindo que existe ao menos um item.
+
+## Saídas geradas
+
+### Java
+
+O diretório inteiro abaixo é apagado e recriado a cada execução:
+
+```text
+src/main/java/<mainPackage convertido em caminho>_gen/
+```
+
+São gerados, conforme a configuração:
+
+- `*Entity`, `*DTO`, `*DTOConverter`, `*Repository` e `*Handler`;
+- interfaces de endpoint e seus modelos `*Input`/`*Output`;
+- enums;
+- `HandlerBase`, `RestConfig`, `SpecificationFilter`, `RequestData` e `ResponseData`.
+
+Também são sobrescritos:
+
+```text
+src/main/resources/properties.json
+src/main/resources/resources.json
+src/main/resources/postgree.sql
+```
+
+O nome `postgree.sql` é o nome efetivamente usado (incluindo a grafia).
+
+### .NET
+
+O diretório inteiro abaixo é apagado e recriado:
+
+```text
+<mainPackage com pontos convertidos em barras>_gen/
+```
+
+São gerados Entities, DTOs, converters, repositories, handlers/controllers, primitives de endpoint, `CustomDbContext`, registro de DI e classes auxiliares. A pasta `static/` não é criada automaticamente; nela são sobrescritos `properties.json`, `resources.json` e `postgree.sql`.
+
+## Dependências exigidas pelo código gerado
+
+Java pressupõe, no mínimo:
+
+- Spring Web, Spring Data JPA e Spring Transactions;
+- Jakarta Persistence;
+- Lombok;
+- classes do pacote interno `com.potatotech.authorization` (`TenantContext`, `ServiceException` e, para endpoint anônimo, `@Anonymous`).
+
+.NET pressupõe, no mínimo:
+
+- ASP.NET Core MVC/Authorization;
+- Entity Framework Core;
+- infraestrutura específica referenciada pelos templates de contexto (`<Projeto>.Config.Database` e `<Projeto>.Config.DatabaseMigration`).
+
+Os namespaces fixos do template `CustomDbContext` atualmente usam `DataOnBackend.Config.*`, independentemente de `mainPackage`; serviços com outro nome provavelmente precisarão ajustar o arquivo gerado ou o template.
+
+## SQL e permissões
+
+O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junção Many-to-Many. Não há seleção de banco no contrato atual e não há migrations incrementais: o arquivo é recriado por completo.
+
+`resources.json` contém:
+
+- CRUD (`CREATE`, `VIEW`, `UPDATE`, `DELETE`) para cada entidade;
+- uma entrada para cada endpoint, usando `permissions` quando configurado.
+
+## Cuidados operacionais
+
+- A geração é destrutiva nos diretórios `_gen`; não coloque código manual neles.
+- Execute sempre na raiz correta: a resolução usa `System.getProperty("user.dir")`.
+- Mantenha nomes em lower camel case. Vários trechos apenas alteram o primeiro caractere e não sanitizam identificadores.
+- Garanta uma única PK por entidade. PK ausente causa `NullPointerException`; múltiplas PKs não têm suporte coerente.
+- Listas nulas, metadata ausente e relacionamentos incompletos normalmente causam falhas sem mensagem de validação útil.
+- O teste existente executa geração sobre arquivos reais, captura exceções e não possui assertions; ele não garante a validade/compilação do resultado.
+- O plugin compila em Java 11, mas o código Java gerado usa Jakarta/Spring 6, o que normalmente implica runtime Java 17 no serviço consumidor.
+
+## Limitações e defeitos conhecidos
+
+- README anterior menciona eventos/listeners, mas eles não estão implementados no fluxo atual.
+- `onlyDTO` não é respeitado pelo gerador .NET.
+- não existe validação formal do JSON antes de apagar/recriar as saídas;
+- o mapeamento de nullable .NET contém condições frágeis e pode produzir tipos inesperados;
+- o gerador de endpoint .NET possui verificações inconsistentes entre método e HTTP method;
+- alguns templates possuem imports/namespaces específicos da infraestrutura PotatoTech/DataOn;
+- arquivos são escritos com `CREATE`, sem `TRUNCATE_EXISTING`; a limpeza do diretório reduz esse risco para fontes, mas arquivos de recursos dependem do `dropFile` anterior;
+- a geração SQL assume campos e metadados válidos e pode falhar para entidade vazia ou relacionamento incompleto.
+
+## Checklist para integrar um serviço
+
+1. Fixar uma versão publicada do plugin no `pom.xml` ou pipeline.
+2. Criar `properties.json` com `entities`, `endpoints` e `enums`, mesmo quando vazios.
+3. Criar `static/` antes de gerar para .NET.
+4. Confirmar uma PK e metadata completa em cada entidade.
+5. Confirmar ambos os lados e a ordem dos autorrelacionamentos.
+6. Executar o gerador em uma branch limpa e revisar todos os arquivos `_gen`, SQL e permissões.
+7. Compilar o serviço consumidor; a compilação é a validação efetiva que falta ao gerador.
+8. Nunca editar fontes `_gen` manualmente; customizações devem ficar fora deles ou ser incorporadas aos templates desta biblioteca.
