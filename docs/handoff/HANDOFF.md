@@ -129,10 +129,67 @@ Relacionamentos:
 
 - `relationShip`: esperado como `OneToOne`, `OneToMany`, `ManyToOne` ou `ManyToMany`;
 - `fetchType`: inserido nas anotações Java, normalmente `LAZY` ou `EAGER`;
-- `bidirectional`: evita coluna/FK no lado inverso;
-- `mappedBy`: nome do campo proprietário, especialmente em autorrelacionamentos;
-- `reference`: usado pelo conversor Java para impedir recursão;
+- `bidirectional: false`: lado dono. Gera `@JoinColumn`, coluna SQL e FK;
+- `bidirectional: true`: lado inverso. Gera anotação com `mappedBy`, `cascade = CascadeType.ALL`, `orphanRemoval = true` e não gera coluna SQL;
+- `mappedBy`: nome do campo proprietário, especialmente em autorrelacionamentos. Exemplo: `children` usa `mappedBy: "parentCode"`;
+- `reference`: usado pelo conversor Java para impedir recursão. Normalmente fica `true` no lado dono/FK;
 - em autorrelacionamentos, declare primeiro o campo proprietário/referência e depois o inverso.
+
+Exemplo autorreferenciado `ManyToOne`/`OneToMany`:
+
+```json
+{
+  "fieldName": "parentCode",
+  "list": false,
+  "fieldProperties": { "fieldType": "costCenter" },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "ManyToOne",
+    "bidirectional": false,
+    "reference": true
+  }
+}
+```
+
+```json
+{
+  "fieldName": "children",
+  "list": true,
+  "fieldProperties": { "fieldType": "costCenter" },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "OneToMany",
+    "mappedBy": "parentCode",
+    "bidirectional": true,
+    "reference": false
+  }
+}
+```
+
+Saída Java observada:
+
+```java
+@JoinColumn(name = "parent_code")
+@ManyToOne(fetch = FetchType.LAZY)
+private CostCenterEntity parentCode;
+
+@OneToMany(mappedBy = "parentCode", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+private List<CostCenterEntity> children;
+```
+
+Saída SQL observada:
+
+```sql
+parent_code uuid
+ALTER TABLE cost_center ADD CONSTRAINT fk_cost_center_cost_center_parent_code FOREIGN KEY (parent_code) REFERENCES cost_center(id);
+```
+
+O converter Java reamarra o lado inverso ao lado dono:
+
+```java
+entity.setChildren(childrenDtoConverter.toEntity(dto.children, null));
+if (entity.getChildren() != null) entity.getChildren().forEach(e -> e.setParentCode(entity));
+```
 
 ## Tipos reconhecidos
 

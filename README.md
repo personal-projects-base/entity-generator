@@ -154,6 +154,194 @@ O objeto entities deve ser configurado da seguinte forma:
     * bidirectional: (boolean) se é uma classe que terá um relacionamento bidirecional
 
 OBS: Em caso de classes auto-referenciada, o campo de onde referencia o código pai, deve vir primeiro que a classe referenciada o filho no caso
+
+#### Relacionamentos
+
+Campos cujo `fieldProperties.fieldType` aponta para outra entidade devem declarar `relationShips`.
+
+O lado dono do relacionamento deve usar `bidirectional: false`. Esse lado gera a coluna no SQL, a FK e o `@JoinColumn` no Java.
+
+```json
+{
+  "fieldName": "parentCode",
+  "list": false,
+  "fieldProperties": {
+    "fieldType": "costCenter",
+    "required": false,
+    "valueDefault": ""
+  },
+  "metadata": {
+    "nullable": true,
+    "key": false
+  },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "ManyToOne",
+    "bidirectional": false,
+    "reference": true
+  }
+}
+```
+
+Saída Java:
+
+```java
+@JoinColumn(name = "parent_code")
+@ManyToOne(fetch = FetchType.LAZY)
+private CostCenterEntity parentCode;
+```
+
+Saída SQL:
+
+```sql
+parent_code uuid
+ALTER TABLE cost_center ADD CONSTRAINT fk_cost_center_cost_center_parent_code FOREIGN KEY (parent_code) REFERENCES cost_center(id);
+```
+
+O lado inverso deve usar `bidirectional: true` e `mappedBy` apontando para o campo dono. Esse lado não gera coluna no SQL.
+
+```json
+{
+  "fieldName": "children",
+  "list": true,
+  "fieldProperties": {
+    "fieldType": "costCenter",
+    "required": false,
+    "valueDefault": ""
+  },
+  "metadata": {
+    "nullable": false,
+    "key": false
+  },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "OneToMany",
+    "mappedBy": "parentCode",
+    "bidirectional": true,
+    "reference": false
+  }
+}
+```
+
+Saída Java:
+
+```java
+@OneToMany(mappedBy = "parentCode", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+private List<CostCenterEntity> children;
+```
+
+No converter Java, o lado inverso também é reamarrado ao lado dono ao converter DTO para entidade:
+
+```java
+entity.setChildren(childrenDtoConverter.toEntity(dto.children, null));
+if (entity.getChildren() != null) entity.getChildren().forEach(e -> e.setParentCode(entity));
+```
+
+Para autorrelacionamentos `OneToOne`, o padrão é o mesmo:
+
+```json
+{
+  "fieldName": "repliesCode",
+  "fieldProperties": { "fieldType": "comment" },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "OneToOne",
+    "bidirectional": false,
+    "reference": true
+  }
+}
+```
+
+```json
+{
+  "fieldName": "replies",
+  "fieldProperties": { "fieldType": "comment" },
+  "relationShips": {
+    "fetchType": "LAZY",
+    "relationShip": "OneToOne",
+    "mappedBy": "repliesCode",
+    "bidirectional": true,
+    "reference": false
+  }
+}
+```
+
+Gerando:
+
+```java
+@JoinColumn(name = "replies_code")
+@OneToOne(fetch = FetchType.LAZY)
+private CommentEntity repliesCode;
+
+@OneToOne(mappedBy = "repliesCode", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+private CommentEntity replies;
+```
+
+Regras práticas:
+
+* `relationShip`: `OneToOne`, `OneToMany`, `ManyToOne` ou `ManyToMany`.
+* `fetchType`: usado nas anotações Java, normalmente `LAZY` ou `EAGER`.
+* `bidirectional: false`: lado dono, gera coluna/FK.
+* `bidirectional: true`: lado inverso, usa `mappedBy`.
+* `mappedBy`: deve apontar para o campo dono.
+* `reference: true`: use no campo de referência/FK, especialmente em autorrelacionamentos, para ajudar os converters a evitar recursão.
+* `list: true`: use quando o relacionamento representa uma coleção.
+
+#### DTO Converters
+
+Para cada entidade, o fluxo Java gera DTO e converter. Exemplo para `costCenter`:
+
+```txt
+CostCenterEntity.java
+CostCenterDTO.java
+CostCenterDTOConverter.java
+```
+
+Use o converter para transformar dados entre a camada de API e a camada de persistência:
+
+```java
+import com.example.backend_gen.CostCenterDTO;
+import com.example.backend_gen.CostCenterDTOConverter;
+import com.example.backend_gen.CostCenterEntity;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CostCenterService {
+    private final CostCenterDTOConverter converter;
+
+    public CostCenterService(CostCenterDTOConverter converter) {
+        this.converter = converter;
+    }
+
+    public CostCenterEntity toEntity(CostCenterDTO dto) {
+        return converter.toEntity(dto, null);
+    }
+
+    public CostCenterDTO toDTO(CostCenterEntity entity) {
+        return converter.toDTO(entity, "*");
+    }
+}
+```
+
+O segundo parâmetro é `displayFields`.
+
+```java
+converter.toDTO(entity, "*");
+converter.toDTO(entity, "id,description");
+converter.toDTO(entity, "id,description,children.id,children.description");
+```
+
+Use `*` para retornar todos os campos permitidos pelo converter. Em listagens e relacionamentos, prefira informar campos explicitamente para evitar respostas grandes.
+
+Em relacionamentos bidirecionais, o converter reamarra o lado inverso ao lado dono ao converter DTO para entidade:
+
+```java
+entity.setChildren(childrenDtoConverter.toEntity(dto.children, null));
+if (entity.getChildren() != null) entity.getChildren().forEach(e -> e.setParentCode(entity));
+```
+
+Quando um campo tem `reference: true`, ele representa o lado de referência/FK. Esse lado é evitado na conversão para DTO em alguns fluxos para impedir recursão infinita, como `pai -> filhos -> pai -> filhos`.
+
 ### Endpoints
 
 Neste objeto deverá ser implementado os endpoints que deseja ser gerado
@@ -559,8 +747,6 @@ O objetivo inicial é fornecer uma base equivalente para integração em projeto
 * Express para controllers e rotas.
 * Prisma Client para repositories.
 * amqplib quando `messaging.RabbitMq` estiver configurado.
-
-Assim como Java e .NET, a geração Node usa templates do projeto, em `src/main/resources/xsd/node/`.
 
 O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe um gerador npm separado; basta executar o plugin ou o JAR na raiz do projeto consumidor com `language: "NODE"` no `properties.json`.
 

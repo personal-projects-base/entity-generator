@@ -11,6 +11,14 @@
 ### Melhorias
 * Documentado o contrato de `messaging.RabbitMq.pub` e `messaging.RabbitMq.sub` no handoff backend e no README.
 * Documentado o fluxo Node no README e no handoff backend.
+* Documentado o uso de relacionamentos e DTO converters na documentação Docusaurus.
+
+### Melhorias futuras
+* Evoluir a geração de relacionamentos no Node/Prisma. A geração atual serve como base inicial, mas relacionamentos bidirecionais, autorrelacionamentos e `ManyToMany` ainda devem ser revisados manualmente antes de executar migrations.
+* Evitar auto-imports e imports duplicados nos models TypeScript gerados para entidades autorreferenciadas.
+* Avaliar uma abstração de conversão DTO/entity para Node, equivalente ao papel dos converters em Java e C#.
+* Reforçar testes automatizados para relacionamentos em Java, C#, SQL e Node, cobrindo `OneToOne`, `OneToMany`, `ManyToOne`, `ManyToMany` e autorrelacionamentos.
+* Considerar que a geração de relacionamentos tende a funcionar melhor e com menos ambiguidade em linguagens fortemente tipadas, como Java e C#, onde os converters, entidades e anotações/atributos conseguem expressar melhor o contrato de domínio.
 
 ### Quebras de compatibilidades
 * Versão promovida para `1.0.0`.
