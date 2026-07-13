@@ -3,7 +3,7 @@
 
 Modulo gerador de código fonte
 
-Este modulo faz a geração de models, repositories, DTOS, Classes de eventos e listeners e endpoints 
+Este modulo faz a geração de models, repositories, DTOS, endpoints e abstrações RabbitMQ para publish/subscribe.
 
 [UI Criação entidades](https://develop.smartverse.com.br/entity/)
 
@@ -22,8 +22,12 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
     "entities": [],
     "endpoints": [],
     "enums": [],
-    "events": [],
-    "listeners": []
+    "messaging": {
+      "RabbitMq": {
+        "pub": [],
+        "sub": []
+      }
+    }
 
 ##### DotNet
 
@@ -34,8 +38,12 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
     "entities": [],
     "endpoints": [],
     "enums": [],
-    "events": [],
-    "listeners": []
+    "messaging": {
+      "RabbitMq": {
+        "pub": [],
+        "sub": []
+      }
+    }
 
 
 * mainPackage: Nome completo do pacote do projeto
@@ -45,8 +53,7 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 * entities: Objeto de configuração das classes de entidades
 * endpoints: configuração para criação dos endpoints
 * enums: Criação das enumerations
-* events: criação de filas no rabbit
-* listeners: registra para ser ouvinte de algum evento do rabbit
+* messaging: configuração de provedores de mensageria. Hoje o provedor suportado é `RabbitMq`
 
 Apos configurado o arquivo properties.json pode se gerar o código gerando o seguinte comando a partir da raiz do projeto
 
@@ -185,10 +192,348 @@ ex:
         "INACTIVE"
       ]
     }
-### Events
-Não implementado
-### Listeners
-Não implementado
+
+### Messaging RabbitMQ
+
+Disponível para projetos Java e .NET.
+
+A propriedade `messaging` agrupa os provedores de mensageria. Hoje o provedor suportado é `RabbitMq`. Em Java, o código gerado usa Spring AMQP. Em .NET, o código gerado usa RabbitMQ.Client e abstrações de hosting/configuração do ASP.NET Core.
+
+O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` existe e possui ao menos um item em `pub` ou `sub`. Se `messaging` estiver vazio, ou se `RabbitMq` estiver ausente/nulo/vazio, nenhuma configuração RabbitMQ será gerada e o projeto consumidor não precisa carregar dependências de RabbitMQ.
+
+Ela substitui o modelo antigo documentado como `events` e `listeners`, que não é implementado pelo gerador atual.
+
+Use:
+
+* `messaging.RabbitMq.pub`: canais RabbitMQ que o serviço publica.
+* `messaging.RabbitMq.sub`: canais RabbitMQ que o serviço ouve.
+
+Exemplo:
+
+```json
+{
+  "mainPackage": "com.example.profilebackend",
+  "projectName": "profile-backend",
+  "language": "JAVA",
+  "entities": [],
+  "endpoints": [],
+  "enums": [],
+  "messaging": {
+    "RabbitMq": {
+      "pub": [
+        {
+          "name": "notification",
+          "queue": "4libert.queue.profile.notification",
+          "routingKey": "4libert.routingKey.profile.notification"
+        },
+        {
+          "name": "followers",
+          "queue": "4libert.queue.profile.followers",
+          "routingKey": "4libert.routingKey.profile.followers"
+        }
+      ],
+      "sub": [
+        {
+          "name": "notificationChat",
+          "queue": "4libert.queue.chat.notification"
+        }
+      ]
+    }
+  }
+}
+```
+
+#### Propriedades
+
+* name: nome base da classe gerada. Exemplo: `notification` gera `NotificationPub`; `notificationChat` gera `NotificationChatSub`.
+* className: opcional. Permite informar diretamente o nome da classe. Se o sufixo `Pub` ou `Sub` não existir, o gerador adiciona automaticamente.
+* queue: nome da fila RabbitMQ.
+* routingKey: chave de roteamento usada pelos publishers. Obrigatória em itens de `messaging.RabbitMq.pub`. Em .NET, também pode ser usada em `messaging.RabbitMq.sub` para o subscriber declarar o binding da fila com a exchange.
+
+#### Arquivos gerados
+
+##### Java
+
+Quando `messaging.RabbitMq` é configurado em projeto Java, o gerador cria arquivos dentro de:
+
+```text
+src/main/java/<mainPackage convertido em caminho>_gen/messaging/
+```
+
+Arquivos comuns:
+
+* `messaging/RabbitExchange.java`: anotação usada para informar a exchange no projeto consumidor.
+* `messaging/RabbitConfig.java`: configuração abstrata com `TopicExchange`, `RabbitAdmin` e conversor JSON.
+
+Arquivos de publisher:
+
+* `messaging/pub/RabbitPublisher.java`: classe base com `RabbitTemplate` e método protegido `publishMessage`.
+* `messaging/pub/<Name>Pub.java`: classe gerada para cada item de `messaging.RabbitMq.pub`, contendo `Queue`, `Binding`, `routingKey` e método público `publish(Object message)`.
+
+Arquivos de subscriber:
+
+* `messaging/sub/<Name>Sub.java`: classe abstrata gerada para cada item de `messaging.RabbitMq.sub`, contendo `@RabbitListener` e método abstrato `onMessage(String message)`.
+
+##### .NET
+
+Quando `messaging.RabbitMq` é configurado em projeto .NET, o gerador cria arquivos dentro de:
+
+```text
+<mainPackage com pontos convertidos em barras>_gen/Messaging/
+```
+
+Arquivos comuns:
+
+* `Messaging/RabbitExchangeAttribute.cs`: atributo usado para informar a exchange no projeto consumidor.
+* `Messaging/RabbitConfig.cs`: configuração abstrata que lê `RabbitMQ:*` de `IConfiguration`, cria conexão RabbitMQ e declara a exchange.
+* `Messaging/AddRabbitMessaging.cs`: helper para registrar os publishers gerados no DI.
+
+Arquivos de publisher:
+
+* `Messaging/Pub/RabbitPublisher.cs`: classe base com conexão/canal RabbitMQ e método protegido `PublishMessage`.
+* `Messaging/Pub/<Name>Pub.cs`: classe gerada para cada item de `messaging.RabbitMq.pub`, contendo fila, routing key e método público `Publish(object message)`.
+
+Arquivos de subscriber:
+
+* `Messaging/Sub/<Name>Sub.cs`: classe abstrata baseada em `BackgroundService`, contendo consumo da fila, ack/nack e método abstrato `OnMessage(string message)`.
+
+#### Configuração da exchange Java
+
+A exchange não é definida dentro do `properties.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `@RabbitExchange`.
+
+Exemplo:
+
+```java
+package com.example.profilebackend.messaging;
+
+import com.example.profilebackend_gen.messaging.RabbitConfig;
+import com.example.profilebackend_gen.messaging.RabbitExchange;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@RabbitExchange("4libert.profile")
+public class AppRabbitConfig extends RabbitConfig {
+}
+```
+
+Essa decisão evita deixar a exchange fixa no código gerado e permite que cada serviço escolha sua própria configuração.
+
+#### Configuração da exchange .NET
+
+No .NET, a exchange também não é definida dentro do `properties.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `RabbitExchange`.
+
+Exemplo:
+
+```csharp
+using ExampleBackend.ExampleBackend_Gen.Messaging;
+using Microsoft.Extensions.Configuration;
+
+namespace ExampleBackend.Messaging
+{
+    [RabbitExchange("4libert.profile")]
+    public class AppRabbitConfig : RabbitConfig
+    {
+        public AppRabbitConfig(IConfiguration configuration) : base(configuration)
+        {
+        }
+    }
+}
+```
+
+Registre a configuração concreta e os publishers gerados no `Program.cs`:
+
+```csharp
+using ExampleBackend.ExampleBackend_Gen.Messaging;
+using ExampleBackend.Messaging;
+
+builder.Services.AddSingleton<RabbitConfig, AppRabbitConfig>();
+AddRabbitMessaging.AddRabbitMessagingGenerate(builder);
+```
+
+#### Publicando mensagens em Java
+
+Com o exemplo acima, o gerador cria `NotificationPub`.
+
+Uso em uma classe do serviço consumidor:
+
+```java
+package com.example.profilebackend.services;
+
+import com.example.profilebackend_gen.messaging.pub.NotificationPub;
+import org.springframework.stereotype.Service;
+
+@Service
+public class NotificationPublisherService {
+
+    private final NotificationPub notificationPub;
+
+    public NotificationPublisherService(NotificationPub notificationPub) {
+        this.notificationPub = notificationPub;
+    }
+
+    public void send(Object payload) {
+        notificationPub.publish(payload);
+    }
+}
+```
+
+O método `publish` envia a mensagem para a exchange configurada em `@RabbitExchange`, usando a `routingKey` informada no `properties.json`.
+
+#### Publicando mensagens em .NET
+
+Com o exemplo acima, o gerador cria `NotificationPub`.
+
+Uso em uma classe do serviço consumidor:
+
+```csharp
+using ExampleBackend.ExampleBackend_Gen.Messaging.Pub;
+
+namespace ExampleBackend.Services
+{
+    public class NotificationPublisherService
+    {
+        private readonly NotificationPub _notificationPub;
+
+        public NotificationPublisherService(NotificationPub notificationPub)
+        {
+            _notificationPub = notificationPub;
+        }
+
+        public void Send(object payload)
+        {
+            _notificationPub.Publish(payload);
+        }
+    }
+}
+```
+
+O método `Publish` envia a mensagem para a exchange configurada no atributo `RabbitExchange`, usando a `routingKey` informada no `properties.json`.
+
+#### Ouvindo mensagens em Java
+
+Subscribers são gerados como classes abstratas para manter a lógica de negócio fora de `_gen`.
+
+Com o exemplo acima, o gerador cria `NotificationChatSub`. O serviço consumidor deve criar uma implementação concreta:
+
+```java
+package com.example.profilebackend.messaging;
+
+import com.example.profilebackend_gen.messaging.sub.NotificationChatSub;
+import org.springframework.stereotype.Component;
+
+@Component
+public class NotificationChatListener extends NotificationChatSub {
+
+    @Override
+    protected void onMessage(String message) {
+        // Converter e processar a mensagem aqui.
+    }
+}
+```
+
+O método gerado com `@RabbitListener` recebe a mensagem como `String`, trata erros com log e chama `onMessage`.
+
+#### Ouvindo mensagens em .NET
+
+Subscribers .NET também são gerados como classes abstratas para manter a lógica de negócio fora de `_gen`.
+
+Com o exemplo acima, o gerador cria `NotificationChatSub`. O serviço consumidor deve criar uma implementação concreta:
+
+```csharp
+using ExampleBackend.ExampleBackend_Gen.Messaging;
+using ExampleBackend.ExampleBackend_Gen.Messaging.Sub;
+using Microsoft.Extensions.Logging;
+
+namespace ExampleBackend.Messaging
+{
+    public class NotificationChatListener : NotificationChatSub
+    {
+        public NotificationChatListener(RabbitConfig rabbitConfig, ILoggerFactory loggerFactory)
+            : base(rabbitConfig, loggerFactory)
+        {
+        }
+
+        protected override void OnMessage(string message)
+        {
+            // Converter e processar a mensagem aqui.
+        }
+    }
+}
+```
+
+Registre o subscriber concreto como hosted service:
+
+```csharp
+builder.Services.AddHostedService<NotificationChatListener>();
+```
+
+O serviço gerado abre a conexão RabbitMQ, declara a exchange e a fila, consome mensagens como `string`, chama `OnMessage`, confirma com `BasicAck` em caso de sucesso e usa `BasicNack` com requeue em caso de erro.
+
+Se o item de `messaging.RabbitMq.sub` tiver `routingKey`, o gerador também declara o binding entre a fila e a exchange:
+
+```json
+{
+  "name": "notificationChat",
+  "queue": "4libert.queue.chat.notification",
+  "routingKey": "4libert.routingKey.chat.notification"
+}
+```
+
+#### Dependências necessárias
+
+##### Java
+
+O projeto consumidor Java precisa ter Spring AMQP/RabbitMQ no classpath. Em projetos Spring Boot, normalmente:
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-amqp</artifactId>
+</dependency>
+```
+
+Também é necessário configurar a conexão RabbitMQ do serviço consumidor, por exemplo via `application.properties` ou `application.yml`, conforme o padrão do Spring Boot:
+
+```properties
+spring.rabbitmq.host=localhost
+spring.rabbitmq.port=5672
+spring.rabbitmq.username=guest
+spring.rabbitmq.password=guest
+```
+
+##### .NET
+
+O projeto consumidor .NET precisa ter o pacote RabbitMQ.Client:
+
+```xml
+<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
+```
+
+As abstrações `Microsoft.Extensions.Hosting`, `Microsoft.Extensions.Configuration` e `Microsoft.Extensions.Logging` normalmente já existem em projetos ASP.NET Core. Se o projeto não as tiver, adicione os pacotes correspondentes.
+
+Configure a conexão RabbitMQ no `appsettings.json`:
+
+```json
+{
+  "RabbitMQ": {
+    "HostName": "localhost",
+    "Port": "5672",
+    "UserName": "guest",
+    "Password": "guest",
+    "VirtualHost": "/"
+  }
+}
+```
+
+#### Cuidados
+
+* Não edite os arquivos gerados em `_gen`; implemente configurações e handlers concretos fora desse diretório.
+* `routingKey` deve ser informado nos publishers.
+* Em Java, a classe concreta que estende `RabbitConfig` deve ter `@Configuration` e `@RabbitExchange`.
+* Em .NET, a classe concreta que estende `RabbitConfig` deve ter `[RabbitExchange("...")]` e ser registrada no DI como `RabbitConfig`.
+* Em .NET, subscribers concretos devem ser registrados como hosted services.
+* O nome das filas e routing keys é escrito diretamente no código gerado a partir do `properties.json`.
+
 ### OBS:
   * Para geração correta dos arquivos estaticos para DotNet deve possuir a pasta "static"
 ### Tipos de dados

@@ -17,6 +17,7 @@ import static com.potatotech.entitygenerator.service.dotNet.GenerateDTO.generate
 import static com.potatotech.entitygenerator.service.dotNet.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateHandler.generateHandler;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateHandler.generateHandlerImpl;
+import static com.potatotech.entitygenerator.service.dotNet.GenerateMessaging.generateMessaging;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateIRepositories;
 import static com.potatotech.entitygenerator.service.dotNet.GenerateRepository.generateRepositories;
 import static com.potatotech.entitygenerator.service.java.GenerateEnum.generateEnum;
@@ -69,6 +70,9 @@ public class GenerateDotNet {
 
         //Gera os DTOConverter
         GenerateDTOConverter.generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
+
+        //Gera abstrações de mensageria RabbitMQ
+        generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), prop.getMainPackage(), packagePath);
 
         //Gera as primitivas
         GenerateEndpoint.generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);

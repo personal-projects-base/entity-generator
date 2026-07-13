@@ -1,3 +1,17 @@
+## >1.0.0 - 13-07-2026
+
+### Novas Funcionalidades
+* Adicionado suporte a geração Java e .NET de abstrações RabbitMQ via propriedade `messaging.RabbitMq`.
+* Criada configuração abstrata `RabbitConfig` com exchange definida por anotação/atributo no serviço consumidor.
+* Criada geração de publishers em `messaging/pub` ou `Messaging/Pub` com filas, bindings e método de publicação.
+* Criada geração de subscribers abstratos em `messaging/sub` ou `Messaging/Sub` para implementação fora do diretório `_gen`.
+
+### Melhorias
+* Documentado o contrato de `messaging.RabbitMq.pub` e `messaging.RabbitMq.sub` no handoff backend e no README.
+
+### Quebras de compatibilidades
+* Versão promovida para `1.0.0`.
+
 ### Correções
 * N/A
 

@@ -4,7 +4,7 @@
 
 `entity-generator` é um gerador de código distribuído como Maven Plugin (`com.potatotech:entity-generator`). Ele lê `properties.json` no diretório em que o Maven/JAR foi executado e gera uma camada de persistência/API para projetos Java ou .NET, além de um script PostgreSQL e metadados de permissões.
 
-Este documento descreve o comportamento observado no código da versão `0.0.24-SNAPSHOT`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
+Este documento descreve o comportamento observado no código da versão `1.0.0`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
 
 ## Como consumir
 
@@ -23,7 +23,7 @@ Exemplo de declaração no `pom.xml` do serviço Java:
     <plugin>
       <groupId>com.potatotech</groupId>
       <artifactId>entity-generator</artifactId>
-      <version>0.0.24-SNAPSHOT</version>
+      <version>1.0.0</version>
     </plugin>
   </plugins>
 </build>
@@ -199,6 +199,104 @@ Um tipo que não seja primitivo nem enum é tratado como entidade: `FooEntity`/`
 
 `values` não pode estar vazio, pois o gerador remove a última vírgula assumindo que existe ao menos um item.
 
+## Messaging RabbitMQ
+
+Implementado nos fluxos Java e .NET. O contrato atual agrupa RabbitMQ em `messaging.RabbitMq`, com `pub` para publishers e `sub` para subscribers.
+
+```json
+{
+  "messaging": {
+    "RabbitMq": {
+      "pub": [
+        {
+          "name": "notification",
+          "queue": "4libert.queue.profile.notification",
+          "routingKey": "4libert.routingKey.profile.notification"
+        }
+      ],
+      "sub": [
+        {
+          "name": "notificationChat",
+          "queue": "4libert.queue.chat.notification"
+        }
+      ]
+    }
+  }
+}
+```
+
+Contrato efetivo:
+
+- `name`: nome base da classe gerada. `notification` gera `NotificationPub`; `notificationChat` gera `NotificationChatSub`;
+- `className`: opcional. Sobrescreve o nome base quando informado; o sufixo `Pub`/`Sub` é adicionado se faltar;
+- `queue`: nome da fila;
+- `routingKey`: obrigatório para `pub`; opcional para `sub` no .NET, onde declara também o binding da fila com a exchange;
+- a exchange não fica fixa no JSON. O gerador cria uma anotação/atributo de exchange e uma configuração abstrata `RabbitConfig`.
+- nenhuma configuração RabbitMQ é gerada se `messaging.RabbitMq` estiver ausente, nulo ou sem canais.
+
+O serviço consumidor deve criar uma configuração concreta fora do diretório `_gen`, por exemplo:
+
+```java
+package com.example.service.messaging;
+
+import com.example.service_gen.messaging.RabbitConfig;
+import com.example.service_gen.messaging.RabbitExchange;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@RabbitExchange("4libert.profile")
+public class AppRabbitConfig extends RabbitConfig {
+}
+```
+
+Em .NET, o equivalente usa `RabbitExchangeAttribute`:
+
+```csharp
+using ExampleBackend.ExampleBackend_Gen.Messaging;
+using Microsoft.Extensions.Configuration;
+
+namespace ExampleBackend.Messaging
+{
+    [RabbitExchange("4libert.profile")]
+    public class AppRabbitConfig : RabbitConfig
+    {
+        public AppRabbitConfig(IConfiguration configuration) : base(configuration)
+        {
+        }
+    }
+}
+```
+
+No `Program.cs`, registre a configuração concreta e os publishers gerados:
+
+```csharp
+builder.Services.AddSingleton<RabbitConfig, AppRabbitConfig>();
+AddRabbitMessaging.AddRabbitMessagingGenerate(builder);
+```
+
+Subscribers são gerados como classes abstratas. No Java, o serviço consumidor deve implementar o handler fora de `_gen` e registrá-lo como bean Spring:
+
+```java
+package com.example.service.messaging;
+
+import com.example.service_gen.messaging.sub.NotificationChatSub;
+import org.springframework.stereotype.Component;
+
+@Component
+public class NotificationChatListener extends NotificationChatSub {
+    @Override
+    protected void onMessage(String message) {
+        // tratar mensagem
+    }
+}
+```
+
+No .NET, implemente a classe abstrata e registre o listener concreto como hosted service:
+
+```csharp
+builder.Services.AddHostedService<NotificationChatListener>();
+```
+
 ## Saídas geradas
 
 ### Java
@@ -213,6 +311,7 @@ São gerados, conforme a configuração:
 
 - `*Entity`, `*DTO`, `*DTOConverter`, `*Repository` e `*Handler`;
 - interfaces de endpoint e seus modelos `*Input`/`*Output`;
+- abstrações RabbitMQ em `messaging/`, `messaging/pub/` e `messaging/sub/` quando `messaging.RabbitMq` é configurado;
 - enums;
 - `HandlerBase`, `RestConfig`, `SpecificationFilter`, `RequestData` e `ResponseData`.
 
@@ -236,11 +335,20 @@ O diretório inteiro abaixo é apagado e recriado:
 
 São gerados Entities, DTOs, converters, repositories, handlers/controllers, primitives de endpoint, `CustomDbContext`, registro de DI e classes auxiliares. A pasta `static/` não é criada automaticamente; nela são sobrescritos `properties.json`, `resources.json` e `postgree.sql`.
 
+Quando `messaging.RabbitMq` é configurado, também são gerados:
+
+- `Messaging/RabbitExchangeAttribute.cs`;
+- `Messaging/RabbitConfig.cs`;
+- `Messaging/AddRabbitMessaging.cs`;
+- `Messaging/Pub/RabbitPublisher.cs` e `Messaging/Pub/*Pub.cs`;
+- `Messaging/Sub/*Sub.cs`.
+
 ## Dependências exigidas pelo código gerado
 
 Java pressupõe, no mínimo:
 
 - Spring Web, Spring Data JPA e Spring Transactions;
+- quando `messaging.RabbitMq` for usado: Spring AMQP/RabbitMQ;
 - Jakarta Persistence;
 - Lombok;
 - classes do pacote interno `com.potatotech.authorization` (`TenantContext`, `ServiceException` e, para endpoint anônimo, `@Anonymous`).
@@ -249,6 +357,7 @@ Java pressupõe, no mínimo:
 
 - ASP.NET Core MVC/Authorization;
 - Entity Framework Core;
+- quando `messaging.RabbitMq` for usado: RabbitMQ.Client, Microsoft.Extensions.Hosting, Microsoft.Extensions.Configuration e Microsoft.Extensions.Logging;
 - infraestrutura específica referenciada pelos templates de contexto (`<Projeto>.Config.Database` e `<Projeto>.Config.DatabaseMigration`).
 
 Os namespaces fixos do template `CustomDbContext` atualmente usam `DataOnBackend.Config.*`, independentemente de `mainPackage`; serviços com outro nome provavelmente precisarão ajustar o arquivo gerado ou o template.
@@ -274,7 +383,7 @@ O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junç
 
 ## Limitações e defeitos conhecidos
 
-- README anterior menciona eventos/listeners, mas eles não estão implementados no fluxo atual.
+- README anterior menciona eventos/listeners; o fluxo atual implementa a abstração RabbitMQ via `messaging.RabbitMq`, não o modelo antigo de `events`/`listeners`.
 - `onlyDTO` não é respeitado pelo gerador .NET.
 - não existe validação formal do JSON antes de apagar/recriar as saídas;
 - o mapeamento de nullable .NET contém condições frágeis e pode produzir tipos inesperados;

@@ -19,6 +19,7 @@ import static com.potatotech.entitygenerator.service.java.GenerateEndpoint.gener
 import static com.potatotech.entitygenerator.service.java.GenerateEntity.generateEntity;
 import static com.potatotech.entitygenerator.service.java.GenerateEnum.generateEnum;
 import static com.potatotech.entitygenerator.service.java.GenerateHandler.generateHandlerEntities;
+import static com.potatotech.entitygenerator.service.java.GenerateMessaging.generateMessaging;
 import static com.potatotech.entitygenerator.service.common.GenerateResources.generateResources;
 import static com.potatotech.entitygenerator.service.java.GenerateRepositories.generateRepositories;
 
@@ -44,6 +45,8 @@ public class GenerateJava {
         generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
         // Gera o RestConfig
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "restconfig", "RestConfig");
+        // Gera abstrações de mensageria RabbitMQ
+        generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), prop.getMainPackage(), packagePath);
         // Gera especificação dos filtros
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
