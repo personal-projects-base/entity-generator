@@ -1,0 +1,62 @@
+using System;
+using System.Text.Json;
+using <<projetcName>>.<<nameSpaceName>>.Messaging;
+using RabbitMQ.Client;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging.Pub
+{
+    public abstract class RabbitPublisher : IDisposable
+    {
+        private readonly RabbitConfig _rabbitConfig;
+        private IConnection _connection;
+        private IModel _channel;
+
+        protected RabbitPublisher(RabbitConfig rabbitConfig)
+        {
+            _rabbitConfig = rabbitConfig;
+        }
+
+        protected void PublishMessage(string queueName, string routingKey, object message)
+        {
+            var channel = GetChannel();
+            _rabbitConfig.DeclareExchange(channel);
+            channel.QueueDeclare(queue: queueName, durable: true, exclusive: false, autoDelete: false);
+            channel.QueueBind(queue: queueName, exchange: _rabbitConfig.ExchangeName, routingKey: routingKey);
+
+            var body = JsonSerializer.SerializeToUtf8Bytes(message);
+            var properties = channel.CreateBasicProperties();
+            properties.Persistent = true;
+            properties.ContentType = "application/json";
+
+            channel.BasicPublish(
+                exchange: _rabbitConfig.ExchangeName,
+                routingKey: routingKey,
+                basicProperties: properties,
+                body: body
+            );
+        }
+
+        private IModel GetChannel()
+        {
+            if (_connection == null || !_connection.IsOpen)
+            {
+                _connection = _rabbitConfig.CreateConnection();
+            }
+
+            if (_channel == null || !_channel.IsOpen)
+            {
+                _channel = _connection.CreateModel();
+            }
+
+            return _channel;
+        }
+
+        public void Dispose()
+        {
+            _channel?.Close();
+            _channel?.Dispose();
+            _connection?.Close();
+            _connection?.Dispose();
+        }
+    }
+}

@@ -1,0 +1,18 @@
+package <<packageName>>.messaging.pub;
+
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public abstract class RabbitPublisher {
+
+    @Autowired
+    protected RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    protected TopicExchange appTopicExchange;
+
+    protected void publishMessage(String routingKey, Object message) {
+        rabbitTemplate.convertAndSend(appTopicExchange.getName(), routingKey, message);
+    }
+}

@@ -1,0 +1,12 @@
+<<publisherUsing>>using Microsoft.AspNetCore.Builder;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging
+{
+    public class AddRabbitMessaging
+    {
+        public static void AddRabbitMessagingGenerate(WebApplicationBuilder builder)
+        {
+<<publisherScoped>>
+        }
+    }
+}

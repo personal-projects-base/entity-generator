@@ -1,0 +1,37 @@
+package <<packageName>>.messaging.pub;
+
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class <<className>> extends RabbitPublisher {
+
+    @Value("<<queue>>")
+    private String queueName;
+
+    @Value("<<routingKey>>")
+    private String routingKey;
+
+    @Bean
+    public Queue <<beanName>>Queue() {
+        return new Queue(queueName, true);
+    }
+
+    @Bean
+    public Binding <<beanName>>Binding(Queue <<beanName>>Queue, TopicExchange appTopicExchange) {
+        return BindingBuilder.bind(<<beanName>>Queue).to(appTopicExchange).with(routingKey);
+    }
+
+    public void publish(Object message) {
+        publishMessage(routingKey, message);
+    }
+
+    public String getRoutingKey() {
+        return routingKey;
+    }
+}

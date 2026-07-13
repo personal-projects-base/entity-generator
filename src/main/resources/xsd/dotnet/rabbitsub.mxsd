@@ -1,0 +1,68 @@
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using <<projetcName>>.<<nameSpaceName>>.Messaging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging.Sub
+{
+    public abstract class <<className>> : BackgroundService
+    {
+        private const string QueueName = "<<queue>>";
+        private readonly RabbitConfig _rabbitConfig;
+        private readonly ILogger _logger;
+        private IConnection _connection;
+        private IModel _channel;
+
+        protected <<className>>(RabbitConfig rabbitConfig, ILoggerFactory loggerFactory)
+        {
+            _rabbitConfig = rabbitConfig;
+            _logger = loggerFactory.CreateLogger(GetType());
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _connection = _rabbitConfig.CreateConnection();
+            _channel = _connection.CreateModel();
+
+            _rabbitConfig.DeclareExchange(_channel);
+            _channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: false);
+            <<queueBinding>>
+            _channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += (model, eventArgs) =>
+            {
+                var message = Encoding.UTF8.GetString(eventArgs.Body.ToArray());
+                try
+                {
+                    OnMessage(message);
+                    _channel.BasicAck(eventArgs.DeliveryTag, multiple: false);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failure to process RabbitMQ message from queue {QueueName}", QueueName);
+                    _channel.BasicNack(eventArgs.DeliveryTag, multiple: false, requeue: true);
+                }
+            };
+
+            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
+            return Task.Delay(Timeout.Infinite, stoppingToken);
+        }
+
+        protected abstract void OnMessage(string message);
+
+        public override void Dispose()
+        {
+            _channel?.Close();
+            _channel?.Dispose();
+            _connection?.Close();
+            _connection?.Dispose();
+            base.Dispose();
+        }
+    }
+}

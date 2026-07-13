@@ -1,0 +1,15 @@
+using System;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging
+{
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RabbitExchangeAttribute : Attribute
+    {
+        public string Name { get; }
+
+        public RabbitExchangeAttribute(string name)
+        {
+            Name = name;
+        }
+    }
+}

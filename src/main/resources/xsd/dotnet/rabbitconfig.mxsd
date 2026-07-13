@@ -1,0 +1,51 @@
+using System;
+using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging
+{
+    public abstract class RabbitConfig
+    {
+        private readonly IConfiguration _configuration;
+
+        protected RabbitConfig(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        public string ExchangeName => ResolveExchangeName();
+
+        public ConnectionFactory CreateConnectionFactory()
+        {
+            return new ConnectionFactory
+            {
+                HostName = _configuration["RabbitMQ:HostName"] ?? "localhost",
+                Port = int.TryParse(_configuration["RabbitMQ:Port"], out var port) ? port : 5672,
+                UserName = _configuration["RabbitMQ:UserName"] ?? "guest",
+                Password = _configuration["RabbitMQ:Password"] ?? "guest",
+                VirtualHost = _configuration["RabbitMQ:VirtualHost"] ?? "/"
+            };
+        }
+
+        public IConnection CreateConnection()
+        {
+            return CreateConnectionFactory().CreateConnection();
+        }
+
+        public void DeclareExchange(IModel channel)
+        {
+            channel.ExchangeDeclare(ExchangeName, ExchangeType.Topic, durable: true, autoDelete: false);
+        }
+
+        private string ResolveExchangeName()
+        {
+            var attribute = (RabbitExchangeAttribute)Attribute.GetCustomAttribute(GetType(), typeof(RabbitExchangeAttribute));
+            if (attribute == null || string.IsNullOrWhiteSpace(attribute.Name))
+            {
+                throw new InvalidOperationException("Rabbit exchange must be configured with RabbitExchangeAttribute.");
+            }
+
+            return attribute.Name;
+        }
+    }
+}

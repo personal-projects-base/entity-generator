@@ -1,0 +1,24 @@
+using <<projetcName>>.<<nameSpaceName>>.Messaging;
+
+namespace <<projetcName>>.<<nameSpaceName>>.Messaging.Pub
+{
+    public class <<className>> : RabbitPublisher
+    {
+        private const string QueueName = "<<queue>>";
+        private const string RoutingKey = "<<routingKey>>";
+
+        public <<className>>(RabbitConfig rabbitConfig) : base(rabbitConfig)
+        {
+        }
+
+        public void Publish(object message)
+        {
+            PublishMessage(QueueName, RoutingKey, message);
+        }
+
+        public string GetRoutingKey()
+        {
+            return RoutingKey;
+        }
+    }
+}
