@@ -5,6 +5,7 @@ import com.potatotech.entitygenerator.enuns.Language;
 import com.potatotech.entitygenerator.service.common.Common;
 import com.potatotech.entitygenerator.service.dotNet.GenerateDotNet;
 import com.potatotech.entitygenerator.service.java.GenerateJava;
+import com.potatotech.entitygenerator.service.node.GenerateNode;
 
 
 import static com.potatotech.entitygenerator.service.common.Common.loadPath;
@@ -25,6 +26,9 @@ public class Main {
         if(Common.properties.getLanguage() == Language.DOTNET){
             loadPath();
             GenerateDotNet.generateSource(Common.properties);
+        }
+        if(Common.properties.getLanguage() == Language.NODE){
+            GenerateNode.generateSource(Common.properties);
         }
     }
 }

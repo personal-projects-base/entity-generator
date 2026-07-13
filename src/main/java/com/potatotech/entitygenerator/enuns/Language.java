@@ -4,5 +4,6 @@ import java.beans.JavaBean;
 
 public enum Language {
     JAVA,
-    DOTNET
+    DOTNET,
+    NODE
 }

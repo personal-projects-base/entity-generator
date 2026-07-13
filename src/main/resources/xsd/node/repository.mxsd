@@ -1,0 +1,29 @@
+import { PrismaClient } from '@prisma/client';
+import type { <<entityName>>CreateInput, <<entityName>>UpdateInput } from '../models/<<entityFileName>>.model';
+
+export class <<entityName>>Repository {
+  constructor(private readonly prisma: PrismaClient) {}
+
+  save(data: <<entityName>>CreateInput) {
+    return this.prisma.<<prismaDelegate>>.create({ data: data as never });
+  }
+
+  update(id: string, data: <<entityName>>UpdateInput) {
+    return this.prisma.<<prismaDelegate>>.update({ where: { id }, data: data as never });
+  }
+
+  delete(id: string) {
+    return this.prisma.<<prismaDelegate>>.delete({ where: { id } });
+  }
+
+  get(id: string) {
+    return this.prisma.<<prismaDelegate>>.findUnique({ where: { id } });
+  }
+
+  getAll(params: Record<string, string>) {
+    const take = Number(params.size ?? 10);
+    const page = Number(params.offset ?? 1);
+    const skip = Math.max(page - 1, 0) * take;
+    return this.prisma.<<prismaDelegate>>.findMany({ take, skip });
+  }
+}

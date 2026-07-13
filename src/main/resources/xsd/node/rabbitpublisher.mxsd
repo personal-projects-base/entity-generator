@@ -1,0 +1,33 @@
+import amqp, { Channel, Connection } from 'amqplib';
+import { RabbitConfig } from './rabbit-config';
+
+export abstract class RabbitPublisher {
+  private connection?: Connection;
+  private channel?: Channel;
+
+  constructor(private readonly config: RabbitConfig) {}
+
+  protected async publishMessage(queue: string, routingKey: string, message: unknown) {
+    const channel = await this.getChannel();
+    await channel.assertExchange(this.config.exchange, 'topic', { durable: true });
+    await channel.assertQueue(queue, { durable: true });
+    await channel.bindQueue(queue, this.config.exchange, routingKey);
+
+    channel.publish(
+      this.config.exchange,
+      routingKey,
+      Buffer.from(JSON.stringify(message)),
+      { persistent: true, contentType: 'application/json' }
+    );
+  }
+
+  private async getChannel() {
+    if (!this.connection) {
+      this.connection = await amqp.connect(this.config.url);
+    }
+    if (!this.channel) {
+      this.channel = await this.connection.createChannel();
+    }
+    return this.channel;
+  }
+}

@@ -5,9 +5,12 @@
 * Criada configuração abstrata `RabbitConfig` com exchange definida por anotação/atributo no serviço consumidor.
 * Criada geração de publishers em `messaging/pub` ou `Messaging/Pub` com filas, bindings e método de publicação.
 * Criada geração de subscribers abstratos em `messaging/sub` ou `Messaging/Sub` para implementação fora do diretório `_gen`.
+* Adicionado suporte inicial a `language: "NODE"` com geração TypeScript para models, enums, repositories, controllers, rotas, endpoints e RabbitMQ.
+* Adicionada geração de `prisma/schema.prisma` para projetos Node.
 
 ### Melhorias
 * Documentado o contrato de `messaging.RabbitMq.pub` e `messaging.RabbitMq.sub` no handoff backend e no README.
+* Documentado o fluxo Node no README e no handoff backend.
 
 ### Quebras de compatibilidades
 * Versão promovida para `1.0.0`.

@@ -46,9 +46,25 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
     }
 
 
+##### Node
+
+    "mainPackage": "example-node",  
+    "projectName": "example-node",
+    "language": "NODE"
+    "entities": [],
+    "endpoints": [],
+    "enums": [],
+    "messaging": {
+      "RabbitMq": {
+        "pub": [],
+        "sub": []
+      }
+    }
+
+
 * mainPackage: Nome completo do pacote do projeto
 * projectName: Nome do projeto
-* language: JAVA ou DOTNET
+* language: JAVA, DOTNET ou NODE
 * defaultTypeId: (string) Padrão do tipo das chaves primarias - Apenas necessário para DotNet
 * entities: Objeto de configuração das classes de entidades
 * endpoints: configuração para criação dos endpoints
@@ -195,9 +211,9 @@ ex:
 
 ### Messaging RabbitMQ
 
-Disponível para projetos Java e .NET.
+Disponível para projetos Java, .NET e Node.
 
-A propriedade `messaging` agrupa os provedores de mensageria. Hoje o provedor suportado é `RabbitMq`. Em Java, o código gerado usa Spring AMQP. Em .NET, o código gerado usa RabbitMQ.Client e abstrações de hosting/configuração do ASP.NET Core.
+A propriedade `messaging` agrupa os provedores de mensageria. Hoje o provedor suportado é `RabbitMq`. Em Java, o código gerado usa Spring AMQP. Em .NET, o código gerado usa RabbitMQ.Client e abstrações de hosting/configuração do ASP.NET Core. Em Node, o código gerado usa amqplib.
 
 O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` existe e possui ao menos um item em `pub` ou `sub`. Se `messaging` estiver vazio, ou se `RabbitMq` estiver ausente/nulo/vazio, nenhuma configuração RabbitMQ será gerada e o projeto consumidor não precisa carregar dependências de RabbitMQ.
 
@@ -533,6 +549,165 @@ Configure a conexão RabbitMQ no `appsettings.json`:
 * Em .NET, a classe concreta que estende `RabbitConfig` deve ter `[RabbitExchange("...")]` e ser registrada no DI como `RabbitConfig`.
 * Em .NET, subscribers concretos devem ser registrados como hosted services.
 * O nome das filas e routing keys é escrito diretamente no código gerado a partir do `properties.json`.
+
+### Node
+
+O suporte Node gera código TypeScript em `src/generated`.
+
+O objetivo inicial é fornecer uma base equivalente para integração em projetos Node modernos, sem tentar inferir toda a estrutura de aplicação do serviço consumidor. O código gerado assume:
+
+* Express para controllers e rotas.
+* Prisma Client para repositories.
+* amqplib quando `messaging.RabbitMq` estiver configurado.
+
+Assim como Java e .NET, a geração Node usa templates do projeto, em `src/main/resources/xsd/node/`.
+
+O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe um gerador npm separado; basta executar o plugin ou o JAR na raiz do projeto consumidor com `language: "NODE"` no `properties.json`.
+
+Paridade atual:
+
+* Gera models/DTOs, enums, repositories, controllers, rotas CRUD, contratos de endpoints, arquivos estáticos, SQL e RabbitMQ.
+* Respeita `generateDefaultHandlers` e `onlyDTO` para decidir se gera controllers/rotas/repositories.
+* Gera `prisma/schema.prisma` com datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e suporte inicial a relacionamentos.
+* Ainda não gera `package.json`, `tsconfig.json` ou migrations.
+* Relacionamentos complexos podem exigir revisão manual do `schema.prisma`, especialmente Many-to-Many e relações bidirecionais customizadas.
+
+Exemplo mínimo:
+
+```json
+{
+  "mainPackage": "example-node",
+  "projectName": "example-node",
+  "language": "NODE",
+  "entities": [],
+  "endpoints": [],
+  "enums": [],
+  "messaging": {
+    "RabbitMq": {
+      "pub": [],
+      "sub": []
+    }
+  }
+}
+```
+
+#### Arquivos gerados
+
+```text
+src/generated/models/*.model.ts
+src/generated/enums/*.enum.ts
+src/generated/repositories/*.repository.ts
+src/generated/controllers/*.controller.ts
+src/generated/routes/*.routes.ts
+src/generated/routes/index.ts
+src/generated/endpoints/*.endpoint.ts
+src/generated/static/properties.json
+src/generated/static/resources.json
+src/generated/static/postgree.sql
+prisma/schema.prisma
+```
+
+Quando `messaging.RabbitMq` possui canais, também são gerados:
+
+```text
+src/generated/messaging/rabbitmq/rabbit-config.ts
+src/generated/messaging/rabbitmq/rabbit-publisher.ts
+src/generated/messaging/rabbitmq/pub/*.pub.ts
+src/generated/messaging/rabbitmq/sub/*.sub.ts
+```
+
+#### Uso das rotas geradas
+
+```ts
+import express from 'express';
+import { PrismaClient } from '@prisma/client';
+import { createGeneratedRoutes } from './generated/routes';
+
+const app = express();
+const prisma = new PrismaClient();
+
+app.use(express.json());
+app.use(createGeneratedRoutes(prisma));
+```
+
+#### RabbitMQ em Node
+
+Crie uma configuração concreta fora de `src/generated`:
+
+```ts
+import { RabbitConfig } from './generated/messaging/rabbitmq/rabbit-config';
+
+export class AppRabbitConfig extends RabbitConfig {
+  constructor() {
+    super({
+      exchange: '4libert.profile',
+      url: process.env.RABBITMQ_URL,
+    });
+  }
+}
+```
+
+Publisher gerado:
+
+```ts
+import { CustomerChangedPub } from './generated/messaging/rabbitmq/pub/customerChanged.pub';
+import { AppRabbitConfig } from './messaging/app-rabbit-config';
+
+const publisher = new CustomerChangedPub(new AppRabbitConfig());
+await publisher.publish({ id: 'customer-id' });
+```
+
+Subscriber gerado:
+
+```ts
+import { CustomerImportedSub } from './generated/messaging/rabbitmq/sub/customerImported.sub';
+import { AppRabbitConfig } from './messaging/app-rabbit-config';
+
+class CustomerImportedListener extends CustomerImportedSub {
+  protected onMessage(message: string) {
+    // tratar mensagem
+  }
+}
+
+await new CustomerImportedListener(new AppRabbitConfig()).start();
+```
+
+#### Dependências Node esperadas
+
+Exemplo de `package.json` para um serviço consumidor:
+
+```json
+{
+  "name": "example-node-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "amqplib": "^0.10.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.6",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.2",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
+```
+
+Se o projeto não usar RabbitMQ, remova `amqplib` e `@types/amqplib`. O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` possui canais.
+
+O gerador cria `prisma/schema.prisma`, mas não cria migrations. Depois de revisar o schema gerado, execute o fluxo Prisma usado pelo serviço consumidor, por exemplo `npx prisma generate` e `npx prisma migrate dev`.
+
+O gerador não cria `package.json` ou `tsconfig.json`. Esses arquivos continuam sob responsabilidade do serviço consumidor.
 
 ### OBS:
   * Para geração correta dos arquivos estaticos para DotNet deve possuir a pasta "static"

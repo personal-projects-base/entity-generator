@@ -56,6 +56,8 @@ public class Common {
             inputStream = classLoader.getResourceAsStream(String.format("xsd/java/%s.mxsd", fileName));
         if(properties.getLanguage() == Language.DOTNET)
             inputStream = classLoader.getResourceAsStream(String.format("xsd/dotnet/%s.mxsd", fileName));
+        if(properties.getLanguage() == Language.NODE)
+            inputStream = classLoader.getResourceAsStream(String.format("xsd/node/%s.mxsd", fileName));
 
         if(inputStream == null)
             inputStream = classLoader.getResourceAsStream(String.format("xsd/sql/%s.mxsd", fileName));

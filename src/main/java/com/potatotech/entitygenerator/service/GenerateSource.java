@@ -4,6 +4,7 @@ package com.potatotech.entitygenerator.service;
 import com.potatotech.entitygenerator.enuns.Language;
 import com.potatotech.entitygenerator.service.common.Common;
 import com.potatotech.entitygenerator.service.dotNet.GenerateDotNet;
+import com.potatotech.entitygenerator.service.node.GenerateNode;
 import com.potatotech.entitygenerator.service.java.GenerateJava;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -44,6 +45,9 @@ public class GenerateSource extends AbstractMojo {
         }
         if(Common.properties.getLanguage() == Language.DOTNET){
             GenerateDotNet.generateSource(Common.properties);
+        }
+        if(Common.properties.getLanguage() == Language.NODE){
+            GenerateNode.generateSource(Common.properties);
         }
 
     }

@@ -1,0 +1,9 @@
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+<<imports>>
+
+export function createGeneratedRoutes(prisma: PrismaClient) {
+  const router = Router();
+<<routes>>
+  return router;
+}

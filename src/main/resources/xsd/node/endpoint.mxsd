@@ -1,0 +1,18 @@
+import type { Request, Response, Router } from 'express';
+<<imports>>
+
+export interface <<endpointName>>Input {
+<<inputFields>>}
+
+export interface <<endpointName>>Output {
+<<outputFields>>}
+
+export type <<endpointName>>Handler = (input: <<endpointName>>Input, request: Request) => Promise<<<endpointName>>Output | void>;
+
+export function register<<endpointName>>Endpoint(router: Router, handler: <<endpointName>>Handler) {
+  router.<<httpMethod>>('/<<methodName>>', async (request: Request, response: Response) => {
+    const input = (request.method === 'GET' ? request.query : request.body) as <<endpointName>>Input;
+    const output = await handler(input, request);
+    response.json(output ?? {});
+  });
+}

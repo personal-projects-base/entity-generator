@@ -1,0 +1,18 @@
+import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { <<entityName>>Controller } from '../controllers/<<entityFileName>>.controller';
+import { <<entityName>>Repository } from '../repositories/<<entityFileName>>.repository';
+
+export function create<<entityName>>Routes(prisma: PrismaClient) {
+  const router = Router();
+  const repository = new <<entityName>>Repository(prisma);
+  const controller = new <<entityName>>Controller(repository);
+
+  router.post('/<<entityRoute>>', controller.save);
+  router.put('/<<entityRoute>>/:id', controller.update);
+  router.delete('/<<entityRoute>>/:id', controller.delete);
+  router.get('/<<entityRoute>>/:id', controller.get);
+  router.get('/<<entityRoute>>', controller.getAll);
+
+  return router;
+}

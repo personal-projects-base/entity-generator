@@ -1,0 +1,31 @@
+import type { Request, Response } from 'express';
+import { <<entityName>>Repository } from '../repositories/<<entityFileName>>.repository';
+
+export class <<entityName>>Controller {
+  constructor(private readonly repository: <<entityName>>Repository) {}
+
+  save = async (request: Request, response: Response) => {
+    const output = await this.repository.save(request.body);
+    response.json(output);
+  };
+
+  update = async (request: Request, response: Response) => {
+    const output = await this.repository.update(request.params.id, request.body);
+    response.json(output);
+  };
+
+  delete = async (request: Request, response: Response) => {
+    await this.repository.delete(request.params.id);
+    response.status(204).send();
+  };
+
+  get = async (request: Request, response: Response) => {
+    const output = await this.repository.get(request.params.id);
+    response.json(output);
+  };
+
+  getAll = async (request: Request, response: Response) => {
+    const output = await this.repository.getAll(request.query as Record<string, string>);
+    response.json(output);
+  };
+}

@@ -54,7 +54,7 @@ As três coleções abaixo devem estar presentes, mesmo vazias. A implementaçã
 }
 ```
 
-Valores aceitos em `language`: `JAVA` e `DOTNET` (maiúsculos).
+Valores aceitos em `language`: `JAVA`, `DOTNET` e `NODE` (maiúsculos).
 
 Notas sobre propriedades documentadas anteriormente:
 
@@ -201,7 +201,7 @@ Um tipo que não seja primitivo nem enum é tratado como entidade: `FooEntity`/`
 
 ## Messaging RabbitMQ
 
-Implementado nos fluxos Java e .NET. O contrato atual agrupa RabbitMQ em `messaging.RabbitMq`, com `pub` para publishers e `sub` para subscribers.
+Implementado nos fluxos Java, .NET e Node. O contrato atual agrupa RabbitMQ em `messaging.RabbitMq`, com `pub` para publishers e `sub` para subscribers.
 
 ```json
 {
@@ -343,6 +343,18 @@ Quando `messaging.RabbitMq` é configurado, também são gerados:
 - `Messaging/Pub/RabbitPublisher.cs` e `Messaging/Pub/*Pub.cs`;
 - `Messaging/Sub/*Sub.cs`.
 
+### Node
+
+O diretório inteiro abaixo é apagado e recriado:
+
+```text
+src/generated/
+```
+
+São gerados modelos TypeScript, enums, repositories Prisma-friendly, controllers/rotas Express, contratos de endpoints, `prisma/schema.prisma`, arquivos estáticos (`properties.json`, `resources.json`, `postgree.sql`) e, quando `messaging.RabbitMq` é configurado, abstrações RabbitMQ em `messaging/rabbitmq/`. Os arquivos TypeScript e Prisma usam templates em `src/main/resources/xsd/node/`.
+
+O gerador Node não cria `package.json`, `tsconfig.json` nem migrations. O `schema.prisma` gerado cobre datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e suporte inicial a relacionamentos; relações complexas podem exigir revisão manual.
+
 ## Dependências exigidas pelo código gerado
 
 Java pressupõe, no mínimo:
@@ -359,6 +371,13 @@ Java pressupõe, no mínimo:
 - Entity Framework Core;
 - quando `messaging.RabbitMq` for usado: RabbitMQ.Client, Microsoft.Extensions.Hosting, Microsoft.Extensions.Configuration e Microsoft.Extensions.Logging;
 - infraestrutura específica referenciada pelos templates de contexto (`<Projeto>.Config.Database` e `<Projeto>.Config.DatabaseMigration`).
+
+Node pressupõe, no mínimo:
+
+- TypeScript;
+- Express;
+- Prisma Client (`@prisma/client`);
+- quando `messaging.RabbitMq` for usado: `amqplib`.
 
 Os namespaces fixos do template `CustomDbContext` atualmente usam `DataOnBackend.Config.*`, independentemente de `mainPackage`; serviços com outro nome provavelmente precisarão ajustar o arquivo gerado ou o template.
 

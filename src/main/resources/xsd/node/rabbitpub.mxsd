@@ -1,0 +1,19 @@
+import { RabbitConfig } from '../rabbit-config';
+import { RabbitPublisher } from '../rabbit-publisher';
+
+export class <<className>> extends RabbitPublisher {
+  private readonly queue = '<<queue>>';
+  private readonly routingKey = '<<routingKey>>';
+
+  constructor(config: RabbitConfig) {
+    super(config);
+  }
+
+  publish(message: unknown) {
+    return this.publishMessage(this.queue, this.routingKey, message);
+  }
+
+  getRoutingKey() {
+    return this.routingKey;
+  }
+}

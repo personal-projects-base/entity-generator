@@ -1,0 +1,5 @@
+<<imports>>export interface <<entityName>>DTO {
+<<entityFields>>}
+
+export type <<entityName>>CreateInput = Omit<<<entityName>>DTO, 'id'>;
+export type <<entityName>>UpdateInput = Partial<<<entityName>>DTO>;

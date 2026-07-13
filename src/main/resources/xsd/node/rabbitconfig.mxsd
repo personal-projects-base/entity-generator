@@ -1,0 +1,19 @@
+export interface RabbitConnectionOptions {
+  url?: string;
+  exchange: string;
+}
+
+export abstract class RabbitConfig {
+  constructor(private readonly options: RabbitConnectionOptions) {}
+
+  get url() {
+    return this.options.url ?? process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672';
+  }
+
+  get exchange() {
+    if (!this.options.exchange) {
+      throw new Error('RabbitMQ exchange must be configured');
+    }
+    return this.options.exchange;
+  }
+}
