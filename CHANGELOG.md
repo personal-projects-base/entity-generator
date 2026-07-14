@@ -1,3 +1,9 @@
+## >1.0.1 - 13-07-2026
+
+### Correções
+* Removido comentario do @CrossOrigin(origins="*") dos handlers java
+
+
 ## >1.0.0 - 13-07-2026
 
 ### Novas Funcionalidades

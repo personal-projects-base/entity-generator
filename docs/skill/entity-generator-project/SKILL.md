@@ -1,8 +1,6 @@
 ---
 name: entity-generator-project
 description: Use this skill when working on the PotatoTech entity-generator Maven plugin, especially when changing Java, .NET, Node.js, SQL generation, properties.json schema, RabbitMQ messaging, relationships, DTO converters, Prisma generation, README, Docusaurus docs, or handoff documentation.
-metadata:
-  short-description: Work on entity-generator safely
 ---
 
 # Entity Generator Project
@@ -25,7 +23,8 @@ Supported targets:
 
 Before making non-trivial changes, inspect:
 
-- `docs/handoff/HANDOFF.md`: implementation-oriented behavior and known limitations.
+- `docs/handoff/HANDOFF_ENTITY.md`: implementation-oriented behavior and known limitations.
+- `docs/handoff/HANDOFF_FRONTEND_ENTITY.md`: frontend-facing JSON and query contracts.
 - `README.md`: user-facing instructions.
 - `CHANGELOG.md`: current release notes and future improvements.
 - Relevant generator package:
@@ -210,12 +209,25 @@ Template folders:
 
 User-facing documentation should not explain internal templates unless the user explicitly asks about generator development.
 
+## CRUD Filters
+
+Treat filtering as target-specific behavior, not as a portable JPA/SQL query language.
+
+- Java `SpecificationFilter` supports `eq`, `isNull`, `notNull`, `and`, `or`, and dotted relationship paths.
+- Java string `eq` is a case-insensitive contains operation; UUID uses exact equality.
+- Java numeric, boolean, and date equality is not safely converted by the current template.
+- Do not claim reliable mixed `and`/`or` precedence, nested parentheses, escaping, comparison operators, or `in` support.
+- .NET `DynamicFilter` is a separate dialect with `eq` and one logical operator kind per expression; collection paths use `*`.
+- Node repositories currently ignore `filter` and use only pagination parameters.
+- When filter behavior changes, update both entity handoffs and the relevant user documentation.
+
 ## Documentation Standards
 
 Update docs when behavior changes:
 
 - `README.md`: user-facing usage.
-- `docs/handoff/HANDOFF.md`: implementation details and caveats.
+- `docs/handoff/HANDOFF_ENTITY.md`: implementation details and caveats.
+- `docs/handoff/HANDOFF_FRONTEND_ENTITY.md`: frontend request construction and limitations.
 - `CHANGELOG.md`: release notes and future improvements.
 - `docs-docusaurus/docs`: detailed user documentation.
 

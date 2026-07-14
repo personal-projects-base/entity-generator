@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 @RestController
-//@CrossOrigin(origins="*")
+@CrossOrigin(origins="*")
 @RequestMapping("<<entityNameLowerCase>>")
 public <<abstract>> class <<entityName>>Handler implements HandlerBase<<<entityName>>DTO, <<keyType>>> {
 

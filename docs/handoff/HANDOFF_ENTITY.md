@@ -256,6 +256,73 @@ Um tipo que não seja primitivo nem enum é tratado como entidade: `FooEntity`/`
 
 `values` não pode estar vazio, pois o gerador remove a última vírgula assumindo que existe ao menos um item.
 
+## Filtros do CRUD gerado
+
+O `GET /<entityName>` do CRUD Java recebe o filtro no parâmetro de query string `filter` e o entrega a `SpecificationFilter`. A classe converte a expressão em um `Specification<T>` do Spring Data JPA. Isso se parece com uma cláusula de consulta, mas **não aceita JPQL, SQL nem o conjunto completo de operadores do JPA**.
+
+Exemplo de chamada (a biblioteca HTTP deve fazer o URL encoding):
+
+```text
+GET /costCenter?size=20&offset=1&filter=description eq matriz and parentCode.id eq 550e8400-e29b-41d4-a716-446655440000
+```
+
+Com `URLSearchParams` no frontend:
+
+```javascript
+const params = new URLSearchParams({
+  size: "20",
+  offset: "1",
+  filter: "description eq matriz and parentCode.id eq 550e8400-e29b-41d4-a716-446655440000",
+  displayFields: "*"
+});
+
+fetch(`/costCenter?${params.toString()}`);
+```
+
+Sintaxe Java efetivamente implementada:
+
+| Expressão | Efeito observado |
+|---|---|
+| `field eq value` | Para `String`, `lower(field) like '%value%'`, sem diferenciar maiúsculas/minúsculas. Para `UUID`, igualdade exata. Para enum, tenta igualdade. |
+| `relation.field eq value` | Cria joins JPA pelo caminho pontuado; UUID é exato e os demais tipos são tratados como texto parcial. |
+| `field isNull` | `field IS NULL`. Também aceita caminho relacionado. |
+| `field notNull` | `field IS NOT NULL`. Também aceita caminho relacionado. |
+| `expr and expr` | Combina predicados com `AND`. A palavra precisa estar separada por espaços. |
+| `expr or expr` | Combina predicados com `OR`. A palavra precisa estar separada por espaços. |
+
+Exemplos seguros:
+
+```text
+description eq matriz
+id eq 550e8400-e29b-41d4-a716-446655440000
+parentCode.id eq 550e8400-e29b-41d4-a716-446655440000
+parentCode isNull
+parentCode notNull
+description eq matriz and parentCode notNull
+description eq matriz or description eq filial
+```
+
+Regras e limitações importantes do parser Java:
+
+- use os nomes dos atributos Java/JSON em `lowerCamelCase`, não os nomes das colunas SQL;
+- não envolva valores em aspas; tudo depois de `eq` até o próximo operador lógico é o valor textual;
+- `eq`, `isNull` e `notNull` são sensíveis a maiúsculas/minúsculas e devem ser enviados exatamente assim; `and`/`or` são reconhecidos sem diferenciar caixa;
+- `eq` em `String` significa **contém**, não igualdade exata;
+- UUID deve ser válido; filtro inválido resulta em HTTP 400 com `Invalid filter: <expressão>`;
+- joins são criados com o tipo padrão do JPA, normalmente `INNER JOIN`, portanto relações ausentes podem excluir o registro;
+- números, booleanos e datas não têm conversão implementada de forma segura no Java. O caminho genérico aplica `lower`/`like` e pode falhar em tempo de execução; restrinja o frontend a texto, UUID, enum e nulidade até o template ser ampliado;
+- não existem atualmente `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `between`, `like` explícito ou `not`;
+- parênteses e precedência mista não são analisados de forma confiável. Não misture `and` e `or` na mesma expressão e não gere grupos aninhados;
+- valores contendo as palavras ` and ` ou ` or ` não podem ser escapados e serão divididos pelo parser;
+- filtro ausente ou vazio não restringe os resultados;
+- `size` e `offset` devem ser enviados no CRUD Java. `offset` é baseado em 1 na requisição; internamente é convertido para a página baseada em 0;
+- apesar de existir em `RequestData`, `order` é lido pelo handler Java, mas não é aplicado ao `PageRequest` atual;
+- `displayFields` controla a projeção do DTO e não participa do filtro.
+
+No .NET, `DynamicFilter` é uma implementação separada: suporta apenas `eq`, `and` ou `or`; texto também usa `Contains` sem diferenciar caixa, UUID é exato, e coleção usa um caminho com `*` (por exemplo, `children*.description eq matriz`). Não há `isNull`/`notNull`, o parser só escolhe um operador lógico por expressão e os nomes das propriedades C# são sensíveis à forma gerada. Portanto, o frontend deve selecionar o dialeto conforme `language`; uma expressão Java não é portável por garantia para .NET.
+
+O CRUD Node atual ignora `filter`: o repository gerado usa somente `size` e `offset` no `findMany` do Prisma.
+
 ## Messaging RabbitMQ
 
 Implementado nos fluxos Java, .NET e Node. O contrato atual agrupa RabbitMQ em `messaging.RabbitMq`, com `pub` para publishers e `sub` para subscribers.

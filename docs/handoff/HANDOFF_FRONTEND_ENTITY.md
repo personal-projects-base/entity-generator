@@ -286,7 +286,61 @@ Quando um endpoint usar `requestdata`/`responsedata`, o contrato padrão é:
 }
 ```
 
-O formato das expressões em `filter`, `order` e `displayFields` deve ser acordado com o serviço, pois o gerador não publica um schema formal para essas strings.
+### Como enviar filtros no CRUD
+
+No CRUD Java, envie `filter` como parâmetro do `GET /<entityName>`, junto de `size` e `offset`. Não envie o envelope acima como JSON no corpo do GET.
+
+```typescript
+const params = new URLSearchParams({
+  size: "20",
+  offset: "1",
+  filter: "name eq café and category.id eq 550e8400-e29b-41d4-a716-446655440000",
+  displayFields: "*"
+});
+
+const response = await fetch(`/product?${params.toString()}`);
+```
+
+Use `URLSearchParams` (ou a opção `params` do cliente HTTP) para codificar espaços, acentos e caracteres especiais. A expressão não deve ser concatenada manualmente à URL.
+
+Operadores Java disponíveis:
+
+| Formato | Uso no frontend |
+|---|---|
+| `field eq value` | Texto: busca parcial, case-insensitive. UUID: igualdade exata. Enum: igualdade. |
+| `relation.field eq value` | Filtra por atributo de uma relação usando caminho pontuado. |
+| `field isNull` | Seleciona valores nulos. |
+| `field notNull` | Seleciona valores não nulos. |
+| `condition and condition` | Exige ambas as condições. |
+| `condition or condition` | Aceita qualquer uma das condições. |
+
+Exemplos:
+
+```text
+name eq café
+id eq 550e8400-e29b-41d4-a716-446655440000
+category.id eq 550e8400-e29b-41d4-a716-446655440000
+category isNull
+status eq ACTIVE
+name eq café and category notNull
+name eq café or name eq chá
+```
+
+Ao montar a expressão:
+
+- use `fieldName` em `lowerCamelCase`, nunca o nome da coluna SQL;
+- envie os operadores exatamente como `eq`, `isNull` e `notNull`; coloque espaços ao redor de `and`/`or`;
+- não coloque aspas em volta do valor;
+- não misture `and` e `or` na mesma expressão e não gere parênteses: a precedência e o agrupamento do parser atual não são confiáveis;
+- não permita ` and ` ou ` or ` dentro do valor, pois não existe escape;
+- limite filtros Java a campos de texto, UUID, enum, nulidade e caminhos relacionados. Número, booleano e data podem falhar no backend atual;
+- não ofereça `ne`, comparações, intervalos, listas ou ordenação: esses operadores não foram implementados;
+- filtro vazio ou omitido lista sem restrição; erro de campo, UUID ou sintaxe retorna HTTP 400;
+- `offset` começa em 1 para o cliente;
+- `order` não é aplicado pelo handler Java atual;
+- `displayFields` escolhe campos do DTO, mas não filtra registros.
+
+O frontend deve considerar `language` antes de montar o filtro. No .NET, o dialeto separado aceita apenas `eq` e uma única espécie de operador lógico (`and` ou `or`) por expressão; relações comuns usam caminho pontuado e coleções usam `*`, como `children*.description eq matriz`. `isNull` e `notNull` não existem no .NET. No Node, o CRUD gerado atualmente ignora `filter` e usa somente `size`/`offset`.
 
 ## Enums
 
