@@ -1,3 +1,10 @@
+## >1.0.2 - 15-07-2026
+
+### Correções
+* Corrigido o filtro `eq` de campos enum para aceitar tanto ordinal quanto nome, inclusive em propriedades acessadas por join.
+* Preservada a causa original ao reportar filtros inválidos.
+
+
 ## >1.0.1 - 13-07-2026
 
 ### Correções

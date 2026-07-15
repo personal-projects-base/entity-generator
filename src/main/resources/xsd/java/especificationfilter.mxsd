@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -30,7 +31,7 @@ public class SpecificationFilter<T> {
 
                     return parseExpression(filter, cb, root);
                 } catch (Exception ex){
-                    throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid filter: " + filter);
+                    throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid filter: " + filter, ex);
                 }
             };
         }
@@ -91,6 +92,11 @@ public class SpecificationFilter<T> {
 
                     if (UUID.class.isAssignableFrom(join.get(finalProperty.trim()).getJavaType())){
                         return cb.equal(join.get(finalProperty.trim()), UUID.fromString(criteria[1].trim()));
+                    } else if (join.get(finalProperty.trim()).getJavaType().isEnum()) {
+                        return cb.equal(
+                                join.get(finalProperty.trim()),
+                                parseEnumValue(join.get(finalProperty.trim()).getJavaType(), criteria[1].trim())
+                        );
                     }else {
                         return cb.like(cb.lower(join.get(finalProperty.trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
                     }
@@ -99,7 +105,10 @@ public class SpecificationFilter<T> {
                         return cb.equal(root.get(criteria[0].trim()), UUID.fromString(criteria[1].trim()));
                     }
                     else if(root.get(criteria[0].trim()).getJavaType().isEnum()){
-                        return cb.equal(root.get(criteria[0].trim()), criteria[1].trim());
+                        return cb.equal(
+                                root.get(criteria[0].trim()),
+                                parseEnumValue(root.get(criteria[0].trim()).getJavaType(), criteria[1].trim())
+                        );
                     }
                     else {
                         return cb.like(cb.lower(root.get(criteria[0].trim())), "%".concat(criteria[1].trim()).concat("%").toLowerCase());
@@ -108,6 +117,26 @@ public class SpecificationFilter<T> {
 
             }
             return null;
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private Enum<?> parseEnumValue(Class<?> javaType, String rawValue) {
+            var enumType = javaType.asSubclass(Enum.class);
+
+            if (rawValue.matches("-?\\d+")) {
+                var enumConstants = enumType.getEnumConstants();
+                var ordinal = Integer.parseInt(rawValue);
+
+                if (ordinal < 0 || ordinal >= enumConstants.length) {
+                    throw new IllegalArgumentException(
+                            "Invalid ordinal " + ordinal + " for enum " + enumType.getSimpleName()
+                    );
+                }
+
+                return enumConstants[ordinal];
+            }
+
+            return Enum.valueOf(enumType, rawValue.toUpperCase(Locale.ROOT));
         }
 
         private Predicate setIsNull(CriteriaBuilder cb, String item, Root<T> root) {
