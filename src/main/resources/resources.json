@@ -1,0 +1,1 @@
+[{"resource":"comment","premissions":["CREATE","VIEW","UPDATE","DELETE"],"permissionDefault":false},{"resource":"costCenter","premissions":["CREATE","VIEW","UPDATE","DELETE"],"permissionDefault":false}]

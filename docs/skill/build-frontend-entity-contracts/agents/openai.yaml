@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Entity Contracts"
+  short_description: "Cria contratos frontend por feature"
+  default_prompt: "Use $build-frontend-entity-contracts para definir entidades e chamadas do frontend e exportar o contrato JSON da feature."
