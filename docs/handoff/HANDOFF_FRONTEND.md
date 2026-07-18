@@ -29,7 +29,17 @@ Esse contrato contém:
 }
 ```
 
-Para uma tela de criação, o frontend normalmente precisa exportar apenas um item de `entities`, `endpoints` ou `enums`. O backend é responsável por inseri-lo na lista correta.
+O arquivo exportado pelo frontend não deve conter `mainPackage`, `projectName` ou `language`, pois essas propriedades pertencem ao serviço backend. Use um arquivo por feature, em `kebab-case`, com o envelope completo:
+
+```json
+{
+  "entities": [],
+  "endpoints": [],
+  "enums": []
+}
+```
+
+Mesmo quando uma seção estiver vazia, preserve os três arrays. O backend é responsável por importar e combinar as listas sem criar nomes duplicados.
 
 ## Convenções gerais
 

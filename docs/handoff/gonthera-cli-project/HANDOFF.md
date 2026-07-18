@@ -566,7 +566,7 @@ O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junç
 
 - README anterior menciona eventos/listeners; o fluxo atual implementa a abstração RabbitMQ via `messaging.RabbitMq`, não o modelo antigo de `events`/`listeners`.
 - `onlyDTO` não é respeitado pelo gerador .NET.
-- não existe validação formal do JSON antes de apagar/recriar as saídas;
+- a validação identifica erros estruturais e semânticos do contrato, mas não compila nem executa o código gerado;
 - o mapeamento de nullable .NET contém condições frágeis e pode produzir tipos inesperados;
 - o gerador de endpoint .NET possui verificações inconsistentes entre método e HTTP method;
 - alguns templates possuem imports/namespaces específicos da infraestrutura PotatoTech/DataOn;
@@ -581,5 +581,5 @@ O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junç
 4. Confirmar uma PK e metadata completa em cada entidade.
 5. Confirmar ambos os lados e a ordem dos autorrelacionamentos.
 6. Executar o gerador em uma branch limpa e revisar todos os arquivos `_gen`, SQL e permissões.
-7. Compilar o serviço consumidor; a compilação é a validação efetiva que falta ao gerador.
+7. Compilar o serviço consumidor para validar dependências, templates e integrações que não podem ser verificadas apenas pelo contrato JSON.
 8. Nunca editar fontes `_gen` manualmente; customizações devem ficar fora deles ou ser incorporadas aos templates desta biblioteca.

@@ -33,8 +33,8 @@ Supported targets:
 
 Before making non-trivial changes, inspect:
 
-- `docs/handoff/HANDOFF_ENTITY.md`: implementation-oriented behavior and known limitations.
-- `docs/handoff/HANDOFF_FRONTEND_ENTITY.md`: frontend-facing JSON and query contracts.
+- `docs/handoff/gonthera-cli-project/HANDOFF.md`: implementation-oriented behavior and known limitations.
+- `docs/handoff/HANDOFF_FRONTEND.md`: frontend-facing JSON and query contracts.
 - `README.md`: user-facing instructions.
 - `CHANGELOG.md`: current release notes and future improvements.
 - Relevant generator package:
@@ -67,7 +67,7 @@ Accepted `language` values are uppercase:
 - `DOTNET`
 - `NODE`
 
-Unknown JSON properties are ignored by Gson. Do not document unsupported properties as active behavior.
+The structural validator rejects unknown JSON properties before generation. Do not document unsupported properties as active behavior, even though Gson itself would otherwise ignore them.
 
 ## Entity Field Shape
 
@@ -236,8 +236,8 @@ Treat filtering as target-specific behavior, not as a portable JPA/SQL query lan
 Update docs when behavior changes:
 
 - `README.md`: user-facing usage.
-- `docs/handoff/HANDOFF_ENTITY.md`: implementation details and caveats.
-- `docs/handoff/HANDOFF_FRONTEND_ENTITY.md`: frontend request construction and limitations.
+- `docs/handoff/gonthera-cli-project/HANDOFF.md`: implementation details and caveats.
+- `docs/handoff/HANDOFF_FRONTEND.md`: frontend request construction and limitations.
 - `CHANGELOG.md`: release notes and future improvements.
 - `docs-docusaurus/docs`: detailed user documentation.
 

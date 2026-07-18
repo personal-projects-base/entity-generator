@@ -1,18 +1,13 @@
 # Gonthera CLI
 
-
-Modulo gerador de código fonte
-
-Este modulo faz a geração de models, repositories, DTOS, endpoints e abstrações RabbitMQ para publish/subscribe.
+Ferramenta para geração de backends Java, .NET e Node, incluindo entidades, DTOs, repositories, endpoints, contratos, PostgreSQL e abstrações RabbitMQ para publish/subscribe.
 
 [UI Criação entidades](https://develop.smartverse.com.br/entity/)
 
 
-### Configurações
+## Configuração inicial
 
-Deve ser criado um arquivo chamado `project.json` na raiz do projeto. Durante a transição para o Gonthera CLI 2.0, o nome legado `properties.json` continua aceito como fallback. Quando os dois arquivos existirem, `project.json` terá prioridade.
-
-Opcionalmente, a configuração pode ser separada dentro da pasta `.gonthera`. Quando essa pasta existe, ela tem prioridade sobre os arquivos da raiz:
+Para novos projetos, use a pasta `.gonthera`. O arquivo `.gonthera/project.json` é obrigatório e contém a identificação do serviço:
 
 ```text
 .gonthera/
@@ -23,8 +18,6 @@ Opcionalmente, a configuração pode ser separada dentro da pasta `.gonthera`. Q
 └── messaging.json
 ```
 
-Nesse formato, `project.json` contém somente o cabeçalho e as configurações gerais:
-
 ```json
 {
   "mainPackage": "com.example.service",
@@ -33,66 +26,45 @@ Nesse formato, `project.json` contém somente o cabeçalho e as configurações 
 }
 ```
 
-`entities.json`, `endpoints.json` e `enums.json` contêm diretamente seus respectivos arrays. `messaging.json` contém diretamente o objeto `messaging`. Também é permitido manter qualquer uma dessas seções dentro do próprio `.gonthera/project.json`: um arquivo separado sobrescreve somente sua seção; quando não existe, o valor do `project.json` é mantido. Se a seção não estiver em nenhum dos dois lugares, listas são inicializadas vazias e a mensageria fica desabilitada.
+`language` aceita `JAVA`, `DOTNET` ou `NODE`. Ajuste `mainPackage` para o pacote ou namespace do serviço consumidor; ele não deve usar o pacote interno do Gonthera CLI.
 
-após criar o arquivo deve ser inserido as seguintes propriedades:
+Os arquivos `entities.json`, `endpoints.json` e `enums.json` contêm arrays JSON diretamente. Para iniciar sem definições, use `[]` em cada arquivo. O `messaging.json` contém diretamente o objeto da mensageria:
 
-##### Java
+```json
+{
+  "RabbitMq": {
+    "pub": [],
+    "sub": []
+  }
+}
+```
 
-    "mainPackage": "com.potatotech.entitygenerator",  
-    "projectName": "gonthera-cli",
-    "language": "JAVA"
-    "entities": [],
-    "endpoints": [],
-    "enums": [],
-    "messaging": {
-      "RabbitMq": {
-        "pub": [],
-        "sub": []
-      }
-    }
+Os arquivos separados são opcionais. As seções `entities`, `endpoints`, `enums` e `messaging` também podem permanecer em `.gonthera/project.json`; quando existir, o arquivo separado sobrescreve somente sua seção. Se uma lista não estiver em nenhum dos locais, ela será inicializada vazia.
 
-##### DotNet
+### Configuração em arquivo único
 
-    "mainPackage": "EntityGenerator",  
-    "projectName": "EntityGenerator",
-    "language": "DOTNET"
-    "defaultTypeId": "UUID"
-    "entities": [],
-    "endpoints": [],
-    "enums": [],
-    "messaging": {
-      "RabbitMq": {
-        "pub": [],
-        "sub": []
-      }
-    }
+Durante a transição para o Gonthera CLI 2.0, também é aceito um `project.json` na raiz:
 
+```json
+{
+  "mainPackage": "com.example.service",
+  "projectName": "service-name",
+  "language": "JAVA",
+  "entities": [],
+  "endpoints": [],
+  "enums": []
+}
+```
 
-##### Node
+O legado `properties.json` permanece como último fallback. A prioridade é `.gonthera`, `project.json` da raiz e, por fim, `properties.json`. Se a pasta `.gonthera` existir, seu `project.json` será obrigatório e não haverá fallback para a raiz.
 
-    "mainPackage": "example-node",  
-    "projectName": "example-node",
-    "language": "NODE"
-    "entities": [],
-    "endpoints": [],
-    "enums": [],
-    "messaging": {
-      "RabbitMq": {
-        "pub": [],
-        "sub": []
-      }
-    }
-
-
-* mainPackage: Nome completo do pacote do projeto
-* projectName: Nome do projeto
-* language: JAVA, DOTNET ou NODE
-* defaultTypeId: (string) Padrão do tipo das chaves primarias - Apenas necessário para DotNet
-* entities: Objeto de configuração das classes de entidades
-* endpoints: configuração para criação dos endpoints
-* enums: Criação das enumerations
-* messaging: configuração de provedores de mensageria. Hoje o provedor suportado é `RabbitMq`
+- `mainPackage`: pacote ou namespace base do serviço gerado.
+- `projectName`: nome do serviço.
+- `language`: `JAVA`, `DOTNET` ou `NODE`, sempre em maiúsculas.
+- `entities`: entidades do projeto.
+- `endpoints`: endpoints customizados.
+- `enums`: enums do projeto.
+- `messaging`: provedores de mensageria; atualmente, `RabbitMq`.
 
 Após configurar o projeto, o código pode ser gerado com o seguinte comando a partir da raiz:
 
@@ -113,7 +85,7 @@ gonthera-cli.exe --validate
 java -jar gonthera-cli-2.0.0.jar --validate
 ```
 
-A validação exige a pasta `.gonthera`, verifica a sintaxe e os tipos estruturais dos arquivos JSON, valida os campos obrigatórios e rejeita propriedades desconhecidas em qualquer nível para revelar possíveis erros de digitação. As coleções `entities`, `endpoints` e `enums` devem ser arrays; `messaging` deve ser objeto. A geração continua temporariamente compatível com `project.json` e `properties.json` na raiz e também executa essas verificações antes de alterar qualquer saída.
+A validação isolada exige a pasta `.gonthera`, verifica a sintaxe e os tipos estruturais dos arquivos JSON, valida os campos obrigatórios e rejeita propriedades desconhecidas em qualquer nível. As coleções `entities`, `endpoints` e `enums` devem ser arrays; `messaging` deve ser objeto. A geração continua temporariamente compatível com `project.json` e `properties.json` na raiz e aplica as mesmas validações antes de alterar qualquer saída.
 
 ### Entities
 

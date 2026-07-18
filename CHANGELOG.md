@@ -4,6 +4,7 @@
 * Renomeado o produto de `entity-generator` para `gonthera-cli`, refletindo a evolução do projeto para uma ferramenta de geração de backends para múltiplas linguagens e bancos de dados.
 * Alterado o artifactId Maven de `entity-generator` para `gonthera-cli`.
 * Alterados os artefatos executáveis para `gonthera-cli-x.x.x.jar` e `gonthera-cli.exe`.
+* Alterado o pacote interno Java de `com.potatotech.entitygenerator` para `com.gonthera.cli`.
 
 ### Novas funcionalidades
 * Adicionada leitura de `project.json` na raiz como configuração principal do projeto.

@@ -7,7 +7,7 @@ description: Orientar o desenvolvimento frontend integrado ao Gonthera CLI, incl
 
 Desenvolver o frontend a partir de contratos explícitos. Tratar o JSON exportado como a entrega do frontend para o backend, e não como configuração interna da interface.
 
-Antes de implementar, ler `../../handoff/HANDOFF_FRONTEND_ENTITY.md` para consultar todos os campos, tipos, relacionamentos, filtros e limitações vigentes.
+Antes de implementar, ler `../../handoff/HANDOFF_FRONTEND.md` para consultar todos os campos, tipos, relacionamentos, filtros e limitações vigentes.
 
 ## Trabalhar por feature
 
