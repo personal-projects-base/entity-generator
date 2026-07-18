@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-O frontend deve ser capaz de montar um fragmento JSON com entidades, campos, relacionamentos, endpoints e enums. Esse fragmento será colado nas respectivas listas do `project.json` do backend.
+O frontend deve montar contratos JSON por feature com entidades, campos, relacionamentos, endpoints e enums. Cada arquivo é importado pelo backend e combinado com a configuração do projeto Gonthera CLI.
 
 O frontend não precisa conhecer DTOs, repositories ou detalhes de persistência. Seu contrato é o JSON descrito abaixo.
 
