@@ -1,6 +1,6 @@
 ---
 name: build-frontend-entity-contracts
-description: Orientar o desenvolvimento frontend integrado ao entity-generator, incluindo definição de entidades, campos, relacionamentos, endpoints e enums, consumo do CRUD gerado, filtros e exportação de um arquivo JSON por feature para importação no backend. Usar ao criar ou alterar telas, formulários, clientes HTTP ou contratos de domínio a partir do frontend.
+description: Orientar o desenvolvimento frontend integrado ao Gonthera CLI, incluindo definição de entidades, campos, relacionamentos, endpoints e enums, consumo do CRUD gerado, filtros e exportação de um arquivo JSON por feature para importação no backend. Usar ao criar ou alterar telas, formulários, clientes HTTP ou contratos de domínio a partir do frontend.
 ---
 
 # Construir contratos de entidades no frontend

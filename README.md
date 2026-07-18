@@ -1,4 +1,4 @@
-# entity-generator
+# Gonthera CLI
 
 
 Modulo gerador de código fonte
@@ -10,14 +10,37 @@ Este modulo faz a geração de models, repositories, DTOS, endpoints e abstraç�
 
 ### Configurações
 
-Deve ser criado um arquivo com nome properties.json na raiz do projeto
+Deve ser criado um arquivo chamado `project.json` na raiz do projeto. Durante a transição para o Gonthera CLI 2.0, o nome legado `properties.json` continua aceito como fallback. Quando os dois arquivos existirem, `project.json` terá prioridade.
+
+Opcionalmente, a configuração pode ser separada dentro da pasta `.gonthera`. Quando essa pasta existe, ela tem prioridade sobre os arquivos da raiz:
+
+```text
+.gonthera/
+├── project.json
+├── entities.json
+├── endpoints.json
+├── enums.json
+└── messaging.json
+```
+
+Nesse formato, `project.json` contém somente o cabeçalho e as configurações gerais:
+
+```json
+{
+  "mainPackage": "com.example.service",
+  "projectName": "service-name",
+  "language": "JAVA"
+}
+```
+
+`entities.json`, `endpoints.json` e `enums.json` contêm diretamente seus respectivos arrays. `messaging.json` contém diretamente o objeto `messaging`. Também é permitido manter qualquer uma dessas seções dentro do próprio `.gonthera/project.json`: um arquivo separado sobrescreve somente sua seção; quando não existe, o valor do `project.json` é mantido. Se a seção não estiver em nenhum dos dois lugares, listas são inicializadas vazias e a mensageria fica desabilitada.
 
 após criar o arquivo deve ser inserido as seguintes propriedades:
 
 ##### Java
 
     "mainPackage": "com.potatotech.entitygenerator",  
-    "projectName": "entity-generator",
+    "projectName": "gonthera-cli",
     "language": "JAVA"
     "entities": [],
     "endpoints": [],
@@ -71,9 +94,26 @@ após criar o arquivo deve ser inserido as seguintes propriedades:
 * enums: Criação das enumerations
 * messaging: configuração de provedores de mensageria. Hoje o provedor suportado é `RabbitMq`
 
-Apos configurado o arquivo properties.json pode se gerar o código gerando o seguinte comando a partir da raiz do projeto
+Após configurar o projeto, o código pode ser gerado com o seguinte comando a partir da raiz:
 
-  `mvn entity-generator:generate-sources`
+  `mvn gonthera-cli:generate-sources`
+
+### Validação
+
+A configuração oficial em `.gonthera` pode ser validada sem gerar ou apagar arquivos:
+
+```bash
+mvn gonthera-cli:validate
+```
+
+Com o executável ou JAR:
+
+```bash
+gonthera-cli.exe --validate
+java -jar gonthera-cli-2.0.0.jar --validate
+```
+
+A validação exige a pasta `.gonthera`, verifica a sintaxe e os tipos estruturais dos arquivos JSON, valida os campos obrigatórios e rejeita propriedades desconhecidas em qualquer nível para revelar possíveis erros de digitação. As coleções `entities`, `endpoints` e `enums` devem ser arrays; `messaging` deve ser objeto. A geração continua temporariamente compatível com `project.json` e `properties.json` na raiz e também executa essas verificações antes de alterar qualquer saída.
 
 ### Entities
 
@@ -503,7 +543,7 @@ Arquivos de subscriber:
 
 #### Configuração da exchange Java
 
-A exchange não é definida dentro do `properties.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `@RabbitExchange`.
+A exchange não é definida dentro do `project.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `@RabbitExchange`.
 
 Exemplo:
 
@@ -524,7 +564,7 @@ Essa decisão evita deixar a exchange fixa no código gerado e permite que cada 
 
 #### Configuração da exchange .NET
 
-No .NET, a exchange também não é definida dentro do `properties.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `RabbitExchange`.
+No .NET, a exchange também não é definida dentro do `project.json`. O serviço consumidor deve criar uma classe concreta fora do diretório `_gen` e informar a exchange via `RabbitExchange`.
 
 Exemplo:
 
@@ -581,7 +621,7 @@ public class NotificationPublisherService {
 }
 ```
 
-O método `publish` envia a mensagem para a exchange configurada em `@RabbitExchange`, usando a `routingKey` informada no `properties.json`.
+O método `publish` envia a mensagem para a exchange configurada em `@RabbitExchange`, usando a `routingKey` informada no `project.json`.
 
 #### Publicando mensagens em .NET
 
@@ -611,7 +651,7 @@ namespace ExampleBackend.Services
 }
 ```
 
-O método `Publish` envia a mensagem para a exchange configurada no atributo `RabbitExchange`, usando a `routingKey` informada no `properties.json`.
+O método `Publish` envia a mensagem para a exchange configurada no atributo `RabbitExchange`, usando a `routingKey` informada no `project.json`.
 
 #### Ouvindo mensagens em Java
 
@@ -736,7 +776,7 @@ Configure a conexão RabbitMQ no `appsettings.json`:
 * Em Java, a classe concreta que estende `RabbitConfig` deve ter `@Configuration` e `@RabbitExchange`.
 * Em .NET, a classe concreta que estende `RabbitConfig` deve ter `[RabbitExchange("...")]` e ser registrada no DI como `RabbitConfig`.
 * Em .NET, subscribers concretos devem ser registrados como hosted services.
-* O nome das filas e routing keys é escrito diretamente no código gerado a partir do `properties.json`.
+* O nome das filas e routing keys é escrito diretamente no código gerado a partir do `project.json`.
 
 ### Node
 
@@ -748,7 +788,7 @@ O objetivo inicial é fornecer uma base equivalente para integração em projeto
 * Prisma Client para repositories.
 * amqplib quando `messaging.RabbitMq` estiver configurado.
 
-O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe um gerador npm separado; basta executar o plugin ou o JAR na raiz do projeto consumidor com `language: "NODE"` no `properties.json`.
+O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe um gerador npm separado; basta executar o plugin ou o JAR na raiz do projeto consumidor com `language: "NODE"` no `project.json`.
 
 Paridade atual:
 

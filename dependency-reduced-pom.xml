@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.potatotech</groupId>
-  <artifactId>entity-generator</artifactId>
+  <artifactId>gonthera-cli</artifactId>
   <packaging>maven-plugin</packaging>
   <version>${version}</version>
   <build>
@@ -12,7 +12,7 @@
         <version>3.0.0-M5</version>
         <configuration>
           <excludes>
-            <exclude>com/potatotech/entitygenerator_gen/**/*.class</exclude>
+            <exclude>com/gonthera/cli_gen/**/*.class</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -28,7 +28,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.potatotech.entitygenerator.Main</mainClass>
+                  <mainClass>com.gonthera.cli.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -49,8 +49,8 @@
           </execution>
         </executions>
         <configuration>
-          <jar>${project.build.directory}/entity-generator-${version}.jar</jar>
-          <outfile>${project.build.directory}/entity.exe</outfile>
+          <jar>${project.build.directory}/gonthera-cli-${version}.jar</jar>
+          <outfile>${project.build.directory}/gonthera-cli.exe</outfile>
         </configuration>
       </plugin>
       <plugin>
@@ -199,7 +199,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <maven.compiler.source>11</maven.compiler.source>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version>1.0.2</version>
+    <version>2.0.0</version>
     <app.version>0.0.4</app.version>
   </properties>
 </project>

@@ -1,3 +1,21 @@
+## >2.0.0 - 17-07-2026
+
+### Quebras de compatibilidade
+* Renomeado o produto de `entity-generator` para `gonthera-cli`, refletindo a evolução do projeto para uma ferramenta de geração de backends para múltiplas linguagens e bancos de dados.
+* Alterado o artifactId Maven de `entity-generator` para `gonthera-cli`.
+* Alterados os artefatos executáveis para `gonthera-cli-x.x.x.jar` e `gonthera-cli.exe`.
+
+### Novas funcionalidades
+* Adicionada leitura de `project.json` na raiz como configuração principal do projeto.
+* Mantido suporte temporário a `properties.json` como fallback quando `project.json` não existir.
+* Adicionado suporte à configuração modular em `.gonthera`, separando `project.json`, `entities.json`, `endpoints.json`, `enums.json` e `messaging.json`.
+* Definida prioridade da pasta `.gonthera` sobre os arquivos de configuração presentes na raiz.
+* Mantido suporte a todas as seções dentro de `.gonthera/project.json`, com sobrescrita opcional por arquivo separado.
+* Adicionada validação sem geração pelos comandos `gonthera-cli.exe --validate`, `java -jar gonthera-cli-x.x.x.jar --validate` e `mvn gonthera-cli:validate`.
+* O modo de validação exige `.gonthera`, verifica sintaxe e estrutura JSON, campos obrigatórios e propriedades desconhecidas possivelmente digitadas incorretamente.
+* Integrada a validação estrutural e semântica ao fluxo normal de geração, antes da leitura pelo Gson e antes de alterações nas saídas.
+
+
 ## >1.0.2 - 15-07-2026
 
 ### Correções
