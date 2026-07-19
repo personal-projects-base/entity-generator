@@ -439,7 +439,7 @@ builder.Services.AddSingleton<RabbitConfig, AppRabbitConfig>();
 AddRabbitMessaging.AddRabbitMessagingGenerate(builder);
 ```
 
-Subscribers são gerados como classes abstratas. No Java, o serviço consumidor deve implementar o handler fora de `_gen` e registrá-lo como bean Spring:
+Subscribers são gerados como classes abstratas. No Java, o serviço consumidor deve implementar o listener fora de `_gen` e registrá-lo como bean Spring:
 
 ```java
 package com.example.service.messaging;

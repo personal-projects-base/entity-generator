@@ -61,6 +61,7 @@ Formato recomendado para exportação:
   "classExtends": "",
   "generateDefaultControllers": true,
   "controllerAbstract": false,
+  "serviceAbstract": false,
   "onlyDTO": false,
   "entityFields": []
 }
@@ -74,6 +75,7 @@ Formato recomendado para exportação:
 | `classExtends` | string | Enviar `""`; herança não é aplicada atualmente. |
 | `generateDefaultControllers` | boolean | `true` para disponibilizar o CRUD padrão. `generateDefaultHandlers` é alias legado. |
 | `controllerAbstract` | boolean | Normalmente `false`; em Java e .NET gera o controller CRUD como classe abstrata para implementação no consumidor. `handlerAbstract` é alias legado. |
+| `serviceAbstract` | boolean | Normalmente `false`; no Java gera o service abstrato para implementação no consumidor. Não altera a geração .NET ou Node. |
 | `onlyDTO` | boolean | Normalmente `false`; use `true` apenas para contrato sem persistência no Java. |
 | `entityFields` | array | Obrigatório, com pelo menos um campo. |
 
@@ -380,6 +382,7 @@ O objeto abaixo é uma entidade independente e pode ser adicionado diretamente a
   "classExtends": "",
   "generateDefaultControllers": true,
   "controllerAbstract": false,
+  "serviceAbstract": false,
   "onlyDTO": false,
   "entityFields": [
     {
