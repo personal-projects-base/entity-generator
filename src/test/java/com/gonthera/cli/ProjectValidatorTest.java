@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class ProjectValidatorTest {
@@ -39,5 +40,36 @@ public class ProjectValidatorTest {
             assertTrue(ex.getErrors().contains("endpoints must be an array"));
             assertTrue(ex.getErrors().contains("enums must be an array"));
         }
+    }
+
+    @Test
+    public void warnsWhenAbstractServiceRequiresConsumerBean() {
+        Properties project = new Properties();
+        project.setLanguage(Language.JAVA);
+        com.gonthera.cli.model.Entities entity = new com.gonthera.cli.model.Entities();
+        entity.setEntityName("customer");
+        entity.setServiceAbstract(true);
+        project.setEntities(java.util.Collections.singletonList(entity));
+
+        assertEquals(1, ProjectValidator.warnings(project).size());
+        assertTrue(ProjectValidator.warnings(project).get(0).contains("CustomerService"));
+    }
+
+    @Test
+    public void warnsAboutLegacyHandlerPropertiesAndNewNamePrecedence() {
+        Properties project = new Properties();
+        project.setLanguage(Language.JAVA);
+        com.gonthera.cli.model.Entities entity = new com.gonthera.cli.model.Entities();
+        entity.setGenerateDefaultHandlers(false);
+        entity.setGenerateDefaultControllers(true);
+        entity.setHandlerAbstract(true);
+        entity.setControllerAbstract(false);
+        project.setEntities(java.util.Collections.singletonList(entity));
+
+        java.util.List<String> warnings = ProjectValidator.warnings(project);
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("generateDefaultHandlers is deprecated")));
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("generateDefaultControllers takes precedence")));
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("handlerAbstract is deprecated")));
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("controllerAbstract takes precedence")));
     }
 }

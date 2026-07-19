@@ -73,4 +73,21 @@ public class ConfigurationFileValidatorTest {
             assertTrue(ex.getErrors().contains("project.json.messaging must be an object"));
         }
     }
+
+    @Test
+    public void rejectsWrongBooleanTypesForControllerConfiguration() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-validator-controller-types-");
+        Path directory = Files.createDirectory(root.resolve(".gonthera"));
+        String project = "{\"mainPackage\":\"com.example\",\"projectName\":\"example\",\"language\":\"JAVA\"," +
+                "\"entities\":[{\"entityName\":\"customer\",\"controllerAbstract\":\"true\",\"entityFields\":[]}]," +
+                "\"endpoints\":[],\"enums\":[]}";
+        Files.write(directory.resolve("project.json"), project.getBytes(StandardCharsets.UTF_8));
+
+        try {
+            ConfigurationFileValidator.validate(root);
+            fail("Expected validation to fail");
+        } catch (ProjectValidationException ex) {
+            assertTrue(ex.getErrors().contains("project.json.entities[0].controllerAbstract must be a boolean"));
+        }
+    }
 }

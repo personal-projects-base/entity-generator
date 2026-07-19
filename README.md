@@ -98,8 +98,9 @@ O objeto entities deve ser configurado da seguinte forma:
       "entityName": "cpf",
       "tableName": "cpf",
       "classExtends" : "document",
-      "generateDefaultHandlers": false,
-      "handlerAbstract": false,
+      "generateDefaultControllers": false,
+      "controllerAbstract": false,
+      "serviceAbstract": false,
       "onlyDTO": false,
       "entityFields": [
         {
@@ -144,9 +145,76 @@ O objeto entities deve ser configurado da seguinte forma:
 * entityName: nome da entidade
 * tableName: nome da tabela
 * classExtends: se extende de alguma outra classe
-* generateDefaultHandlers: se gera as interfaces de crud padrões
-* handlerAbstract: permite que o Handler seja sobrescrito (disponivel apenas para JAVA)
+* generateDefaultControllers: define se o CRUD padrão será gerado
+* controllerAbstract: gera o Controller Java ou .NET como classe abstrata, permitindo implementação concreta e sobrescritas no projeto consumidor
+* serviceAbstract: no Java, gera o `*Service` abstrato e sem `@Service`; o consumidor deve registrar uma implementação concreta. O padrão é `false`.
 * onlyDTO: é gerrado apenas a classe DTO, nenhum conversor, ou repository alem de crud é gerado
+
+#### Services Java
+
+O CRUD Java separa transporte HTTP e operações de aplicação:
+
+```text
+Controller → Service → Repository
+```
+
+O `*Controller` recebe parâmetros HTTP e delega ao `*Service`. O service concentra transações, conversão DTO/entity, filtros, paginação e persistência.
+
+Os nomes antigos `generateDefaultHandlers` e `handlerAbstract` continuam aceitos temporariamente, mas produzem avisos de depreciação. Quando o nome novo e o antigo forem declarados juntos, `generateDefaultControllers` e `controllerAbstract` terão precedência.
+
+Com `serviceAbstract: false`, o service é concreto e recebe `@Service`. Com `serviceAbstract: true`, ele é abstrato, não recebe a anotação e exige um bean concreto no projeto consumidor:
+
+```java
+@Service
+public class AppCustomerService extends CustomerService {
+    @Override
+    public CustomerDTO save(CustomerDTO dto) {
+        return super.save(dto);
+    }
+}
+```
+
+#### Controllers .NET
+
+A saída .NET também usa a nomenclatura Controller. O par legado `*Handler`/`*HandlerImpl` não é mais gerado. Para cada entidade com `generateDefaultControllers: true`, a CLI cria um único `Controllers/*Controller.cs` com os métodos CRUD `virtual`.
+
+- `controllerAbstract: false`: gera um Controller concreto pronto para descoberta pelo ASP.NET Core;
+- `controllerAbstract: true`: gera um Controller abstrato com a implementação CRUD padrão; o consumidor deve criar uma classe concreta fora de `_gen` e pode herdar ou sobrescrever métodos seletivamente;
+- `generateDefaultControllers: false`: não gera Controller para a entidade;
+- `serviceAbstract` continua específico do Java; o CRUD .NET ainda acessa o repository diretamente pelo Controller.
+
+A saída fica organizada em:
+
+```text
+<mainPackage>_gen/
+├── Common/
+├── Controllers/
+├── Converters/
+├── Data/
+├── Dtos/
+├── Endpoints/
+├── Entities/
+├── Enums/
+├── Messaging/
+└── Repositories/
+```
+
+Exemplo de customização:
+
+```csharp
+public class CustomerApplicationController : CustomerController
+{
+    public CustomerApplicationController(ICustomerRepository repository) : base(repository)
+    {
+    }
+
+    public override ActionResult<CustomerDTO> Save(CustomerDTO input)
+    {
+        // Validação específica do consumidor.
+        return base.Save(input);
+    }
+}
+```
 * entityFields: Objeto que contém os campos da entidade
   * comment: Comentario do campo, este item é obrigatório
   * fieldName: Nome do campo
@@ -304,17 +372,17 @@ Regras práticas:
 Para cada entidade, o fluxo Java gera DTO e converter. Exemplo para `costCenter`:
 
 ```txt
-CostCenterEntity.java
-CostCenterDTO.java
-CostCenterDTOConverter.java
+entities/CostCenterEntity.java
+dtos/CostCenterDTO.java
+converters/CostCenterDTOConverter.java
 ```
 
 Use o converter para transformar dados entre a camada de API e a camada de persistência:
 
 ```java
-import com.example.backend_gen.CostCenterDTO;
-import com.example.backend_gen.CostCenterDTOConverter;
-import com.example.backend_gen.CostCenterEntity;
+import com.example.backend_gen.converters.CostCenterDTOConverter;
+import com.example.backend_gen.dtos.CostCenterDTO;
+import com.example.backend_gen.entities.CostCenterEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -743,7 +811,7 @@ Configure a conexão RabbitMQ no `appsettings.json`:
 
 #### Cuidados
 
-* Não edite os arquivos gerados em `_gen`; implemente configurações e handlers concretos fora desse diretório.
+* Não edite os arquivos gerados em `_gen`; implemente configurações e controllers concretos fora desse diretório.
 * `routingKey` deve ser informado nos publishers.
 * Em Java, a classe concreta que estende `RabbitConfig` deve ter `@Configuration` e `@RabbitExchange`.
 * Em .NET, a classe concreta que estende `RabbitConfig` deve ter `[RabbitExchange("...")]` e ser registrada no DI como `RabbitConfig`.
@@ -765,7 +833,7 @@ O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe
 Paridade atual:
 
 * Gera models/DTOs, enums, repositories, controllers, rotas CRUD, contratos de endpoints, arquivos estáticos, SQL e RabbitMQ.
-* Respeita `generateDefaultHandlers` e `onlyDTO` para decidir se gera controllers/rotas/repositories.
+* Respeita `generateDefaultControllers` — e o alias legado `generateDefaultHandlers` — e `onlyDTO` para decidir se gera controllers/rotas/repositories.
 * Gera `prisma/schema.prisma` com datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e suporte inicial a relacionamentos.
 * Ainda não gera `package.json`, `tsconfig.json` ou migrations.
 * Relacionamentos complexos podem exigir revisão manual do `schema.prisma`, especialmente Many-to-Many e relações bidirecionais customizadas.

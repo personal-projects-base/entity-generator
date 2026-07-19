@@ -1,5 +1,9 @@
 package <<packageName>>;
 
+import <<rootPackage>>.common.SpecificationFilter;
+import <<rootPackage>>.dtos.*;
+import <<rootPackage>>.entities.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.context.annotation.Lazy;

@@ -39,7 +39,10 @@ public class GenerateEndpoint {
     private static String configureFileEntity(String mod, String packageName, Endpoints endpoints, String fileName){
 
         var anonimous = isAnonimous(endpoints.getMetadata());
-        return mod.replace("<<packageName>>",packageName.concat("_gen"))
+        return mod.replace("<<rootPackage>>",packageName.concat("_gen"))
+                .replace("<<dtoImports>>", generatedJavaImport(packageName, "dtos", properties.getEntities() != null && !properties.getEntities().isEmpty()))
+                .replace("<<enumImports>>", generatedJavaImport(packageName, "enums", properties.getEnums() != null && !properties.getEnums().isEmpty()))
+                .replace("<<packageName>>",packageName.concat("_gen.endpoints"))
                 .replace("<<ifAnonimous>>",anonimous[0])
                 .replace("<<className>>",firstCharacterUpperCase(fileName))
                 .replace("<<methodName>>",fileName)
@@ -136,7 +139,10 @@ public class GenerateEndpoint {
         String mod = loadWxsd("dtorequest");
 
         return mod.replace("<<entityName>>",firstCharacterUpperCase(className))
-                .replace("<<packageName>>",packageName.concat("_gen"))
+                .replace("<<rootPackage>>",packageName.concat("_gen"))
+                .replace("<<dtoImports>>", generatedJavaImport(packageName, "dtos", properties.getEntities() != null && !properties.getEntities().isEmpty()))
+                .replace("<<enumImports>>", generatedJavaImport(packageName, "enums", properties.getEnums() != null && !properties.getEnums().isEmpty()))
+                .replace("<<packageName>>",packageName.concat("_gen.endpoints"))
                 .replace("<<entityFields>>",fields)
                 .replace("<<operation>>",type);
 

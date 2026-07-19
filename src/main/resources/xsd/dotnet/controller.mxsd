@@ -1,0 +1,73 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Collections;
+
+namespace <<projetcName>>.<<nameSpaceName>>
+{
+    [Serializable]
+    [ApiController]
+    [Route("<<entity>>")]
+    public <<abstract>>class <<entityName>>Controller : ControllerBase
+    {
+        protected readonly I<<entityName>>Repository _<<entity>>Repository;
+
+        public <<entityName>>Controller(I<<entityName>>Repository <<entity>>Repository)
+        {
+            _<<entity>>Repository = <<entity>>Repository;
+        }
+
+        [HttpGet]
+        public virtual ActionResult<ResponseData> GetAll([FromQuery] RequestData input)
+        {
+            var obj = _<<entity>>Repository.GetAll(input);
+            return Ok(obj);
+        }
+
+        [HttpGet("{id}")]
+        public virtual ActionResult<<<entityName>>DTO> Get(<<keyType>> id, string displayFields)
+        {
+            var obj = _<<entity>>Repository.FindById(id, displayFields);
+            return <<entityName>>DTOConverter.ToDTO(obj);
+        }
+
+        [HttpPost]
+        public virtual ActionResult<<<entityName>>DTO> Save([FromBody] <<entityName>>DTO input)
+        {
+            var dto = <<entityName>>DTOConverter.ToEntity(input);
+            var output = _<<entity>>Repository.Add(dto);
+            return <<entityName>>DTOConverter.ToDTO(output);
+        }
+
+        [HttpPut("{id}")]
+        public virtual ActionResult<<<entityName>>DTO> Update(<<keyType>> id, [FromBody] <<entityName>>DTO input)
+        {
+            var dto = <<entityName>>DTOConverter.ToEntity(input);
+            var output = _<<entity>>Repository.Update(id, dto);
+            return Ok(<<entityName>>DTOConverter.ToDTO(output));
+        }
+
+        [HttpDelete("{id}")]
+        public virtual ActionResult<<<entityName>>DTO> Delete(<<keyType>> id)
+        {
+            _<<entity>>Repository.Delete(id);
+            var ret = new Hashtable();
+            ret.Add("message", "deleted");
+            ret.Add("id", id);
+            return Ok(ret);
+        }
+
+        [HttpPost]
+        [Route("import")]
+        public virtual ActionResult<string> Import([FromBody] List<<<entityName>>DTO> input)
+        {
+            if (input != null)
+            {
+                input.ForEach(item =>
+                {
+                    var dto = <<entityName>>DTOConverter.ToEntity(item);
+                    _<<entity>>Repository.Add(dto);
+                });
+            }
+            return Ok($"Imported {input.Count()} registrys");
+        }
+    }
+}

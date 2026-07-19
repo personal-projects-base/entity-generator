@@ -1,5 +1,9 @@
 package <<packageName>>;
 
+import <<rootPackage>>.common.*;
+<<dtoImports>>
+<<enumImports>>
+
 <<ifAnonimous>>
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,5 +1,8 @@
 package <<packageName>>;
 
+<<dtoImports>>
+<<enumImports>>
+
 import java.util.List;
 import java.util.Date;
 import java.time.LocalDate;

@@ -5,6 +5,11 @@
 * Alterado o artifactId Maven de `entity-generator` para `gonthera-cli`.
 * Alterados os artefatos executáveis para `gonthera-cli-x.x.x.jar` e `gonthera-cli.exe`.
 * Alterado o pacote interno Java de `com.potatotech.entitygenerator` para `com.gonthera.cli`.
+* Reorganizada a saída Java em subpackages `entities`, `dtos`, `converters`, `repositories`, `controllers`, `endpoints`, `enums` e `common`; imports antigos diretamente no package `_gen` precisam ser atualizados.
+* Renomeados os CRUDs Java de `*Handler` para `*Controller`, o subpackage `handlers` para `controllers` e `HandlerBase` para `CrudController`.
+* O CRUD Java agora gera `services/*Service`, e controllers delegam transações, conversão, filtros, paginação e persistência para essa camada.
+* Reorganizada a saída .NET em `Entities`, `Dtos`, `Converters`, `Repositories`, `Controllers`, `Endpoints`, `Enums`, `Common`, `Data` e `Messaging`.
+* Removido o par .NET `*Handler`/`*HandlerImpl`; agora é gerado um único `Controllers/*Controller`, concreto ou abstrato conforme `controllerAbstract`, com métodos virtuais para sobrescrita.
 
 ### Novas funcionalidades
 * Adicionada leitura de `project.json` na raiz como configuração principal do projeto.
@@ -15,6 +20,10 @@
 * Adicionada validação sem geração pelos comandos `gonthera-cli.exe --validate`, `java -jar gonthera-cli-x.x.x.jar --validate` e `mvn gonthera-cli:validate`.
 * O modo de validação exige `.gonthera`, verifica sintaxe e estrutura JSON, campos obrigatórios e propriedades desconhecidas possivelmente digitadas incorretamente.
 * Integrada a validação estrutural e semântica ao fluxo normal de geração, antes da leitura pelo Gson e antes de alterações nas saídas.
+* A limpeza das saídas Java e .NET agora remove recursivamente os subdiretórios gerados antes de recriar a nova estrutura.
+* Adicionada a propriedade Java `serviceAbstract`: services concretos recebem `@Service`; services abstratos não recebem a anotação e geram aviso para implementação no consumidor.
+* Adicionadas `generateDefaultControllers` e `controllerAbstract`; `generateDefaultHandlers` e `handlerAbstract` permanecem como aliases temporários com avisos de depreciação e precedência dos nomes novos.
+* O validador estrutural agora diferencia tipos escalares JSON e rejeita strings no lugar de booleanos, incluindo as configurações de controller.
 
 
 ## >1.0.2 - 15-07-2026

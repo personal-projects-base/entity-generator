@@ -102,7 +102,15 @@ public final class ConfigurationFileValidator {
         if (!(type instanceof Class)) return;
         Class<?> typeClass = (Class<?>) type;
         if (isScalar(typeClass)) {
-            if (!json.isJsonPrimitive()) errors.add(path + " must be a scalar value");
+            if (!json.isJsonPrimitive()) {
+                errors.add(path + " must be a scalar value");
+            } else if ((typeClass == boolean.class || typeClass == Boolean.class) && !json.getAsJsonPrimitive().isBoolean()) {
+                errors.add(path + " must be a boolean");
+            } else if (Number.class.isAssignableFrom(typeClass) && !json.getAsJsonPrimitive().isNumber()) {
+                errors.add(path + " must be a number");
+            } else if ((typeClass == String.class || typeClass.isEnum()) && !json.getAsJsonPrimitive().isString()) {
+                errors.add(path + " must be a string");
+            }
             return;
         }
         if (!json.isJsonObject()) {

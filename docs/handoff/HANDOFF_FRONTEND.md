@@ -59,8 +59,8 @@ Formato recomendado para exportação:
   "entityName": "product",
   "tableName": "product",
   "classExtends": "",
-  "generateDefaultHandlers": true,
-  "handlerAbstract": false,
+  "generateDefaultControllers": true,
+  "controllerAbstract": false,
   "onlyDTO": false,
   "entityFields": []
 }
@@ -72,8 +72,8 @@ Formato recomendado para exportação:
 | `entityName` | string | Obrigatório, único e em `lowerCamelCase`. |
 | `tableName` | string | Nome em `snake_case`; normalmente igual à entidade convertida. |
 | `classExtends` | string | Enviar `""`; herança não é aplicada atualmente. |
-| `generateDefaultHandlers` | boolean | `true` para disponibilizar o CRUD padrão. |
-| `handlerAbstract` | boolean | Normalmente `false`; opção específica do backend Java. |
+| `generateDefaultControllers` | boolean | `true` para disponibilizar o CRUD padrão. `generateDefaultHandlers` é alias legado. |
+| `controllerAbstract` | boolean | Normalmente `false`; em Java e .NET gera o controller CRUD como classe abstrata para implementação no consumidor. `handlerAbstract` é alias legado. |
 | `onlyDTO` | boolean | Normalmente `false`; use `true` apenas para contrato sem persistência no Java. |
 | `entityFields` | array | Obrigatório, com pelo menos um campo. |
 
@@ -347,7 +347,7 @@ Ao montar a expressão:
 - não ofereça `ne`, comparações, intervalos, listas ou ordenação: esses operadores não foram implementados;
 - filtro vazio ou omitido lista sem restrição; erro de campo, UUID ou sintaxe retorna HTTP 400;
 - `offset` começa em 1 para o cliente;
-- `order` não é aplicado pelo handler Java atual;
+- `order` não é aplicado pelo controller Java atual;
 - `displayFields` escolhe campos do DTO, mas não filtra registros.
 
 O frontend deve considerar `language` antes de montar o filtro. No .NET, o dialeto separado aceita apenas `eq` e uma única espécie de operador lógico (`and` ou `or`) por expressão; relações comuns usam caminho pontuado e coleções usam `*`, como `children*.description eq matriz`. `isNull` e `notNull` não existem no .NET. No Node, o CRUD gerado atualmente ignora `filter` e usa somente `size`/`offset`.
@@ -378,8 +378,8 @@ O objeto abaixo é uma entidade independente e pode ser adicionado diretamente a
   "entityName": "product",
   "tableName": "product",
   "classExtends": "",
-  "generateDefaultHandlers": true,
-  "handlerAbstract": false,
+  "generateDefaultControllers": true,
+  "controllerAbstract": false,
   "onlyDTO": false,
   "entityFields": [
     {

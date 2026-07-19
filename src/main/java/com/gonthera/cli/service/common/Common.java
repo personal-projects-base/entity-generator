@@ -129,8 +129,11 @@ public class Common {
     }
 
     public static String loadPath(){
-        Path currentPath = Paths.get("");
-        return currentPath.toAbsolutePath().toString();
+        return Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
+    }
+
+    public static String generatedJavaImport(String packageName, String subpackage, boolean enabled) {
+        return enabled ? String.format("import %s_gen.%s.*;", packageName, subpackage) : "";
     }
 
     public static String stringFormaterJava(String entityName, String entity, String packagePath) {

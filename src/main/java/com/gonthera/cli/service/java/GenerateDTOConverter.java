@@ -45,7 +45,8 @@ public class GenerateDTOConverter {
         String fieldsEntity = getFieldsEntity(entity);
         String fieldsDTO = getFieldsDTO(entity);
         return mod.replace("<<entityName>>",firstCharacterUpperCase(fileName))
-                .replace("<<packageName>>",packageName.concat("_gen"))
+                .replace("<<rootPackage>>",packageName.concat("_gen"))
+                .replace("<<packageName>>",packageName.concat("_gen.converters"))
                 .replace("<<simpleFieldsDTO>>",fieldsDTO)
                 .replace("<<dependencies>>",getDependencies())
                 .replace("<<simpleFieldsEntity>>",fieldsEntity);

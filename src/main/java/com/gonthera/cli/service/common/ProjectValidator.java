@@ -7,6 +7,7 @@ import com.gonthera.cli.model.Enums;
 import com.gonthera.cli.model.MessagingChannel;
 import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.model.RabbitMq;
+import com.gonthera.cli.enuns.Language;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,46 @@ public final class ProjectValidator {
         validateMessaging(project, errors);
 
         if (!errors.isEmpty()) throw new ProjectValidationException(errors);
+    }
+
+    public static List<String> warnings(Properties project) {
+        List<String> warnings = new ArrayList<>();
+        if (project == null || project.getEntities() == null) return warnings;
+        for (int index = 0; index < project.getEntities().size(); index++) {
+            Entities entity = project.getEntities().get(index);
+            if (project.getLanguage() == Language.JAVA && entity != null && entity.isServiceAbstract()) {
+                warnings.add(String.format(
+                        "entities[%d].serviceAbstract=true: %sService will be abstract and will require a concrete Spring bean in the consumer project",
+                        index,
+                        entity.getEntityName() == null ? "Entity" : Common.firstCharacterUpperCase(entity.getEntityName())
+                ));
+            }
+            if (entity != null && entity.getGenerateDefaultHandlers() != null) {
+                warnings.add(String.format(
+                        "entities[%d].generateDefaultHandlers is deprecated; use generateDefaultControllers",
+                        index
+                ));
+                if (entity.getGenerateDefaultControllers() != null) {
+                    warnings.add(String.format(
+                            "entities[%d] declares both generateDefaultControllers and generateDefaultHandlers; generateDefaultControllers takes precedence",
+                            index
+                    ));
+                }
+            }
+            if (entity != null && entity.getHandlerAbstract() != null) {
+                warnings.add(String.format(
+                        "entities[%d].handlerAbstract is deprecated; use controllerAbstract",
+                        index
+                ));
+                if (entity.getControllerAbstract() != null) {
+                    warnings.add(String.format(
+                            "entities[%d] declares both controllerAbstract and handlerAbstract; controllerAbstract takes precedence",
+                            index
+                    ));
+                }
+            }
+        }
+        return warnings;
     }
 
     private static void validateEntities(Properties project, List<String> errors) {

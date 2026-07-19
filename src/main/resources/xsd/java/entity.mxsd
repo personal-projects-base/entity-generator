@@ -1,5 +1,7 @@
 package <<packageName>>;
 
+<<enumImports>>
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.AllArgsConstructor;

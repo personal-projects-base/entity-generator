@@ -111,8 +111,9 @@ Exemplo completo:
   "entityName": "customer",
   "tableName": "customer",
   "classExtends": "",
-  "generateDefaultHandlers": true,
-  "handlerAbstract": false,
+  "generateDefaultControllers": true,
+  "controllerAbstract": false,
+  "serviceAbstract": false,
   "onlyDTO": false,
   "entityFields": [
     {
@@ -139,9 +140,11 @@ Contrato efetivo:
 - `tableName`: nome da tabela. Use `null`/omita para derivar o nome; string vazia não ativa a derivação;
 - `comment`: usado na descrição do recurso gerado;
 - `entityFields`: precisa conter ao menos um campo e, para geração normal, uma chave com `metadata.key: true`;
-- `generateDefaultHandlers`: padrão `true`; controla handler CRUD Java e implementação de handler .NET;
-- `handlerAbstract`: afeta apenas o handler Java;
-- `onlyDTO`: implementado somente no fluxo Java; evita Entity, converter, repository e handler, mas ainda gera DTO. A entidade continua entrando no SQL gerado;
+- `generateDefaultControllers`: padrão `true`; controla o CRUD padrão. O alias legado `generateDefaultHandlers` continua aceito com aviso;
+- `controllerAbstract`: gera o controller Java ou .NET como classe abstrata. O alias legado `handlerAbstract` continua aceito com aviso;
+- se o nome novo e o legado forem declarados juntos, o nome novo tem precedência e o validador avisa sobre o conflito;
+- `serviceAbstract`: afeta apenas o service Java. `false` gera classe concreta com `@Service`; `true` gera classe abstrata sem `@Service` e exige que o consumidor registre um subtipo concreto como bean Spring;
+- `onlyDTO`: implementado somente no fluxo Java; evita Entity, converter, service, repository e controller, mas ainda gera DTO. A entidade continua entrando no SQL gerado;
 - `classExtends`: está no modelo, mas não é aplicado pelos geradores atuais.
 
 Contrato dos campos:
@@ -354,7 +357,7 @@ Regras e limitações importantes do parser Java:
 - valores contendo as palavras ` and ` ou ` or ` não podem ser escapados e serão divididos pelo parser;
 - filtro ausente ou vazio não restringe os resultados;
 - `size` e `offset` devem ser enviados no CRUD Java. `offset` é baseado em 1 na requisição; internamente é convertido para a página baseada em 0;
-- apesar de existir em `RequestData`, `order` é lido pelo handler Java, mas não é aplicado ao `PageRequest` atual;
+- apesar de existir em `RequestData`, `order` é lido pelo controller Java, mas não é aplicado ao `PageRequest` atual;
 - `displayFields` controla a projeção do DTO e não participa do filtro.
 
 No .NET, `DynamicFilter` é uma implementação separada: suporta apenas `eq`, `and` ou `or`; texto também usa `Contains` sem diferenciar caixa, UUID é exato, e coleção usa um caminho com `*` (por exemplo, `children*.description eq matriz`). Não há `isNull`/`notNull`, o parser só escolhe um operador lógico por expressão e os nomes das propriedades C# são sensíveis à forma gerada. Portanto, o frontend deve selecionar o dialeto conforme `language`; uma expressão Java não é portável por garantia para .NET.
@@ -471,11 +474,20 @@ src/main/java/<mainPackage convertido em caminho>_gen/
 
 São gerados, conforme a configuração:
 
-- `*Entity`, `*DTO`, `*DTOConverter`, `*Repository` e `*Handler`;
-- interfaces de endpoint e seus modelos `*Input`/`*Output`;
+- `entities/*Entity`;
+- `dtos/*DTO`;
+- `converters/*DTOConverter`;
+- `repositories/*Repository`;
+- `controllers/*Controller`;
+- `services/*Service` com transações, conversão, filtros, paginação e persistência;
+- `endpoints/` com interfaces de endpoint e seus modelos `*Input`/`*Output`;
+- `enums/` com os enums configurados;
+- `common/` com `CrudController`, `RestConfig`, `SpecificationFilter`, `RequestData` e `ResponseData`;
 - abstrações RabbitMQ em `messaging/`, `messaging/pub/` e `messaging/sub/` quando `messaging.RabbitMq` é configurado;
-- enums;
-- `HandlerBase`, `RestConfig`, `SpecificationFilter`, `RequestData` e `ResponseData`.
+
+Cada subdiretório corresponde a um subpackage Java, por exemplo `com.example.service_gen.entities`. A mudança é incompatível com imports antigos que apontavam diretamente para `com.example.service_gen`.
+
+Controllers Java delegam o CRUD ao service correspondente. Quando `serviceAbstract: true`, a validação emite um aviso porque a CLI não consegue confirmar se o projeto consumidor fornece a implementação concreta necessária.
 
 Também são sobrescritos:
 
@@ -495,7 +507,29 @@ O diretório inteiro abaixo é apagado e recriado:
 <mainPackage com pontos convertidos em barras>_gen/
 ```
 
-São gerados Entities, DTOs, converters, repositories, handlers/controllers, primitives de endpoint, `CustomDbContext`, registro de DI e classes auxiliares. A pasta `static/` não é criada automaticamente; nela são sobrescritos `properties.json`, `resources.json` e `postgree.sql`.
+A saída principal é organizada desta forma:
+
+```text
+<mainPackage>_gen/
+├── Common/
+├── Controllers/
+├── Converters/
+├── Data/
+├── Dtos/
+├── Endpoints/
+├── Entities/
+├── Enums/
+├── Messaging/
+└── Repositories/
+```
+
+Os arquivos permanecem atualmente no namespace C# raiz `<mainPackage>.<mainPackage>_Gen`; a separação desta versão é física, por diretórios. O diretório inteiro é removido recursivamente antes da regeneração.
+
+O par legado `*Handler`/`*HandlerImpl` deixou de ser gerado. Com `generateDefaultControllers: true`, cada entidade gera um único `Controllers/*Controller.cs`, contendo a implementação CRUD e métodos `virtual`. `controllerAbstract: false` gera classe concreta; `controllerAbstract: true` gera classe abstrata para implementação e sobrescrita fora de `_gen`. Com `generateDefaultControllers: false`, nenhum controller CRUD é criado.
+
+Nesta etapa não foi introduzida uma camada Service no .NET: o Controller ainda injeta `I*Repository` e executa conversão e persistência diretamente. `serviceAbstract` permanece exclusivo do Java até que o registro explícito de DI do .NET seja redesenhado.
+
+Também são gerados primitives de endpoint, `CustomDbContext`, registro de DI e classes auxiliares. A pasta `static/` não é criada automaticamente; nela são sobrescritos `properties.json`, `resources.json` e `postgree.sql`.
 
 Quando `messaging.RabbitMq` é configurado, também são gerados:
 

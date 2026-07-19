@@ -39,14 +39,16 @@ O arquivo deve poder ser exportado ou baixado sem comentários, texto adicional 
 
 Usar `lowerCamelCase` em `entityName` e `fieldName`, e `snake_case` em `tableName`. Para uma entidade persistida, definir exatamente uma chave primária.
 
+`generateDefaultControllers` controla a geração do CRUD em Java, .NET e Node. Em Java e .NET, `controllerAbstract: true` gera o controller como classe abstrata para implementação no projeto consumidor. Os nomes `generateDefaultHandlers` e `handlerAbstract` são apenas aliases legados e não devem ser emitidos por interfaces novas.
+
 ```json
 {
   "comment": "Cadastro de produtos",
   "entityName": "product",
   "tableName": "product",
   "classExtends": "",
-  "generateDefaultHandlers": true,
-  "handlerAbstract": false,
+  "generateDefaultControllers": true,
+  "controllerAbstract": false,
   "onlyDTO": false,
   "entityFields": [
     {
@@ -157,7 +159,7 @@ Usar o nome do enum em `fieldProperties.fieldType`. Enviar valores exatamente co
 
 ## Fazer chamadas ao CRUD gerado
 
-Quando `generateDefaultHandlers` for `true`, criar um cliente HTTP por entidade com estas operações:
+Quando `generateDefaultControllers` for `true`, criar um cliente HTTP por entidade com estas operações. `generateDefaultHandlers` permanece apenas como alias legado:
 
 ```text
 POST   /<entityName>       cria; body = DTO

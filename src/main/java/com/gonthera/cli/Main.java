@@ -27,6 +27,7 @@ public class Main {
         }
         Common.properties = loadProperties();
         ProjectValidator.validate(Common.properties);
+        ProjectValidator.warnings(Common.properties).forEach(warning -> System.out.println("WARNING: " + warning));
 
         if (validateOnly) {
             System.out.println("Gonthera project is valid");

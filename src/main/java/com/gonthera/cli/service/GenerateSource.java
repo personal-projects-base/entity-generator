@@ -39,6 +39,7 @@ public class GenerateSource extends AbstractMojo {
         ConfigurationFileValidator.validateForGeneration(Paths.get(System.getProperty("user.dir")));
         Common.properties = loadProperties();
         ProjectValidator.validate(Common.properties);
+        ProjectValidator.warnings(Common.properties).forEach(getLog()::warn);
 
         if(Common.properties.getLanguage() == null){
             throw new MojoExecutionException("Language not defined");

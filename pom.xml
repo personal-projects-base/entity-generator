@@ -12,7 +12,7 @@
         <version>2.0.0</version>
     </properties>
 
-    <groupId>com.potatotech</groupId>
+    <groupId>com.gonthera</groupId>
     <artifactId>gonthera-cli</artifactId>
     <packaging>maven-plugin</packaging>
     <version>${version}</version>

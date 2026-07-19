@@ -6,8 +6,8 @@
     {
       "entityName": "comment",
       "tableName": "comment",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true,
+      "generateDefaultControllers": true,
+      "controllerAbstract": true,
       "entityFields": [
         {
           "comment": "ID",
@@ -127,8 +127,8 @@
     {
       "entityName": "costCenter",
       "tableName": "cost_center",
-      "generateDefaultHandlers": true,
-      "handlerAbstract": true,
+      "generateDefaultControllers": true,
+      "controllerAbstract": true,
       "entityFields": [
         {
           "comment": "Id",

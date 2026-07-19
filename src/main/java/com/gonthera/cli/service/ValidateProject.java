@@ -21,6 +21,7 @@ public class ValidateProject extends AbstractMojo {
             ConfigurationFileValidator.validate(Paths.get(System.getProperty("user.dir")));
             Properties project = Common.loadProperties();
             ProjectValidator.validate(project);
+            ProjectValidator.warnings(project).forEach(getLog()::warn);
             getLog().info("Gonthera project is valid");
         } catch (ProjectValidationException ex) {
             throw new MojoFailureException(ex.getMessage());

@@ -1,0 +1,52 @@
+package <<packageName>>;
+
+import <<rootPackage>>.common.*;
+import <<rootPackage>>.dtos.*;
+import <<rootPackage>>.services.*;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+import java.util.UUID;
+
+@RestController
+@CrossOrigin(origins="*")
+@RequestMapping("<<entityNameLowerCase>>")
+public <<abstract>>class <<entityName>>Controller implements CrudController<<<entityName>>DTO, <<keyType>>> {
+
+    @Autowired
+    protected <<entityName>>Service service;
+
+    @Override
+    public <<entityName>>DTO save(<<entityName>>DTO obj) {
+        return service.save(obj);
+    }
+
+    @Override
+    public <<entityName>>DTO update(<<entityName>>DTO obj, <<keyType>> id) {
+        return service.update(obj, id);
+    }
+
+    @Override
+    public void delete(<<keyType>> id) {
+        service.delete(id);
+    }
+
+    @Override
+    public <<entityName>>DTO get(<<keyType>> id) {
+        return service.get(id);
+    }
+
+    @Override
+    public ResponseData getAll(@RequestParam Map<String, String> params) {
+
+        var input = new RequestData();
+        input.size = params.containsKey("size") ? Integer.parseInt(params.get("size")) : 20;
+        input.offset = params.containsKey("offset") ? Integer.parseInt(params.get("offset")) : 1;
+        input.filter = params.get("filter");
+        input.order = params.get("order");
+        input.displayFields = params.get("displayFields");
+
+        return service.getAll(input);
+    }
+}

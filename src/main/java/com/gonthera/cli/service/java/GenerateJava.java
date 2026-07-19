@@ -18,10 +18,11 @@ import static com.gonthera.cli.service.java.GenerateDTOConverter.generateDTOConv
 import static com.gonthera.cli.service.java.GenerateEndpoint.generateEndpoint;
 import static com.gonthera.cli.service.java.GenerateEntity.generateEntity;
 import static com.gonthera.cli.service.java.GenerateEnum.generateEnum;
-import static com.gonthera.cli.service.java.GenerateHandler.generateHandlerEntities;
+import static com.gonthera.cli.service.java.GenerateController.generateControllers;
 import static com.gonthera.cli.service.java.GenerateMessaging.generateMessaging;
 import static com.gonthera.cli.service.common.GenerateResources.generateResources;
 import static com.gonthera.cli.service.java.GenerateRepositories.generateRepositories;
+import static com.gonthera.cli.service.java.GenerateService.generateServices;
 
 public class GenerateJava {
 
@@ -34,32 +35,34 @@ public class GenerateJava {
         dropAndCreateDir(prop.getMainPackage());
 
         // gera a classe das entidaeds
-        generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("entities"));
         // Gera as classes DTO
-        generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("dtos"));
         // Gera as classes DTO
-        generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath);
-        // Gera o HandlerBase
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "handlerbase", "HandlerBase");
-        // Gera Handlers de crud
-        generateHandlerEntities(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("converters"));
+        // Gera a camada de serviços
+        generateServices(prop.getEntities(), prop.getMainPackage(), packagePath.resolve("services"));
+        // Gera o contrato CRUD dos controllers
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "crudcontroller", "CrudController");
+        // Gera Controllers de CRUD
+        generateControllers(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("controllers"));
         // Gera o RestConfig
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "restconfig", "RestConfig");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "restconfig", "RestConfig");
         // Gera abstrações de mensageria RabbitMQ
         generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), prop.getMainPackage(), packagePath);
         // Gera especificação dos filtros
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "especificationfilter", "SpecificationFilter");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
-        generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath);
+        generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath.resolve("endpoints"));
         // Gera as classes Enumeration
-        generateEnum(prop.getEnums(),prop.getMainPackage(),packagePath);
+        generateEnum(prop.getEnums(),prop.getMainPackage(),packagePath.resolve("enums"));
 
         // gera os repositories
-        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath);
+        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("repositories"));
 
         // Gera requestData e outputData
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "requestdata", "RequestData");
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath, "responsedata", "ResponseData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "requestdata", "RequestData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "responsedata", "ResponseData");
 
         // faz uma copia da properties_dot.json para a pasta static
         generateMetadata(prop);
@@ -78,6 +81,15 @@ public class GenerateJava {
             dropFiles(packagePath);
             Files.deleteIfExists(packagePath);
             Files.createDirectories(packagePath);
+            Files.createDirectories(packagePath.resolve("entities"));
+            Files.createDirectories(packagePath.resolve("dtos"));
+            Files.createDirectories(packagePath.resolve("converters"));
+            Files.createDirectories(packagePath.resolve("repositories"));
+            Files.createDirectories(packagePath.resolve("services"));
+            Files.createDirectories(packagePath.resolve("controllers"));
+            Files.createDirectories(packagePath.resolve("endpoints"));
+            Files.createDirectories(packagePath.resolve("enums"));
+            Files.createDirectories(packagePath.resolve("common"));
         } catch (IOException ex){
             ex.printStackTrace();
         }
@@ -103,6 +115,13 @@ public class GenerateJava {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     System.out.println("delete file " +file.toAbsolutePath());
                     Files.deleteIfExists(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    if (exc != null) throw exc;
+                    Files.deleteIfExists(dir);
                     return FileVisitResult.CONTINUE;
                 }
             });
