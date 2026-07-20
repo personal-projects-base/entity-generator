@@ -1,3 +1,12 @@
+## >2.0.1 - 19-07-2026
+
+### Correções
+* Campos dos DTOs Java agora são gerados com visibilidade `public`, permitindo que os converters em `converters` continuem acessando diretamente propriedades como `dto.id` e `dto.name` após a separação da saída em subpackages.
+
+### Melhorias
+* Centralizadas em `docs/rules/` as regras obrigatórias de versionamento, changelog e atualização dos handoffs.
+
+
 ## >2.0.0 - 17-07-2026
 
 ### Quebras de compatibilidade

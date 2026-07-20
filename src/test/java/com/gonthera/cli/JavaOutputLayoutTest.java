@@ -49,6 +49,9 @@ public class JavaOutputLayoutTest {
         assertPackage(generated.resolve("endpoints/FindCustomerOutput.java"), "com.example.service_gen.endpoints");
         assertPackage(generated.resolve("enums/Status.java"), "com.example.service_gen.enums");
         assertPackage(generated.resolve("common/CrudController.java"), "com.example.service_gen.common");
+        String dto = readFile(generated.resolve("dtos/CustomerDTO.java"));
+        assertTrue(dto.matches("(?s).*public\\s+\\S+\\s+id;.*"));
+        assertTrue(dto.contains("public Status status;"));
         try (java.util.stream.Stream<Path> files = Files.walk(generated)) {
             assertTrue(files.filter(Files::isRegularFile).noneMatch(this::containsTemplatePlaceholder));
         }

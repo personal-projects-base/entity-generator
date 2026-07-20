@@ -55,7 +55,7 @@ public class GenerateDTO {
             if(item.isList()){
                 fieldType = String.format("List<%s>",fieldType);
             }
-            String field = String.format("\n    %s %s; ",fieldType,item.getFieldName());
+            String field = String.format("\n    public %s %s; ",fieldType,item.getFieldName());
             tempField += field;
             fields.set(tempField);
 
