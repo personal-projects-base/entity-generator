@@ -15,5 +15,6 @@ public class Properties {
     private List<Endpoints> endpoints;
     private List<Enums> enums;
     private Messaging messaging;
+    private Authorization authorization;
 
 }

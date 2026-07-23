@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import com.gonthera.cli.model.Endpoints;
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.model.Enums;
+import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Messaging;
 import com.gonthera.cli.model.Properties;
 
@@ -63,6 +64,7 @@ public final class ConfigurationFileValidator {
         validateFile(gontheraDirectory.resolve("endpoints.json"), new TypeToken<List<Endpoints>>() { }.getType(), false, errors);
         validateFile(gontheraDirectory.resolve("enums.json"), new TypeToken<List<Enums>>() { }.getType(), false, errors);
         validateFile(gontheraDirectory.resolve("messaging.json"), Messaging.class, false, errors);
+        validateFile(gontheraDirectory.resolve("authorization.json"), Authorization.class, false, errors);
     }
 
     private static void validateFile(Path file, Type type, boolean required, List<String> errors) {

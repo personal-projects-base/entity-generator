@@ -15,7 +15,8 @@ Para novos projetos, use a pasta `.gonthera`. O arquivo `.gonthera/project.json`
 ├── entities.json
 ├── endpoints.json
 ├── enums.json
-└── messaging.json
+├── messaging.json
+└── authorization.json
 ```
 
 ```json
@@ -39,7 +40,16 @@ Os arquivos `entities.json`, `endpoints.json` e `enums.json` contêm arrays JSON
 }
 ```
 
-Os arquivos separados são opcionais. As seções `entities`, `endpoints`, `enums` e `messaging` também podem permanecer em `.gonthera/project.json`; quando existir, o arquivo separado sobrescreve somente sua seção. Se uma lista não estiver em nenhum dos locais, ela será inicializada vazia.
+O `authorization.json` controla os pontos de customização da autorização Java:
+
+```json
+{
+  "authenticateAbstract": false,
+  "tenantConfigurationAbstract": false
+}
+```
+
+Os arquivos separados são opcionais. As seções `entities`, `endpoints`, `enums`, `messaging` e `authorization` também podem permanecer em `.gonthera/project.json`; quando existir, o arquivo separado sobrescreve somente sua seção. Se uma lista não estiver em nenhum dos locais, ela será inicializada vazia.
 
 ### Configuração em arquivo único
 
@@ -65,6 +75,7 @@ O legado `properties.json` permanece como último fallback. A prioridade é `.go
 - `endpoints`: endpoints customizados.
 - `enums`: enums do projeto.
 - `messaging`: provedores de mensageria; atualmente, `RabbitMq`.
+- `authorization`: customização das classes Java `Authenticate` e `TenantConfiguration`.
 
 Após configurar o projeto, o código pode ser gerado com o seguinte comando a partir da raiz:
 
@@ -432,8 +443,8 @@ abaixo um exemplo da sintaxe:
       "methodName": "listCity",
       "httpMethod": "POST",
       "grouper": "POST",
-      "anonymous": true,
       "metadata": {
+        "anonymous": true,
         "input": [
           {
             "parameterName": "id",
@@ -464,6 +475,84 @@ abaixo um exemplo da sintaxe:
     * parameterType: tipo do parametro
     * list: se o objeto é do tipo lista
   * anonymous: se o endpoint é anonimo
+
+#### Autorização gerada no Java
+
+Projetos Java não precisam mais adicionar o antigo `authorization-backend`. O Gonthera gera os componentes necessários em:
+
+```text
+src/main/java/<mainPackage convertido em caminho>_gen/authorization/
+├── exception/ServiceException.java
+├── permission/PermissionType.java
+├── permission/Permissions.java
+├── security/Authenticate.java
+├── security/Roles.java
+├── security/UserSupplier.java
+├── stereotype/Anonymous.java
+├── stereotype/SecureResource.java
+├── tenant/TenantConfiguration.java
+└── tenant/TenantContext.java
+```
+
+Endpoints com `metadata.anonymous: true` importam automaticamente a anotação gerada `authorization.stereotype.Anonymous`. Interceptors customizados devem usar também o `TenantConfiguration` gerado; a classe reconhece a anotação local e evita dependência do pacote `com.potatotech.authorization`.
+
+Por padrão, `Authenticate` recebe `@Service` e `TenantConfiguration` recebe `@Component`, ficando prontas para uso. Para fornecer uma implementação Spring própria, use `.gonthera/authorization.json`:
+
+```json
+{
+  "authenticateAbstract": true,
+  "tenantConfigurationAbstract": true
+}
+```
+
+Com um flag `true`, a classe correspondente é gerada como abstrata, sem o stereotype Spring. Seus métodos continuam com implementação funcional e podem ser herdados, chamados com `super` ou sobrescritos seletivamente. O consumidor deve criar os beans concretos fora de `_gen`:
+
+```java
+@Service
+public class ApplicationAuthenticate extends Authenticate {
+
+    @Override
+    protected String resolveSecret() {
+        return System.getenv("CUSTOM_SECRET_JWT");
+    }
+}
+
+@Component
+public class ApplicationTenantConfiguration extends TenantConfiguration {
+
+    @Override
+    public boolean validAnonymous(Object handler) {
+        return super.validAnonymous(handler);
+    }
+}
+```
+
+`Authenticate` oferece hooks protegidos para `resolveSecret`, `extractToken`, `parseClaims`, `createUser`, `validateUser` e `createToken`. Normalmente sobrescreva apenas o ponto que realmente precisa mudar.
+
+As classes `Authenticate` e `UserSupplier` usam JJWT `0.11.5`. Inclua no projeto consumidor:
+
+```xml
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-api</artifactId>
+  <version>0.11.5</version>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-impl</artifactId>
+  <version>0.11.5</version>
+  <scope>runtime</scope>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-jackson</artifactId>
+  <version>0.11.5</version>
+  <scope>runtime</scope>
+</dependency>
+```
+
+Configure `SECRET_JWT` com uma chave HMAC adequada antes de autenticar ou gerar tokens. Ao usar `TenantContext`, chame `TenantContext.clear()` ao final de cada requisição para impedir que valores de `ThreadLocal` sejam reutilizados pela thread seguinte.
+
 ### Enums
 Gera as enums do projeto
 

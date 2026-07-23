@@ -1,0 +1,17 @@
+package <<packageName>>.tenant;
+
+import <<packageName>>.stereotype.Anonymous;
+import org.springframework.web.method.HandlerMethod;
+<<springImport>>
+
+<<springAnnotation>>
+public <<abstractModifier>>class TenantConfiguration {
+
+    public boolean validAnonymous(Object handler) {
+        if (!(handler instanceof HandlerMethod)) {
+            return false;
+        }
+        HandlerMethod handlerMethod = (HandlerMethod) handler;
+        return handlerMethod.getMethodAnnotation(Anonymous.class) != null;
+    }
+}

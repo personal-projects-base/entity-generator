@@ -17,7 +17,7 @@ Configuration lookup order:
 2. root `project.json`;
 3. root legacy `properties.json`.
 
-When `.gonthera` exists, its `project.json` is required. `entities.json`, `endpoints.json`, and `enums.json` contain arrays directly; `messaging.json` contains the messaging object. All sections may still remain inside `.gonthera/project.json`; each separated file overrides only its corresponding section. The loader merges them into the same `Properties` model used by single-file configuration.
+When `.gonthera` exists, its `project.json` is required. `entities.json`, `endpoints.json`, and `enums.json` contain arrays directly; `messaging.json` contains the messaging object; `authorization.json` contains the Java authorization customization object. All sections may still remain inside `.gonthera/project.json`; each separated file overrides only its corresponding section. The loader merges them into the same `Properties` model used by single-file configuration.
 
 Validation is available without generation through `mvn gonthera-cli:validate` or `gonthera-cli.exe --validate`. Validation requires `.gonthera`, checks JSON syntax and shape, rejects unknown properties at any nesting level, and then applies the shared semantic `ProjectValidator`. It must not create or delete generated output. Root configuration remains temporarily supported for generation only.
 
@@ -30,6 +30,8 @@ Java CRUD controllers delegate persistence, conversion, filtering, pagination, a
 - `NODE`: TypeScript generation under `src/generated` plus `prisma/schema.prisma`.
 - SQL: PostgreSQL script generation as `postgree.sql`.
 - Messaging: RabbitMQ generation under `messaging.RabbitMq`.
+
+Java authorization classes are generated under `<mainPackage>_gen.authorization`. `authorization.authenticateAbstract` and `authorization.tenantConfigurationAbstract` default to `false`. When enabled, the corresponding generated class is abstract and has no Spring stereotype, so the consumer must provide one concrete Spring bean outside `_gen`.
 
 ## Java CRUD Architecture
 

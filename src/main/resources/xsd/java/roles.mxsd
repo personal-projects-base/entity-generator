@@ -1,0 +1,13 @@
+package <<packageName>>.security;
+
+import <<packageName>>.permission.PermissionType;
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class Roles {
+    private String description = "";
+    private String resource = "";
+    private List<PermissionType> permissions;
+}

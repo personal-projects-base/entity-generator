@@ -19,6 +19,7 @@ import static com.gonthera.cli.service.java.GenerateEndpoint.generateEndpoint;
 import static com.gonthera.cli.service.java.GenerateEntity.generateEntity;
 import static com.gonthera.cli.service.java.GenerateEnum.generateEnum;
 import static com.gonthera.cli.service.java.GenerateController.generateControllers;
+import static com.gonthera.cli.service.java.GenerateAuthorization.generateAuthorization;
 import static com.gonthera.cli.service.java.GenerateMessaging.generateMessaging;
 import static com.gonthera.cli.service.common.GenerateResources.generateResources;
 import static com.gonthera.cli.service.java.GenerateRepositories.generateRepositories;
@@ -48,6 +49,8 @@ public class GenerateJava {
         generateControllers(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("controllers"));
         // Gera o RestConfig
         GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "restconfig", "RestConfig");
+        // Gera os componentes de autorização sem dependência de biblioteca externa
+        generateAuthorization(prop.getMainPackage(), packagePath, prop.getAuthorization());
         // Gera abstrações de mensageria RabbitMQ
         generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), prop.getMainPackage(), packagePath);
         // Gera especificação dos filtros

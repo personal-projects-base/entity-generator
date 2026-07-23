@@ -1,3 +1,27 @@
+## >2.1.0 - 23-07-2026
+
+### Quebras de compatibilidade
+* O código Java gerado não importa mais `com.potatotech.authorization`. Projetos consumidores que referenciam diretamente essa biblioteca devem migrar imports manuais para `<mainPackage>_gen.authorization`.
+* `@Anonymous`, `ServiceException` e `TenantContext` agora pertencem ao código `_gen`; interceptors e handlers do consumidor devem usar os tipos gerados para preservar o mesmo comportamento.
+
+### Novas funcionalidades
+* A saída Java agora gera os componentes próprios de autorização `ServiceException`, `PermissionType`, `Permissions`, `Roles`, `UserSupplier`, `Authenticate`, `Anonymous`, `SecureResource`, `TenantConfiguration` e `TenantContext`.
+* Endpoints com `metadata.anonymous: true` passam a usar a anotação `@Anonymous` gerada pelo próprio Gonthera.
+* Adicionado `authorization.json` à configuração modular, com `authenticateAbstract` e `tenantConfigurationAbstract` para habilitar implementações customizadas no projeto consumidor.
+
+### Melhorias
+* Removida a dependência do código Java gerado em relação ao projeto `authorization-backend`.
+* A autenticação gerada deixou de usar `StringUtils` interno do Maven Surefire e valida diretamente cabeçalhos e a variável `SECRET_JWT`.
+* `TenantContext` agora fornece `clear()` para remover os valores dos `ThreadLocal` ao final da requisição.
+* `Authenticate` agora expõe hooks protegidos para customizar segredo, bearer token, parsing de claims, criação e validação do usuário e geração do JWT sem substituir o fluxo inteiro.
+
+
+## >2.0.2 - 23-07-2026
+
+### Correções
+* A anotação Java gerada `@RabbitExchange` agora possui `@Inherited`, permitindo que `RabbitConfig.resolveExchangeName()` encontre a exchange configurada em uma superclasse da implementação concreta.
+
+
 ## >2.0.1 - 19-07-2026
 
 ### Correções

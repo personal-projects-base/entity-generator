@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.sql.Timestamp;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.*;
-import com.potatotech.authorization.tenant.TenantContext;
+import <<rootPackage>>.authorization.tenant.TenantContext;
 import java.time.LocalDateTime;
 
 @Entity

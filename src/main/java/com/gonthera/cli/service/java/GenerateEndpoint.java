@@ -105,7 +105,10 @@ public class GenerateEndpoint {
 
     private static String[] isAnonimous(Metadata metadata) {
         if(metadata.isAnonymous()){
-            var anotation = "import com.potatotech.authorization.stereotype.Anonymous;";
+            var anotation = String.format(
+                    "import %s_gen.authorization.stereotype.Anonymous;",
+                    properties.getMainPackage()
+            );
             var importa = "@Anonymous";
             return new String[]{anotation, importa};
         }

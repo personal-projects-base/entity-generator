@@ -1,6 +1,6 @@
 package <<packageName>>;
 
-import com.potatotech.authorization.exception.ServiceException;
+import <<rootPackage>>.authorization.exception.ServiceException;
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;

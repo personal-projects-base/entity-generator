@@ -47,7 +47,7 @@ gonthera-cli.exe --validate
 java -jar gonthera-cli-2.0.0.jar --validate
 ```
 
-O modo de validação exige a pasta `.gonthera`, embora a geração continue aceitando temporariamente os arquivos da raiz. O validador verifica sintaxe e estrutura JSON, rejeita propriedades desconhecidas em qualquer nível e, após unificar os arquivos, verifica cabeçalho, coleções, entidades e chaves, campos, endpoints, enums e canais RabbitMQ. A validação não apaga nem gera arquivos.
+O modo de validação exige a pasta `.gonthera`, embora a geração continue aceitando temporariamente os arquivos da raiz. O validador verifica sintaxe e estrutura JSON, rejeita propriedades desconhecidas em qualquer nível e, após unificar os arquivos, verifica cabeçalho, coleções, entidades e chaves, campos, endpoints, enums, canais RabbitMQ e flags de autorização. A validação não apaga nem gera arquivos.
 
 ### Prioridade e configuração modular
 
@@ -65,14 +65,16 @@ Na configuração modular, `.gonthera/project.json` contém o cabeçalho (`mainP
 ├── entities.json
 ├── endpoints.json
 ├── enums.json
-└── messaging.json
+├── messaging.json
+└── authorization.json
 ```
 
 - `entities.json`, `endpoints.json` e `enums.json` contêm arrays JSON diretamente;
 - `messaging.json` contém o objeto equivalente ao valor da propriedade `messaging`;
+- `authorization.json` contém o objeto equivalente ao valor da propriedade `authorization`;
 - todas as seções ainda podem permanecer dentro de `.gonthera/project.json`;
 - cada arquivo separado sobrescreve somente sua seção correspondente;
-- quando um arquivo separado não existe, o valor declarado no `project.json` é mantido; se também não estiver declarado, coleções ficam vazias e a mensageria permanece nula;
+- quando um arquivo separado não existe, o valor declarado no `project.json` é mantido; se também não estiver declarado, coleções ficam vazias e mensageria/autorização permanecem nulas;
 - se `.gonthera` existir, seu `project.json` é obrigatório e a leitura não volta para os arquivos da raiz.
 
 O loader unifica os arquivos no mesmo modelo interno usado pela configuração em arquivo único. Os geradores não distinguem a origem da configuração.
@@ -281,7 +283,7 @@ Um tipo que não seja primitivo nem enum é tratado como entidade: `FooEntity`/`
 - use `GET` ou `POST`; outras strings podem produzir código inválido;
 - Java gera uma interface por endpoint e ignora `grouper`;
 - .NET usa `grouper` para reunir métodos em uma classe `*Primitive`; use `""` quando não houver grupo;
-- `metadata.anonymous: true` gera `@Anonymous` no Java ou `[AllowAnonymous]` no .NET;
+- `metadata.anonymous: true` gera a anotação própria `<mainPackage>_gen.authorization.stereotype.Anonymous` no Java ou `[AllowAnonymous]` no .NET;
 - um parâmetro de entrada com tipo `requestdata`/`responsedata` ativa os envelopes genéricos e impede a geração da classe Input/Output específica;
 - a grafia `premissions` está errada no código, mas é a chave JSON que deve ser usada;
 - permissões aceitas: `ALL`, `VIEW`, `CREATE`, `UPDATE`, `DELETE`.
@@ -483,6 +485,7 @@ São gerados, conforme a configuração:
 - `endpoints/` com interfaces de endpoint e seus modelos `*Input`/`*Output`;
 - `enums/` com os enums configurados;
 - `common/` com `CrudController`, `RestConfig`, `SpecificationFilter`, `RequestData` e `ResponseData`;
+- `authorization/` com exceções, contratos de permissões, autenticação JWT, anotações e contexto de tenant;
 - abstrações RabbitMQ em `messaging/`, `messaging/pub/` e `messaging/sub/` quando `messaging.RabbitMq` é configurado;
 
 Cada subdiretório corresponde a um subpackage Java, por exemplo `com.example.service_gen.entities`. A mudança é incompatível com imports antigos que apontavam diretamente para `com.example.service_gen`.
@@ -559,7 +562,32 @@ Java pressupõe, no mínimo:
 - quando `messaging.RabbitMq` for usado: Spring AMQP/RabbitMQ;
 - Jakarta Persistence;
 - Lombok;
-- classes do pacote interno `com.potatotech.authorization` (`TenantContext`, `ServiceException` e, para endpoint anônimo, `@Anonymous`).
+- JJWT `0.11.5` (`jjwt-api`, `jjwt-impl` e `jjwt-jackson`) para as classes de autenticação geradas;
+- a variável de ambiente `SECRET_JWT`, com uma chave compatível com HMAC, quando `Authenticate` for usado.
+
+O Java gerado não depende mais do artefato `authorization-backend`. Os componentes equivalentes são escritos em `<mainPackage>_gen.authorization`, com os subpackages `exception`, `permission`, `security`, `stereotype` e `tenant`. `ValidatePermission` não é gerado porque a implementação da biblioteca anterior estava incompleta.
+
+Ao migrar um serviço existente, substitua imports manuais de `com.potatotech.authorization` pelos tipos equivalentes em `<mainPackage>_gen.authorization`. Isso inclui interceptors que chamam `TenantConfiguration.validAnonymous`: eles precisam usar a classe gerada para reconhecer a nova anotação `@Anonymous`. Como todo conteúdo `_gen`, essas classes não devem ser editadas manualmente.
+
+### Customização da autorização Java
+
+`authorization` é opcional e aceita:
+
+```json
+{
+  "authenticateAbstract": false,
+  "tenantConfigurationAbstract": false
+}
+```
+
+Na configuração modular, o mesmo objeto pode ficar em `.gonthera/authorization.json`; quando o arquivo existe, sobrescreve a seção completa de `.gonthera/project.json`.
+
+- `authenticateAbstract: false`: gera `Authenticate` concreto com `@Service`;
+- `authenticateAbstract: true`: gera `Authenticate` abstrato, sem `@Service`, e exige um `@Service` concreto no consumidor;
+- `tenantConfigurationAbstract: false`: gera `TenantConfiguration` concreto com `@Component`;
+- `tenantConfigurationAbstract: true`: gera `TenantConfiguration` abstrato, sem `@Component`, e exige um `@Component` concreto no consumidor.
+
+As classes abstratas mantêm as implementações padrão. `Authenticate` expõe como `protected` os hooks `resolveSecret`, `extractToken`, `parseClaims`, `createUser`, `validateUser` e `createToken`; seus métodos públicos também podem ser sobrescritos. A validação emite warnings para os modos abstratos porque não consegue confirmar a existência dos beans concretos no serviço consumidor.
 
 .NET pressupõe, no mínimo:
 

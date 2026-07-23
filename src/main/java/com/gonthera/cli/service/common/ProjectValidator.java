@@ -38,8 +38,8 @@ public final class ProjectValidator {
 
     public static List<String> warnings(Properties project) {
         List<String> warnings = new ArrayList<>();
-        if (project == null || project.getEntities() == null) return warnings;
-        for (int index = 0; index < project.getEntities().size(); index++) {
+        if (project == null) return warnings;
+        if (project.getEntities() != null) for (int index = 0; index < project.getEntities().size(); index++) {
             Entities entity = project.getEntities().get(index);
             if (project.getLanguage() == Language.JAVA && entity != null && entity.isServiceAbstract()) {
                 warnings.add(String.format(
@@ -71,6 +71,14 @@ public final class ProjectValidator {
                             index
                     ));
                 }
+            }
+        }
+        if (project.getLanguage() == Language.JAVA && project.getAuthorization() != null) {
+            if (project.getAuthorization().isAuthenticateAbstract()) {
+                warnings.add("authorization.authenticateAbstract=true: Authenticate will be abstract and will require a concrete Spring @Service in the consumer project");
+            }
+            if (project.getAuthorization().isTenantConfigurationAbstract()) {
+                warnings.add("authorization.tenantConfigurationAbstract=true: TenantConfiguration will be abstract and will require a concrete Spring @Component in the consumer project");
             }
         }
         return warnings;

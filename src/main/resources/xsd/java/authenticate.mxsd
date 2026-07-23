@@ -1,0 +1,75 @@
+package <<packageName>>.security;
+
+import <<packageName>>.exception.ServiceException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.http.HttpStatus;
+<<springImport>>
+
+import java.nio.charset.StandardCharsets;
+
+<<springAnnotation>>
+public <<abstractModifier>>class Authenticate {
+
+    private static final String BEARER = "Bearer ";
+
+    public UserSupplier isAuthenticated(String authorizationHeader) {
+        try {
+            String secret = resolveSecret();
+            String accessToken = extractToken(authorizationHeader);
+            var claims = parseClaims(accessToken, secret);
+            UserSupplier user = createUser(claims);
+            validateUser(user);
+            return user;
+        } catch (ServiceException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new ServiceException(HttpStatus.UNAUTHORIZED, "Access not authorized", ex);
+        }
+    }
+
+    public String generateToken(UserSupplier userSupplier) {
+        return createToken(userSupplier, resolveSecret());
+    }
+
+    protected String resolveSecret() {
+        String secret = System.getenv("SECRET_JWT");
+        if (secret == null || secret.isBlank()) {
+            throw new ServiceException(HttpStatus.INTERNAL_SERVER_ERROR, "SECRET_JWT is not configured");
+        }
+        return secret;
+    }
+
+    protected io.jsonwebtoken.Claims parseClaims(String accessToken, String secret) {
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody();
+    }
+
+    protected UserSupplier createUser(io.jsonwebtoken.Claims claims) {
+        return UserSupplier.getUser(claims);
+    }
+
+    protected void validateUser(UserSupplier user) {
+        if (user == null || user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new ServiceException(HttpStatus.UNAUTHORIZED, "Access not authorized");
+        }
+    }
+
+    protected String createToken(UserSupplier userSupplier, String secret) {
+        return UserSupplier.getTokenJwt(userSupplier, secret);
+    }
+
+    protected String extractToken(String authorizationHeader) {
+        if (authorizationHeader == null || authorizationHeader.isBlank()) {
+            throw new ServiceException(HttpStatus.UNAUTHORIZED, "Access not authorized");
+        }
+        if (authorizationHeader.startsWith(BEARER)) {
+            return authorizationHeader.substring(BEARER.length()).trim();
+        }
+        return authorizationHeader.trim();
+    }
+}

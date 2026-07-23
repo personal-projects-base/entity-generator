@@ -45,12 +45,14 @@ public class CommonProjectFileTest {
         Path gontheraDirectory = Files.createDirectory(directory.resolve(".gonthera"));
         Files.write(
                 gontheraDirectory.resolve("project.json"),
-                "{\"mainPackage\":\"com.example\",\"projectName\":\"separated\",\"language\":\"JAVA\"}".getBytes(StandardCharsets.UTF_8)
+                ("{\"mainPackage\":\"com.example\",\"projectName\":\"separated\",\"language\":\"JAVA\"," +
+                        "\"authorization\":{\"authenticateAbstract\":false,\"tenantConfigurationAbstract\":true}}").getBytes(StandardCharsets.UTF_8)
         );
         Files.write(gontheraDirectory.resolve("entities.json"), "[{\"entityName\":\"customer\"}]".getBytes(StandardCharsets.UTF_8));
         Files.write(gontheraDirectory.resolve("endpoints.json"), "[{\"methodName\":\"findCustomer\"}]".getBytes(StandardCharsets.UTF_8));
         Files.write(gontheraDirectory.resolve("enums.json"), "[{\"enumName\":\"Status\",\"values\":[\"ACTIVE\"]}]".getBytes(StandardCharsets.UTF_8));
         Files.write(gontheraDirectory.resolve("messaging.json"), "{\"RabbitMq\":{\"pub\":[],\"sub\":[]}}".getBytes(StandardCharsets.UTF_8));
+        Files.write(gontheraDirectory.resolve("authorization.json"), "{\"authenticateAbstract\":true,\"tenantConfigurationAbstract\":false}".getBytes(StandardCharsets.UTF_8));
 
         Properties properties = loadFrom(directory);
 
@@ -60,6 +62,8 @@ public class CommonProjectFileTest {
         assertEquals("findCustomer", properties.getEndpoints().get(0).getMethodName());
         assertEquals("Status", properties.getEnums().get(0).getEnumName());
         assertNotNull(properties.getMessaging().getRabbitMq());
+        assertEquals(true, properties.getAuthorization().isAuthenticateAbstract());
+        assertEquals(false, properties.getAuthorization().isTenantConfigurationAbstract());
     }
 
     @Test
@@ -88,7 +92,8 @@ public class CommonProjectFileTest {
                         "\"entities\":[{\"entityName\":\"customer\"}]," +
                         "\"endpoints\":[{\"methodName\":\"findCustomer\"}]," +
                         "\"enums\":[{\"enumName\":\"Status\",\"values\":[\"ACTIVE\"]}]," +
-                        "\"messaging\":{\"RabbitMq\":{\"pub\":[],\"sub\":[]}}}").getBytes(StandardCharsets.UTF_8)
+                        "\"messaging\":{\"RabbitMq\":{\"pub\":[],\"sub\":[]}}," +
+                        "\"authorization\":{\"authenticateAbstract\":true,\"tenantConfigurationAbstract\":true}}").getBytes(StandardCharsets.UTF_8)
         );
 
         Properties properties = loadFrom(directory);
@@ -97,6 +102,8 @@ public class CommonProjectFileTest {
         assertEquals("findCustomer", properties.getEndpoints().get(0).getMethodName());
         assertEquals("Status", properties.getEnums().get(0).getEnumName());
         assertNotNull(properties.getMessaging().getRabbitMq());
+        assertEquals(true, properties.getAuthorization().isAuthenticateAbstract());
+        assertEquals(true, properties.getAuthorization().isTenantConfigurationAbstract());
     }
 
     private Properties loadFrom(Path directory) {

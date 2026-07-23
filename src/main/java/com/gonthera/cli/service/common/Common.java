@@ -6,6 +6,7 @@ import com.gonthera.cli.enuns.Language;
 import com.gonthera.cli.model.Endpoints;
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.model.Enums;
+import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Messaging;
 import com.gonthera.cli.model.Properties;
 
@@ -90,6 +91,10 @@ public class Common {
         File messagingFile = new File(gontheraDirectory, "messaging.json");
         if (messagingFile.isFile()) {
             project.setMessaging(readJson(messagingFile, Messaging.class));
+        }
+        File authorizationFile = new File(gontheraDirectory, "authorization.json");
+        if (authorizationFile.isFile()) {
+            project.setAuthorization(readJson(authorizationFile, Authorization.class));
         }
         return project;
     }

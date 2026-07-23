@@ -1,6 +1,7 @@
 package com.gonthera.cli;
 
 import com.gonthera.cli.enuns.Language;
+import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.service.common.ProjectValidationException;
 import com.gonthera.cli.service.common.ProjectValidator;
@@ -71,5 +72,20 @@ public class ProjectValidatorTest {
         assertTrue(warnings.stream().anyMatch(item -> item.contains("generateDefaultControllers takes precedence")));
         assertTrue(warnings.stream().anyMatch(item -> item.contains("handlerAbstract is deprecated")));
         assertTrue(warnings.stream().anyMatch(item -> item.contains("controllerAbstract takes precedence")));
+    }
+
+    @Test
+    public void warnsWhenAbstractAuthorizationClassesRequireConsumerBeans() {
+        Properties project = new Properties();
+        project.setLanguage(Language.JAVA);
+        project.setEntities(new ArrayList<>());
+        Authorization authorization = new Authorization();
+        authorization.setAuthenticateAbstract(true);
+        authorization.setTenantConfigurationAbstract(true);
+        project.setAuthorization(authorization);
+
+        java.util.List<String> warnings = ProjectValidator.warnings(project);
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("Authenticate")));
+        assertTrue(warnings.stream().anyMatch(item -> item.contains("TenantConfiguration")));
     }
 }

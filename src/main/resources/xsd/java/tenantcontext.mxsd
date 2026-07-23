@@ -1,0 +1,43 @@
+package <<packageName>>.tenant;
+
+import <<packageName>>.security.UserSupplier;
+
+public final class TenantContext {
+
+    private static final ThreadLocal<String> CURRENT_TENANT = new ThreadLocal<>();
+    private static final ThreadLocal<UserSupplier> CURRENT_USER = new ThreadLocal<>();
+    private static final ThreadLocal<String> CURRENT_TOKEN_USER = new ThreadLocal<>();
+
+    private TenantContext() {
+    }
+
+    public static void setCurrentTenant(String tenant) {
+        CURRENT_TENANT.set(tenant);
+    }
+
+    public static String getCurrentTenant() {
+        return CURRENT_TENANT.get();
+    }
+
+    public static UserSupplier getCurrentUser() {
+        return CURRENT_USER.get();
+    }
+
+    public static void setCurrentUser(UserSupplier user) {
+        CURRENT_USER.set(user);
+    }
+
+    public static String getCurrentTokenUser() {
+        return CURRENT_TOKEN_USER.get();
+    }
+
+    public static void setCurrentTokenUser(String token) {
+        CURRENT_TOKEN_USER.set(token);
+    }
+
+    public static void clear() {
+        CURRENT_TENANT.remove();
+        CURRENT_USER.remove();
+        CURRENT_TOKEN_USER.remove();
+    }
+}

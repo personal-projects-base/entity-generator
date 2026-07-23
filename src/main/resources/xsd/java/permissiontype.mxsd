@@ -1,0 +1,9 @@
+package <<packageName>>.permission;
+
+public enum PermissionType {
+    ALL,
+    VIEW,
+    CREATE,
+    UPDATE,
+    DELETE
+}

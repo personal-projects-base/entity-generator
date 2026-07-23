@@ -90,4 +90,24 @@ public class ConfigurationFileValidatorTest {
             assertTrue(ex.getErrors().contains("project.json.entities[0].controllerAbstract must be a boolean"));
         }
     }
+
+    @Test
+    public void rejectsWrongBooleanTypesInAuthorizationFile() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-validator-authorization-types-");
+        Path directory = Files.createDirectory(root.resolve(".gonthera"));
+        String project = "{\"mainPackage\":\"com.example\",\"projectName\":\"example\",\"language\":\"JAVA\"," +
+                "\"entities\":[],\"endpoints\":[],\"enums\":[]}";
+        Files.write(directory.resolve("project.json"), project.getBytes(StandardCharsets.UTF_8));
+        Files.write(
+                directory.resolve("authorization.json"),
+                "{\"authenticateAbstract\":\"true\"}".getBytes(StandardCharsets.UTF_8)
+        );
+
+        try {
+            ConfigurationFileValidator.validate(root);
+            fail("Expected validation to fail");
+        } catch (ProjectValidationException ex) {
+            assertTrue(ex.getErrors().contains("authorization.json.authenticateAbstract must be a boolean"));
+        }
+    }
 }

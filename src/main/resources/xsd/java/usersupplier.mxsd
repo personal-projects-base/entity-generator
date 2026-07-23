@@ -1,0 +1,56 @@
+package <<packageName>>.security;
+
+import <<packageName>>.exception.ServiceException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.Builder;
+import lombok.Data;
+import org.springframework.http.HttpStatus;
+
+import java.security.Key;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+@Data
+@Builder
+public class UserSupplier {
+
+    private UUID id;
+    private String name;
+    private String tenant;
+    private String email;
+    private List<Roles> roles;
+
+    protected static UserSupplier getUser(Claims jwtUser) {
+        try {
+            return UserSupplier.builder()
+                    .id(UUID.fromString(jwtUser.get("id").toString()))
+                    .name((String) jwtUser.get("name"))
+                    .email((String) jwtUser.get("email"))
+                    .tenant((String) jwtUser.get("tenant"))
+                    .build();
+        } catch (Exception ex) {
+            throw new ServiceException(HttpStatus.FORBIDDEN, "Access not authorized", ex);
+        }
+    }
+
+    protected static String getTokenJwt(UserSupplier user, String secret) {
+        Key key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        Date expiration = new Date(System.currentTimeMillis() + 86400000);
+        Claims claims = Jwts.claims();
+        claims.put("id", user.id);
+        claims.put("email", user.email);
+        claims.put("tenant", user.tenant);
+        claims.put("name", user.name);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setExpiration(expiration)
+                .signWith(key)
+                .compact();
+    }
+
+}

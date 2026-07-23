@@ -1,6 +1,7 @@
 package com.gonthera.cli;
 
 import com.gonthera.cli.enuns.Language;
+import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Endpoints;
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.model.EntityFields;
@@ -49,11 +50,29 @@ public class JavaOutputLayoutTest {
         assertPackage(generated.resolve("endpoints/FindCustomerOutput.java"), "com.example.service_gen.endpoints");
         assertPackage(generated.resolve("enums/Status.java"), "com.example.service_gen.enums");
         assertPackage(generated.resolve("common/CrudController.java"), "com.example.service_gen.common");
+        assertPackage(generated.resolve("authorization/exception/ServiceException.java"), "com.example.service_gen.authorization.exception");
+        assertPackage(generated.resolve("authorization/permission/PermissionType.java"), "com.example.service_gen.authorization.permission");
+        assertPackage(generated.resolve("authorization/permission/Permissions.java"), "com.example.service_gen.authorization.permission");
+        assertPackage(generated.resolve("authorization/security/Authenticate.java"), "com.example.service_gen.authorization.security");
+        assertPackage(generated.resolve("authorization/security/Roles.java"), "com.example.service_gen.authorization.security");
+        assertPackage(generated.resolve("authorization/security/UserSupplier.java"), "com.example.service_gen.authorization.security");
+        assertPackage(generated.resolve("authorization/stereotype/Anonymous.java"), "com.example.service_gen.authorization.stereotype");
+        assertPackage(generated.resolve("authorization/stereotype/SecureResource.java"), "com.example.service_gen.authorization.stereotype");
+        assertPackage(generated.resolve("authorization/tenant/TenantConfiguration.java"), "com.example.service_gen.authorization.tenant");
+        assertPackage(generated.resolve("authorization/tenant/TenantContext.java"), "com.example.service_gen.authorization.tenant");
         String dto = readFile(generated.resolve("dtos/CustomerDTO.java"));
         assertTrue(dto.matches("(?s).*public\\s+\\S+\\s+id;.*"));
         assertTrue(dto.contains("public Status status;"));
+        String endpoint = readFile(generated.resolve("endpoints/FindCustomer.java"));
+        assertTrue(endpoint.contains("import com.example.service_gen.authorization.stereotype.Anonymous;"));
+        assertTrue(endpoint.contains("@Anonymous"));
+        String specificationFilter = readFile(generated.resolve("common/SpecificationFilter.java"));
+        assertTrue(specificationFilter.contains("import com.example.service_gen.authorization.exception.ServiceException;"));
         try (java.util.stream.Stream<Path> files = Files.walk(generated)) {
             assertTrue(files.filter(Files::isRegularFile).noneMatch(this::containsTemplatePlaceholder));
+        }
+        try (java.util.stream.Stream<Path> files = Files.walk(generated)) {
+            assertTrue(files.filter(Files::isRegularFile).noneMatch(this::containsExternalAuthorizationImport));
         }
     }
 
@@ -75,6 +94,36 @@ public class JavaOutputLayoutTest {
         String service = readFile(root.resolve("src/main/java/com/example/service_gen/services/CustomerService.java"));
         assertTrue(service.contains("public abstract class CustomerService"));
         assertTrue(!service.contains("\n@Service\n"));
+    }
+
+    @Test
+    public void generatesCustomizableAuthorizationClassesAsAbstractWithoutSpringBeans() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-java-abstract-authorization-");
+        Files.createDirectories(root.resolve("src/main/resources"));
+        Properties project = project();
+        Authorization authorization = new Authorization();
+        authorization.setAuthenticateAbstract(true);
+        authorization.setTenantConfigurationAbstract(true);
+        project.setAuthorization(authorization);
+        String previousDirectory = System.getProperty("user.dir");
+        try {
+            System.setProperty("user.dir", root.toString());
+            Common.properties = project;
+            GenerateJava.generateSource(project);
+        } finally {
+            System.setProperty("user.dir", previousDirectory);
+        }
+
+        String authenticate = readFile(root.resolve("src/main/java/com/example/service_gen/authorization/security/Authenticate.java"));
+        assertTrue(authenticate.contains("public abstract class Authenticate"));
+        assertTrue(!authenticate.contains("import org.springframework.stereotype.Service;"));
+        assertTrue(authenticate.contains("protected String resolveSecret()"));
+        assertTrue(authenticate.contains("protected String extractToken("));
+        assertTrue(authenticate.contains("protected io.jsonwebtoken.Claims parseClaims("));
+
+        String tenantConfiguration = readFile(root.resolve("src/main/java/com/example/service_gen/authorization/tenant/TenantConfiguration.java"));
+        assertTrue(tenantConfiguration.contains("public abstract class TenantConfiguration"));
+        assertTrue(!tenantConfiguration.contains("import org.springframework.stereotype.Component;"));
     }
 
     @Test
@@ -104,6 +153,14 @@ public class JavaOutputLayoutTest {
     private boolean containsTemplatePlaceholder(Path file) {
         try {
             return readFile(file).contains("<<");
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private boolean containsExternalAuthorizationImport(Path file) {
+        try {
+            return readFile(file).contains("com.potatotech.authorization");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -140,6 +197,7 @@ public class JavaOutputLayoutTest {
         output.setParameterName("customer");
         output.setParameterType("customer");
         Metadata metadata = new Metadata();
+        metadata.setAnonymous(true);
         metadata.setInput(Collections.emptyList());
         metadata.setOutput(Collections.singletonList(output));
         Endpoints endpoint = new Endpoints();
