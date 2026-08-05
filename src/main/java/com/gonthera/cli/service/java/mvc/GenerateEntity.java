@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.mvc;
 
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.model.EntityFields;
@@ -18,7 +18,7 @@ import static com.gonthera.cli.service.common.GenerateSQL.generateSql;
 
 public class GenerateEntity {
 
-    protected static void generateEntity(List<Entities> entities,String packageName, Path packagePath){
+    public static void generateEntity(List<Entities> entities,String packageName, Path packagePath){
 
         String mod = loadWxsd("entity");
         entities.forEach(item -> {

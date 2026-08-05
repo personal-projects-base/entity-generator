@@ -2,7 +2,7 @@ package com.gonthera.cli;
 
 import com.gonthera.cli.model.MessagingChannel;
 import com.gonthera.cli.model.RabbitMq;
-import com.gonthera.cli.service.java.GenerateMessaging;
+import com.gonthera.cli.service.java.common.GenerateMessaging;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;

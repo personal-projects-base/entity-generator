@@ -1,0 +1,24 @@
+package <<packageName>>;
+
+import <<rootPackage>>.domain.model.<<entityName>>;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface <<entityName>>UseCase {
+
+    <<entityName>> save(<<entityName>> entity);
+
+    <<entityName>> update(<<entityName>> entity, <<keyType>> id);
+
+    void delete(<<keyType>> id);
+
+    Optional<<<entityName>>> get(<<keyType>> id);
+
+    List<<<entityName>>> getAll();
+}

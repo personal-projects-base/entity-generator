@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.mvc;
 
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.service.common.FieldsMapper;
@@ -20,7 +20,7 @@ public class GenerateDTOConverter {
 
     private static Map<String, String> dependencies = new LinkedHashMap<>();
 
-    protected static void generateDTOConverter(List<Entities> entities,String packageName, Path packagePath){
+    public static void generateDTOConverter(List<Entities> entities,String packageName, Path packagePath){
 
         String mod = loadWxsd("dtoconverter");
         entities.forEach(item -> {

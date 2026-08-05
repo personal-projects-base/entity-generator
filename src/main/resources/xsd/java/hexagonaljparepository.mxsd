@@ -1,0 +1,13 @@
+package <<packageName>>;
+
+import <<rootPackage>>.infrastructure.adapters.out.persistence.entities.<<entityName>>JpaEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+
+public interface <<entityName>>JpaRepository extends JpaRepository<<<entityName>>JpaEntity, <<keyType>>> {
+}

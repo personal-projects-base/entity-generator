@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.common;
 
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.service.common.FieldsMapper;
@@ -16,7 +16,7 @@ import static com.gonthera.cli.service.common.Common.*;
 public class GenerateDTO {
 
 
-    protected static void generateDTO(List<Entities> entities,String packageName, Path packagePath){
+    public static void generateDTO(List<Entities> entities,String packageName, Path packagePath){
 
         String mod = loadWxsd("dto");
         entities.forEach(item -> {

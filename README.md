@@ -23,9 +23,16 @@ Para novos projetos, use a pasta `.gonthera`. O arquivo `.gonthera/project.json`
 {
   "mainPackage": "com.example.service",
   "projectName": "service-name",
-  "language": "JAVA"
+  "language": "JAVA",
+  "architecture": "MVC"
 }
 ```
+
+Para Java, `architecture` aceita `MVC` e `HEXAGONAL`. Quando a propriedade é
+omitida, `MVC` é usado para manter compatibilidade com projetos existentes.
+Nesta primeira etapa, `HEXAGONAL` gera modelos de domínio puros em
+`<mainPackage>_gen.domain.model`, além de enums, SQL e metadados. Portas,
+casos de uso e adapters serão adicionados incrementalmente.
 
 `language` aceita `JAVA`, `DOTNET` ou `NODE`. Ajuste `mainPackage` para o pacote ou namespace do serviço consumidor; ele não deve usar o pacote interno do Gonthera CLI.
 

@@ -1,6 +1,7 @@
 package com.gonthera.cli.service.java;
 
 import com.google.gson.Gson;
+import com.gonthera.cli.enuns.Architecture;
 import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.service.common.Common;
 import com.gonthera.cli.service.common.GenerateCommon;
@@ -13,17 +14,23 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 
 import static com.gonthera.cli.service.common.Common.loadPath;
-import static com.gonthera.cli.service.java.GenerateDTO.generateDTO;
-import static com.gonthera.cli.service.java.GenerateDTOConverter.generateDTOConverter;
-import static com.gonthera.cli.service.java.GenerateEndpoint.generateEndpoint;
-import static com.gonthera.cli.service.java.GenerateEntity.generateEntity;
-import static com.gonthera.cli.service.java.GenerateEnum.generateEnum;
-import static com.gonthera.cli.service.java.GenerateController.generateControllers;
-import static com.gonthera.cli.service.java.GenerateAuthorization.generateAuthorization;
-import static com.gonthera.cli.service.java.GenerateMessaging.generateMessaging;
+import static com.gonthera.cli.service.common.GenerateSQL.generateSql;
+import static com.gonthera.cli.service.java.common.GenerateDTO.generateDTO;
+import static com.gonthera.cli.service.java.mvc.GenerateDTOConverter.generateDTOConverter;
+import static com.gonthera.cli.service.java.common.GenerateEndpoint.generateEndpoint;
+import static com.gonthera.cli.service.java.mvc.GenerateEntity.generateEntity;
+import static com.gonthera.cli.service.java.common.GenerateEnum.generateEnum;
+import static com.gonthera.cli.service.java.mvc.GenerateController.generateControllers;
+import static com.gonthera.cli.service.java.common.GenerateAuthorization.generateAuthorization;
+import static com.gonthera.cli.service.java.common.GenerateAuthorization.generateInfrastructureAuthorization;
+import static com.gonthera.cli.service.java.common.GenerateMessaging.generateMessaging;
 import static com.gonthera.cli.service.common.GenerateResources.generateResources;
-import static com.gonthera.cli.service.java.GenerateRepositories.generateRepositories;
-import static com.gonthera.cli.service.java.GenerateService.generateServices;
+import static com.gonthera.cli.service.java.mvc.GenerateRepositories.generateRepositories;
+import static com.gonthera.cli.service.java.mvc.GenerateService.generateServices;
+import static com.gonthera.cli.service.java.hexagonal.GenerateDomain.generateDomains;
+import static com.gonthera.cli.service.java.hexagonal.GenerateApplicationCore.generate;
+import static com.gonthera.cli.service.java.hexagonal.GeneratePersistenceModel.generatePersistenceModels;
+import static com.gonthera.cli.service.java.hexagonal.GeneratePersistenceAdapter.generatePersistenceAdapters;
 
 public class GenerateJava {
 
@@ -35,42 +42,76 @@ public class GenerateJava {
         // Limpa os arquivos gerados anteriomente
         dropAndCreateDir(prop.getMainPackage());
 
+        if (prop.getArchitecture() == Architecture.HEXAGONAL) {
+            generateHexagonal(prop);
+        } else {
+            generateMvc(prop);
+        }
+
+        // faz uma copia da configuração para a pasta de recursos
+        generateMetadata(prop);
+        generateResources(prop.getEntities(),prop.getEndpoints());
+    }
+
+    private static void generateHexagonal(Properties prop) {
+        generateDomains(prop.getEntities(), prop.getMainPackage(), directory("domain/model"));
+        generate(
+                prop.getEntities(),
+                prop.getMainPackage(),
+                directory("domain/ports/in"),
+                directory("domain/ports/out"),
+                directory("application/services")
+        );
+        generatePersistenceModels(
+                prop.getEntities(),
+                prop.getMainPackage(),
+                directory("infrastructure/adapters/out/persistence/entities"),
+                directory("infrastructure/adapters/out/persistence/mappers")
+        );
+        generatePersistenceAdapters(
+                prop.getEntities(),
+                prop.getMainPackage(),
+                directory("infrastructure/adapters/out/persistence/repositories"),
+                directory("infrastructure/adapters/out/persistence"),
+                directory("infrastructure/configuration")
+        );
+        generateInfrastructureAuthorization(prop.getMainPackage(), packagePath, prop.getAuthorization());
+        generateEnum(prop.getEnums(), prop.getMainPackage(), directory("enums"));
+        generateSql(prop.getEntities());
+    }
+
+    private static void generateMvc(Properties prop) {
         // gera a classe das entidaeds
-        generateEntity(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("entities"));
+        generateEntity(prop.getEntities(),prop.getMainPackage(),directory("entities"));
         // Gera as classes DTO
-        generateDTO(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("dtos"));
+        generateDTO(prop.getEntities(),prop.getMainPackage(),directory("dtos"));
         // Gera as classes DTO
-        generateDTOConverter(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("converters"));
+        generateDTOConverter(prop.getEntities(),prop.getMainPackage(),directory("converters"));
         // Gera a camada de serviços
-        generateServices(prop.getEntities(), prop.getMainPackage(), packagePath.resolve("services"));
+        generateServices(prop.getEntities(), prop.getMainPackage(), directory("services"));
         // Gera o contrato CRUD dos controllers
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "crudcontroller", "CrudController");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),directory("common"), "crudcontroller", "CrudController");
         // Gera Controllers de CRUD
-        generateControllers(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("controllers"));
+        generateControllers(prop.getEntities(),prop.getMainPackage(),directory("controllers"));
         // Gera o RestConfig
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "restconfig", "RestConfig");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),directory("common"), "restconfig", "RestConfig");
         // Gera os componentes de autorização sem dependência de biblioteca externa
         generateAuthorization(prop.getMainPackage(), packagePath, prop.getAuthorization());
         // Gera abstrações de mensageria RabbitMQ
         generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), prop.getMainPackage(), packagePath);
         // Gera especificação dos filtros
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "especificationfilter", "SpecificationFilter");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),directory("common"), "especificationfilter", "SpecificationFilter");
         // Gera os endpoints
-        generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),packagePath.resolve("endpoints"));
+        generateEndpoint(prop.getEndpoints(),prop.getMainPackage(),directory("endpoints"));
         // Gera as classes Enumeration
-        generateEnum(prop.getEnums(),prop.getMainPackage(),packagePath.resolve("enums"));
+        generateEnum(prop.getEnums(),prop.getMainPackage(),directory("enums"));
 
         // gera os repositories
-        generateRepositories(prop.getEntities(),prop.getMainPackage(),packagePath.resolve("repositories"));
+        generateRepositories(prop.getEntities(),prop.getMainPackage(),directory("repositories"));
 
         // Gera requestData e outputData
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "requestdata", "RequestData");
-        GenerateCommon.generateFileCommon(prop.getMainPackage(),packagePath.resolve("common"), "responsedata", "ResponseData");
-
-        // faz uma copia da properties_dot.json para a pasta static
-        generateMetadata(prop);
-
-        generateResources(prop.getEntities(),prop.getEndpoints());
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),directory("common"), "requestdata", "RequestData");
+        GenerateCommon.generateFileCommon(prop.getMainPackage(),directory("common"), "responsedata", "ResponseData");
     }
 
     private static void dropAndCreateDir(String packageName){
@@ -84,18 +125,19 @@ public class GenerateJava {
             dropFiles(packagePath);
             Files.deleteIfExists(packagePath);
             Files.createDirectories(packagePath);
-            Files.createDirectories(packagePath.resolve("entities"));
-            Files.createDirectories(packagePath.resolve("dtos"));
-            Files.createDirectories(packagePath.resolve("converters"));
-            Files.createDirectories(packagePath.resolve("repositories"));
-            Files.createDirectories(packagePath.resolve("services"));
-            Files.createDirectories(packagePath.resolve("controllers"));
-            Files.createDirectories(packagePath.resolve("endpoints"));
-            Files.createDirectories(packagePath.resolve("enums"));
-            Files.createDirectories(packagePath.resolve("common"));
         } catch (IOException ex){
             ex.printStackTrace();
         }
+    }
+
+    private static Path directory(String name) {
+        Path directory = packagePath.resolve(name);
+        try {
+            Files.createDirectories(directory);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Could not create Java generated directory " + directory, ex);
+        }
+        return directory;
     }
 
     private static void generateMetadata(Properties prop) {

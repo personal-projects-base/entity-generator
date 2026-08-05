@@ -8,6 +8,7 @@ import com.gonthera.cli.model.MessagingChannel;
 import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.model.RabbitMq;
 import com.gonthera.cli.enuns.Language;
+import com.gonthera.cli.enuns.Architecture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,11 @@ public final class ProjectValidator {
         required(project.getMainPackage(), "mainPackage", errors);
         required(project.getProjectName(), "projectName", errors);
         if (project.getLanguage() == null) errors.add("language is required");
+        if (project.getLanguage() != null
+                && project.getLanguage() != Language.JAVA
+                && project.getArchitecture() == Architecture.HEXAGONAL) {
+            errors.add("architecture HEXAGONAL is currently supported only for language JAVA");
+        }
 
         validateEntities(project, errors);
         validateEndpoints(project, errors);

@@ -1,5 +1,6 @@
 package com.gonthera.cli;
 
+import com.gonthera.cli.enuns.Architecture;
 import com.gonthera.cli.enuns.Language;
 import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Properties;
@@ -26,6 +27,26 @@ public class ProjectValidatorTest {
         project.setEnums(new ArrayList<>());
 
         ProjectValidator.validate(project);
+        assertEquals(Architecture.MVC, project.getArchitecture());
+    }
+
+    @Test
+    public void rejectsHexagonalArchitectureForNonJavaTargets() {
+        Properties project = new Properties();
+        project.setMainPackage("Example");
+        project.setProjectName("service-name");
+        project.setLanguage(Language.DOTNET);
+        project.setArchitecture(Architecture.HEXAGONAL);
+        project.setEntities(new ArrayList<>());
+        project.setEndpoints(new ArrayList<>());
+        project.setEnums(new ArrayList<>());
+
+        try {
+            ProjectValidator.validate(project);
+            fail("Expected validation to fail");
+        } catch (ProjectValidationException ex) {
+            assertTrue(ex.getErrors().contains("architecture HEXAGONAL is currently supported only for language JAVA"));
+        }
     }
 
     @Test

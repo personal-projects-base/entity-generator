@@ -25,6 +25,8 @@ Supported targets:
 
 - `JAVA`: Spring/JPA style generation under `src/main/java/<mainPackage>_gen`, organized into `entities`, `dtos`, `converters`, `repositories`, `services`, `controllers`, `endpoints`, `enums`, `common`, and `messaging` subpackages; resources remain under `src/main/resources`.
 
+Java accepts an optional `architecture` value. `MVC` is the compatibility default. The initial `HEXAGONAL` implementation generates framework-free domain models under `<mainPackage>_gen.domain.model`, plus enums, SQL, and metadata; ports, use cases, and adapters are not implemented yet. Reject `HEXAGONAL` for non-Java targets.
+
 Java CRUD controllers delegate persistence, conversion, filtering, pagination, and transactions to generated `*Service` classes. `serviceAbstract: false` generates a concrete Spring `@Service`; `serviceAbstract: true` generates an abstract class without `@Service` and must produce a validator warning that the consumer needs a concrete Spring bean. Prefer `generateDefaultControllers` and `controllerAbstract`; accept `generateDefaultHandlers` and `handlerAbstract` only as deprecated aliases with warnings and new-name precedence.
 - `DOTNET`: C# generation under `<mainPackage>_gen`, physically organized into `Entities`, `Dtos`, `Converters`, `Repositories`, `Controllers`, `Endpoints`, `Enums`, `Common`, `Data`, and `Messaging`; static files remain under `static`. Generated C# files currently retain the shared root namespace `<mainPackage>.<mainPackage>_Gen` despite the physical folders.
 - `NODE`: TypeScript generation under `src/generated` plus `prisma/schema.prisma`.
@@ -241,7 +243,10 @@ Before making non-trivial changes, inspect:
 - `README.md`: user-facing instructions.
 - `CHANGELOG.md`: current release notes and future improvements.
 - Relevant generator package:
-  - Java: `src/main/java/com/gonthera/cli/service/java`
+  - Java facade: `src/main/java/com/gonthera/cli/service/java/GenerateJava.java`
+  - Shared Java generation: `src/main/java/com/gonthera/cli/service/java/common`
+  - Java MVC generation: `src/main/java/com/gonthera/cli/service/java/mvc`
+  - Java hexagonal generation: `src/main/java/com/gonthera/cli/service/java/hexagonal`
   - .NET: `src/main/java/com/gonthera/cli/service/dotNet`
   - Node: `src/main/java/com/gonthera/cli/service/node`
   - Shared: `src/main/java/com/gonthera/cli/service/common`
@@ -472,6 +477,7 @@ When validating generation, create a temporary project under `/tmp`, copy or cre
 
 ## Editing Rules
 
+- Update the root `CONTEXT.md` after every relevant change, recording decisions, changed behavior or structure, validation performed, pending work, and the recommended next step.
 - Use existing package patterns; do not invent a parallel architecture.
 - Keep manual generated-code templates in `.mxsd` files.
 - Do not change generated output paths unless explicitly requested.

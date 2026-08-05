@@ -19,7 +19,7 @@ import static com.gonthera.cli.service.dotNet.GenerateController.generateControl
 import static com.gonthera.cli.service.dotNet.GenerateMessaging.generateMessaging;
 import static com.gonthera.cli.service.dotNet.GenerateRepository.generateIRepositories;
 import static com.gonthera.cli.service.dotNet.GenerateRepository.generateRepositories;
-import static com.gonthera.cli.service.java.GenerateEnum.generateEnum;
+import static com.gonthera.cli.service.java.common.GenerateEnum.generateEnum;
 
 
 public class GenerateDotNet {

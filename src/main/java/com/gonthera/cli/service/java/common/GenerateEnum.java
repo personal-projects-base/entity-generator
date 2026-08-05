@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.common;
 
 import com.gonthera.cli.model.Enums;
 

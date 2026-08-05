@@ -1,0 +1,25 @@
+package <<packageName>>;
+
+import <<rootPackage>>.domain.model.<<entityName>>;
+import <<rootPackage>>.infrastructure.adapters.out.persistence.entities.*;
+import org.springframework.stereotype.Component;
+
+import java.util.stream.Collectors;
+
+@Component
+public class <<entityName>>PersistenceMapper {
+
+    public <<entityName>> toDomain(<<entityName>>JpaEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new <<entityName>>(<<toDomainArguments>>);
+    }
+
+    public <<entityName>>JpaEntity toEntity(<<entityName>> domain) {
+        if (domain == null) {
+            return null;
+        }
+        return new <<entityName>>JpaEntity(<<toEntityArguments>>);
+    }
+}

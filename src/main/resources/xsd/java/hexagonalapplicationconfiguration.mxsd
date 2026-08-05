@@ -1,0 +1,16 @@
+package <<packageName>>;
+
+import <<rootPackage>>.application.services.<<entityName>>ApplicationService;
+import <<rootPackage>>.domain.ports.in.<<entityName>>UseCase;
+import <<rootPackage>>.domain.ports.out.<<entityName>>RepositoryPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class <<entityName>>ApplicationConfiguration {
+
+    @Bean
+    public <<entityName>>UseCase <<entityNameLower>>UseCase(<<entityName>>RepositoryPort repository) {
+        return new <<entityName>>ApplicationService(repository);
+    }
+}

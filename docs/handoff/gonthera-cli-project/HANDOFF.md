@@ -57,7 +57,7 @@ A resolução da configuração segue esta prioridade:
 2. `project.json` na raiz;
 3. `properties.json` na raiz como compatibilidade legada.
 
-Na configuração modular, `.gonthera/project.json` contém o cabeçalho (`mainPackage`, `projectName`, `language`) e as coleções são lidas separadamente:
+Na configuração modular, `.gonthera/project.json` contém o cabeçalho (`mainPackage`, `projectName`, `language`, `architecture`) e as coleções são lidas separadamente:
 
 ```text
 .gonthera/
@@ -95,6 +95,8 @@ No arquivo único da raiz, as três coleções abaixo devem estar presentes, mes
 ```
 
 Valores aceitos em `language`: `JAVA`, `DOTNET` e `NODE` (maiúsculos).
+
+Para `language: "JAVA"`, `architecture` aceita `MVC` e `HEXAGONAL`. A propriedade é opcional e usa `MVC` como padrão para preservar o comportamento anterior. `HEXAGONAL` é rejeitado para .NET e Node nesta etapa.
 
 Notas sobre propriedades documentadas anteriormente:
 
@@ -466,6 +468,25 @@ builder.Services.AddHostedService<NotificationChatListener>();
 
 ## Saídas geradas
 
+### Organização interna do gerador Java
+
+O código que produz a saída Java é separado por responsabilidade:
+
+```text
+src/main/java/com/gonthera/cli/service/java/
+├── GenerateJava.java
+├── common/
+├── mvc/
+└── hexagonal/
+```
+
+- `GenerateJava` permanece como fachada e orquestrador do fluxo Java;
+- `common` contém geração reutilizável entre arquiteturas, como DTOs, endpoints, enums, autorização e mensageria;
+- `mvc` contém o fluxo Spring MVC atual: entidades JPA, converters, repositories, services e controllers;
+- `hexagonal` é reservado para os geradores específicos da arquitetura hexagonal.
+
+Essa organização se refere ao código-fonte da CLI e, isoladamente, não altera os diretórios produzidos nos serviços consumidores.
+
 ### Java
 
 O diretório inteiro abaixo é apagado e recriado a cada execução:
@@ -489,6 +510,14 @@ São gerados, conforme a configuração:
 - abstrações RabbitMQ em `messaging/`, `messaging/pub/` e `messaging/sub/` quando `messaging.RabbitMq` é configurado;
 
 Cada subdiretório corresponde a um subpackage Java, por exemplo `com.example.service_gen.entities`. A mudança é incompatível com imports antigos que apontavam diretamente para `com.example.service_gen`.
+
+Com `architecture: "HEXAGONAL"`, o incremento atual gera:
+
+- modelos Java puros em `<mainPackage>_gen.domain.model`, sem Spring, JPA ou Lombok;
+- enums em `<mainPackage>_gen.enums`;
+- `properties.json`, `resources.json` e `postgree.sql`.
+
+Os modelos de domínio são derivados das mesmas `entities`, incluindo tipos primitivos, enums, listas e referências a outros modelos de domínio. Controllers, DTOs HTTP, portas, casos de uso e adapters hexagonais ainda não são gerados. O modo `MVC` continua gerando toda a estrutura descrita acima.
 
 Controllers Java delegam o CRUD ao service correspondente. Quando `serviceAbstract: true`, a validação emite um aviso porque a CLI não consegue confirmar se o projeto consumidor fornece a implementação concreta necessária.
 

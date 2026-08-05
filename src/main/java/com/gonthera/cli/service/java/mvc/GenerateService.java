@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.mvc;
 
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.service.common.FieldsMapper;
@@ -15,7 +15,7 @@ import static com.gonthera.cli.service.common.Common.stringFormaterJava;
 
 public class GenerateService {
 
-    protected static void generateServices(List<Entities> entities, String packageName, Path packagePath) {
+    public static void generateServices(List<Entities> entities, String packageName, Path packagePath) {
         String template = loadWxsd("service");
         entities.forEach(entity -> {
             if (entity.isOnlyDTO()) return;

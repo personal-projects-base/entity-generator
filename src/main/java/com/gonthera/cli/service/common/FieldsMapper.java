@@ -38,6 +38,37 @@ public class FieldsMapper {
         return typeFields.getOrDefault(type,firstCharacterUpperCase(type).concat("DTO"));
     }
 
+    public static String getFieldTypeDomain(String type) {
+        if (properties.getEnums() != null && properties.getEnums().stream().anyMatch(e -> e.enumName.equalsIgnoreCase(type))) {
+            return firstCharacterUpperCase(type);
+        }
+        switch (type) {
+            case "uuid": return "UUID";
+            case "string":
+            case "password": return "String";
+            case "datetime": return "LocalDateTime";
+            case "date": return "LocalDate";
+            case "int": return "Integer";
+            case "integer": return "int";
+            case "long": return "Long";
+            case "decimal":
+            case "double": return "Double";
+            case "boolean": return "boolean";
+            case "byte": return "byte";
+            case "byte[]": return "byte[]";
+            case "inputStream": return "InputStream";
+            case "map": return "Map<String, Object>";
+            default: return firstCharacterUpperCase(type);
+        }
+    }
+
+    public static String getFieldTypePersistence(String type) {
+        String domainType = getFieldTypeDomain(type);
+        boolean entityType = properties.getEntities() != null
+                && properties.getEntities().stream().anyMatch(entity -> entity.getEntityName().equalsIgnoreCase(type));
+        return entityType ? firstCharacterUpperCase(type).concat("JpaEntity") : domainType;
+    }
+
     private static void setFieldTypesMap(){
         if(properties.getLanguage() == Language.JAVA){
             typeFields.put("uuid","UUID");

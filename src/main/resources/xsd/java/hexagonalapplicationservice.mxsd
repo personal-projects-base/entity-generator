@@ -1,0 +1,60 @@
+package <<packageName>>;
+
+import <<rootPackage>>.domain.model.<<entityName>>;
+import <<rootPackage>>.domain.ports.in.<<entityName>>UseCase;
+import <<rootPackage>>.domain.ports.out.<<entityName>>RepositoryPort;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+public <<abstract>>class <<entityName>>ApplicationService implements <<entityName>>UseCase {
+
+    protected final <<entityName>>RepositoryPort repository;
+
+    public <<entityName>>ApplicationService(<<entityName>>RepositoryPort repository) {
+        this.repository = repository;
+    }
+
+    @Override
+    public <<entityName>> save(<<entityName>> entity) {
+        validateBeforeSave(entity);
+        return repository.save(entity);
+    }
+
+    @Override
+    public <<entityName>> update(<<entityName>> entity, <<keyType>> id) {
+        entity.set<<keySetter>>(id);
+        validateBeforeUpdate(entity, id);
+        return repository.save(entity);
+    }
+
+    @Override
+    public void delete(<<keyType>> id) {
+        validateBeforeDelete(id);
+        repository.deleteById(id);
+    }
+
+    @Override
+    public Optional<<<entityName>>> get(<<keyType>> id) {
+        return repository.findById(id);
+    }
+
+    @Override
+    public List<<<entityName>>> getAll() {
+        return repository.findAll();
+    }
+
+    protected void validateBeforeSave(<<entityName>> entity) {
+    }
+
+    protected void validateBeforeUpdate(<<entityName>> entity, <<keyType>> id) {
+    }
+
+    protected void validateBeforeDelete(<<keyType>> id) {
+    }
+}

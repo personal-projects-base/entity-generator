@@ -1,5 +1,6 @@
 package com.gonthera.cli;
 
+import com.gonthera.cli.enuns.Architecture;
 import com.gonthera.cli.enuns.Language;
 import com.gonthera.cli.model.Authorization;
 import com.gonthera.cli.model.Endpoints;
@@ -22,8 +23,46 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 public class JavaOutputLayoutTest {
+
+    @Test
+    public void generatesPureDomainModelsForHexagonalArchitecture() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-java-hexagonal-domain-");
+        Files.createDirectories(root.resolve("src/main/resources"));
+        Properties project = project();
+        project.setArchitecture(Architecture.HEXAGONAL);
+        String previousDirectory = System.getProperty("user.dir");
+        try {
+            System.setProperty("user.dir", root.toString());
+            Common.properties = project;
+            GenerateJava.generateSource(project);
+        } finally {
+            System.setProperty("user.dir", previousDirectory);
+        }
+
+        Path generated = root.resolve("src/main/java/com/example/service_gen");
+        Path domainFile = generated.resolve("domain/model/Customer.java");
+        assertPackage(domainFile, "com.example.service_gen.domain.model");
+        String domain = readFile(domainFile);
+        assertTrue(domain.contains("private UUID id;"));
+        assertTrue(domain.contains("private Status status;"));
+        assertTrue(domain.contains("public Customer()"));
+        assertTrue(domain.contains("public Customer(UUID id, Status status)"));
+        assertTrue(domain.contains("public UUID getId()"));
+        assertTrue(domain.contains("public void setStatus(Status status)"));
+        assertFalse(domain.contains("org.springframework"));
+        assertFalse(domain.contains("jakarta.persistence"));
+        assertFalse(domain.contains("lombok"));
+        assertPackage(generated.resolve("enums/Status.java"), "com.example.service_gen.enums");
+        assertFalse(Files.exists(generated.resolve("entities")));
+        assertFalse(Files.exists(generated.resolve("controllers")));
+        assertFalse(Files.exists(generated.resolve("services")));
+        assertTrue(Files.isRegularFile(root.resolve("src/main/resources/postgree.sql")));
+        assertTrue(Files.isRegularFile(root.resolve("src/main/resources/properties.json")));
+        assertTrue(Files.isRegularFile(root.resolve("src/main/resources/resources.json")));
+    }
 
     @Test
     public void generatesJavaSourcesInDedicatedPackages() throws Exception {

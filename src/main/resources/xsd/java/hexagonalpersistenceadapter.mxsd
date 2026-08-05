@@ -1,0 +1,58 @@
+package <<packageName>>;
+
+import <<rootPackage>>.domain.model.<<entityName>>;
+import <<rootPackage>>.domain.ports.out.<<entityName>>RepositoryPort;
+import <<rootPackage>>.infrastructure.adapters.out.persistence.mappers.<<entityName>>PersistenceMapper;
+import <<rootPackage>>.infrastructure.adapters.out.persistence.repositories.<<entityName>>JpaRepository;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Component
+public class <<entityName>>PersistenceAdapter implements <<entityName>>RepositoryPort {
+
+    private final <<entityName>>JpaRepository repository;
+    private final <<entityName>>PersistenceMapper mapper;
+
+    public <<entityName>>PersistenceAdapter(
+            <<entityName>>JpaRepository repository,
+            <<entityName>>PersistenceMapper mapper
+    ) {
+        this.repository = repository;
+        this.mapper = mapper;
+    }
+
+    @Override
+    @Transactional
+    public <<entityName>> save(<<entityName>> entity) {
+        return mapper.toDomain(repository.save(mapper.toEntity(entity)));
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(<<keyType>> id) {
+        repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<<<entityName>>> findById(<<keyType>> id) {
+        return repository.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<<<entityName>>> findAll() {
+        return repository.findAll().stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+}

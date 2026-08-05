@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.common;
 
 import com.gonthera.cli.model.Endpoints;
 import com.gonthera.cli.model.Metadata;
@@ -19,7 +19,7 @@ import static com.gonthera.cli.service.common.Validators.validRequestOrResponseD
 
 public class GenerateEndpoint {
 
-    protected static void generateEndpoint(List<Endpoints> endpoints, String packageName, Path packagePath){
+    public static void generateEndpoint(List<Endpoints> endpoints, String packageName, Path packagePath){
 
         String mod = loadWxsd("endpoint");
         endpoints.forEach(item -> {

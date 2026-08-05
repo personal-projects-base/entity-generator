@@ -2,6 +2,7 @@
   "mainPackage": "com.gonthera.cli",
   "language": "JAVA",
   "projectName": "church-lite-backend",
+  "architecture": "HEXAGONAL",
   "entities": [
     {
       "entityName": "comment",

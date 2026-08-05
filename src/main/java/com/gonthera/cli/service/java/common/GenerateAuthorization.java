@@ -1,4 +1,4 @@
-package com.gonthera.cli.service.java;
+package com.gonthera.cli.service.java.common;
 
 import com.gonthera.cli.model.Authorization;
 
@@ -25,24 +25,48 @@ public class GenerateAuthorization {
     };
 
     public static void generateAuthorization(String packageName, Path packagePath, Authorization authorization) {
+        generateAuthorizationFiles(
+                packageName.concat("_gen.authorization"),
+                packagePath.resolve("authorization"),
+                authorization
+        );
+    }
+
+    public static void generateInfrastructureAuthorization(
+            String packageName,
+            Path packagePath,
+            Authorization authorization
+    ) {
+        generateAuthorizationFiles(
+                packageName.concat("_gen.infrastructure.authorization"),
+                packagePath.resolve("infrastructure").resolve("authorization"),
+                authorization
+        );
+    }
+
+    private static void generateAuthorizationFiles(
+            String generatedPackage,
+            Path targetPath,
+            Authorization authorization
+    ) {
         for (String[] template : TEMPLATES) {
-            generateFile(packageName, packagePath, template[0], template[1], template[2], authorization);
+            generateFile(generatedPackage, targetPath, template[0], template[1], template[2], authorization);
         }
     }
 
     private static void generateFile(
-            String packageName,
-            Path packagePath,
+            String generatedPackage,
+            Path targetPath,
             String subpackage,
             String templateName,
             String className,
-            Authorization authorization
+        Authorization authorization
     ) {
         try {
-            Path targetDirectory = packagePath.resolve("authorization").resolve(subpackage);
+            Path targetDirectory = targetPath.resolve(subpackage);
             Files.createDirectories(targetDirectory);
             String content = loadWxsd(templateName)
-                    .replace("<<packageName>>", packageName.concat("_gen.authorization"));
+                    .replace("<<packageName>>", generatedPackage);
             content = configureCustomization(content, className, authorization);
             Files.write(
                     targetDirectory.resolve(className.concat(".java")),

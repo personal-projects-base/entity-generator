@@ -110,4 +110,31 @@ public class ConfigurationFileValidatorTest {
             assertTrue(ex.getErrors().contains("authorization.json.authenticateAbstract must be a boolean"));
         }
     }
+
+    @Test
+    public void acceptsKnownJavaArchitecture() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-validator-architecture-");
+        Path directory = Files.createDirectory(root.resolve(".gonthera"));
+        String project = "{\"mainPackage\":\"com.example\",\"projectName\":\"example\",\"language\":\"JAVA\"," +
+                "\"architecture\":\"HEXAGONAL\",\"entities\":[],\"endpoints\":[],\"enums\":[]}";
+        Files.write(directory.resolve("project.json"), project.getBytes(StandardCharsets.UTF_8));
+
+        ConfigurationFileValidator.validate(root);
+    }
+
+    @Test
+    public void rejectsUnknownArchitecture() throws Exception {
+        Path root = Files.createTempDirectory("gonthera-validator-invalid-architecture-");
+        Path directory = Files.createDirectory(root.resolve(".gonthera"));
+        String project = "{\"mainPackage\":\"com.example\",\"projectName\":\"example\",\"language\":\"JAVA\"," +
+                "\"architecture\":\"hexagonal\",\"entities\":[],\"endpoints\":[],\"enums\":[]}";
+        Files.write(directory.resolve("project.json"), project.getBytes(StandardCharsets.UTF_8));
+
+        try {
+            ConfigurationFileValidator.validate(root);
+            fail("Expected validation to fail");
+        } catch (ProjectValidationException ex) {
+            assertTrue(ex.getErrors().contains("project.json.architecture must be one of [MVC, HEXAGONAL]"));
+        }
+    }
 }

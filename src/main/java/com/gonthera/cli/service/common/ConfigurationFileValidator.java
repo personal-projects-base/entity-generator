@@ -22,6 +22,7 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,10 @@ public final class ConfigurationFileValidator {
                 errors.add(path + " must be a number");
             } else if ((typeClass == String.class || typeClass.isEnum()) && !json.getAsJsonPrimitive().isString()) {
                 errors.add(path + " must be a string");
+            } else if (typeClass.isEnum() && Arrays.stream(typeClass.getEnumConstants())
+                    .map(Object::toString)
+                    .noneMatch(json.getAsString()::equals)) {
+                errors.add(path + " must be one of " + Arrays.toString(typeClass.getEnumConstants()));
             }
             return;
         }

@@ -1,0 +1,22 @@
+package <<packageName>>;
+
+import <<rootPackage>>.domain.model.<<entityName>>;
+
+import java.io.InputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface <<entityName>>RepositoryPort {
+
+    <<entityName>> save(<<entityName>> entity);
+
+    void deleteById(<<keyType>> id);
+
+    Optional<<<entityName>>> findById(<<keyType>> id);
+
+    List<<<entityName>>> findAll();
+}
