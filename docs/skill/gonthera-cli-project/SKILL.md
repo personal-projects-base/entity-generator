@@ -69,14 +69,13 @@ The generated `<Entity>Service` exposes overridable public methods:
 - `update(dto, id)`: converts the DTO to an entity, forcibly applies the path `id` to the entity key, saves it, and returns the resulting DTO;
 - `delete(id)`: calls `repository.deleteById(id)`;
 - `get(id)`: obtains `repository.getReferenceById(id)` and converts the result to a DTO;
-- `getAll(input)`: normalizes a non-positive offset to `1`, converts the public one-based page offset to Spring Data's zero-based page index, creates a `PageRequest`, applies `SpecificationFilter`, queries the repository, and returns `ResponseData` with total, contents, size, and the zero-based result offset.
+- `getAll(input)`: normalizes a non-positive offset to `1`, converts the public one-based page offset to Spring Data's zero-based page index, creates a `PageRequest` with optional `field,asc|desc` ordering, applies `SpecificationFilter`, queries the repository, and returns `ResponseData` with total, contents, size, and the zero-based result offset.
 
 Current list-query limitations must remain visible when adapting a consumer:
 
 - the controller defaults `size` to `20` and `offset` to `1`;
-- `filter`, `order`, and `displayFields` are read from query parameters;
-- `filter` and `displayFields` are used by the service;
-- `order` is currently captured but not applied by the generated Java service;
+- `filter`, `order`, and `displayFields` are read from query parameters and used by the service;
+- `order` accepts `field,asc` or `field,desc`, defaults to ascending when direction is omitted, and accepts dotted relationship paths;
 - there is currently no generated upper-bound validation for `size`;
 - service methods are not `final`, and the generated repository, converter, and filter fields are `protected`, specifically so subclasses can override behavior when configured for customization.
 
@@ -426,7 +425,7 @@ User-facing documentation should not explain internal templates unless the user 
 
 Treat filtering as target-specific behavior, not as a portable JPA/SQL query language.
 
-- Java `SpecificationFilter` supports `eq`, `isNull`, `notNull`, `and`, `or`, and dotted relationship paths.
+- Java `SpecificationFilter` supports `eq`, `isNull`, `notNull`, date-only inclusive comparisons with `gte`/`ge` and `lte`/`le`, `and`, `or`, and dotted relationship paths. Date comparisons accept ISO `LocalDate` and `LocalDateTime` values.
 - Java string `eq` is a case-insensitive contains operation; UUID uses exact equality.
 - Java numeric, boolean, and date equality is not safely converted by the current template.
 - Do not claim reliable mixed `and`/`or` precedence, nested parentheses, escaping, comparison operators, or `in` support.

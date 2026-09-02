@@ -45,6 +45,10 @@ public class JavaOutputLayoutTest {
         assertPackage(generated.resolve("converters/CustomerDTOConverter.java"), "com.example.service_gen.converters");
         assertPackage(generated.resolve("repositories/CustomerRepository.java"), "com.example.service_gen.repositories");
         assertPackage(generated.resolve("services/CustomerService.java"), "com.example.service_gen.services");
+        String service = readFile(generated.resolve("services/CustomerService.java"));
+        assertTrue(service.contains("PageRequest.of(input.offset, input.size, createSort(input.order))"));
+        assertTrue(service.contains("Sort.Direction.fromString(direction)"));
+        assertTrue(service.contains("Invalid order: "));
         assertPackage(generated.resolve("controllers/CustomerController.java"), "com.example.service_gen.controllers");
         assertPackage(generated.resolve("endpoints/FindCustomer.java"), "com.example.service_gen.endpoints");
         assertPackage(generated.resolve("endpoints/FindCustomerOutput.java"), "com.example.service_gen.endpoints");
@@ -68,6 +72,13 @@ public class JavaOutputLayoutTest {
         assertTrue(endpoint.contains("@Anonymous"));
         String specificationFilter = readFile(generated.resolve("common/SpecificationFilter.java"));
         assertTrue(specificationFilter.contains("import com.example.service_gen.authorization.exception.ServiceException;"));
+        assertTrue(specificationFilter.contains("gte|lte|ge|le"));
+        assertTrue(specificationFilter.contains("LocalDate.parse(rawValue)"));
+        assertTrue(specificationFilter.contains("LocalDateTime.parse(rawValue)"));
+        assertTrue(specificationFilter.contains("Expression<LocalDate> datePath"));
+        assertTrue(specificationFilter.contains("Expression<LocalDateTime> dateTimePath"));
+        assertTrue(specificationFilter.contains("cb.greaterThanOrEqualTo"));
+        assertTrue(specificationFilter.contains("cb.lessThanOrEqualTo"));
         try (java.util.stream.Stream<Path> files = Files.walk(generated)) {
             assertTrue(files.filter(Files::isRegularFile).noneMatch(this::containsTemplatePlaceholder));
         }

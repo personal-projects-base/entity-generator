@@ -323,6 +323,8 @@ Operadores Java disponíveis:
 | `relation.field eq value` | Filtra por atributo de uma relação usando caminho pontuado. |
 | `field isNull` | Seleciona valores nulos. |
 | `field notNull` | Seleciona valores não nulos. |
+| `field gte value` / `field ge value` | Seleciona datas maiores ou iguais ao valor ISO. |
+| `field lte value` / `field le value` | Seleciona datas menores ou iguais ao valor ISO. |
 | `condition and condition` | Exige ambas as condições. |
 | `condition or condition` | Aceita qualquer uma das condições. |
 
@@ -335,21 +337,23 @@ category.id eq 550e8400-e29b-41d4-a716-446655440000
 category isNull
 status eq ACTIVE
 name eq café and category notNull
+createdAt gte 2026-09-01T00:00:00 and createdAt lte 2026-09-30T23:59:59
 name eq café or name eq chá
 ```
 
 Ao montar a expressão:
 
 - use `fieldName` em `lowerCamelCase`, nunca o nome da coluna SQL;
-- envie os operadores exatamente como `eq`, `isNull` e `notNull`; coloque espaços ao redor de `and`/`or`;
+- envie os operadores exatamente como `eq`, `isNull`, `notNull`, `gte`, `lte`, `ge` e `le`; coloque espaços ao redor de `and`/`or`;
+- use as comparações inclusivas somente em campos de data: `yyyy-MM-dd` para `date` e ISO local, como `yyyy-MM-dd'T'HH:mm:ss`, para `datetime`;
 - não coloque aspas em volta do valor;
 - não misture `and` e `or` na mesma expressão e não gere parênteses: a precedência e o agrupamento do parser atual não são confiáveis;
 - não permita ` and ` ou ` or ` dentro do valor, pois não existe escape;
-- limite filtros Java a campos de texto, UUID, enum, nulidade e caminhos relacionados. Número, booleano e data podem falhar no backend atual;
-- não ofereça `ne`, comparações, intervalos, listas ou ordenação: esses operadores não foram implementados;
+- limite `eq` a campos de texto, UUID e enum; para datas, use apenas as comparações inclusivas documentadas. Número e booleano ainda podem falhar no backend atual;
+- não ofereça `ne`, outras comparações ou listas: esses operadores não foram implementados;
 - filtro vazio ou omitido lista sem restrição; erro de campo, UUID ou sintaxe retorna HTTP 400;
 - `offset` começa em 1 para o cliente;
-- `order` não é aplicado pelo controller Java atual;
+- `order` aceita `campo,asc` ou `campo,desc`; direção omitida assume `asc`, e caminhos relacionados com ponto são aceitos;
 - `displayFields` escolhe campos do DTO, mas não filtra registros.
 
 O frontend deve considerar `language` antes de montar o filtro. No .NET, o dialeto separado aceita apenas `eq` e uma única espécie de operador lógico (`and` ou `or`) por expressão; relações comuns usam caminho pontuado e coleções usam `*`, como `children*.description eq matriz`. `isNull` e `notNull` não existem no .NET. No Node, o CRUD gerado atualmente ignora `filter` e usa somente `size`/`offset`.

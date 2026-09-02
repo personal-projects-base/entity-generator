@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-`gonthera-cli` é uma ferramenta de geração de backends distribuída como Maven Plugin (`com.potatotech:gonthera-cli`) e executável standalone. Ela lê `project.json` no diretório em que o Maven/JAR foi executado, com fallback temporário para `properties.json`, e gera persistência, APIs, contratos, mensageria, scripts PostgreSQL e metadados de permissões para Java, .NET e Node.
+`gonthera-cli` é uma ferramenta de geração de backends distribuída como Maven Plugin (`com.gonthera:gonthera-cli`) e executável standalone. Ela lê `project.json` no diretório em que o Maven/JAR foi executado, com fallback temporário para `properties.json`, e gera persistência, APIs, contratos, mensageria, scripts PostgreSQL e metadados de permissões para Java, .NET e Node.
 
-Este documento descreve o comportamento observado no código da versão `1.0.0`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
+Este documento descreve o comportamento observado no código da versão `2.1.2`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
 
 ## Como consumir
 
@@ -18,12 +18,25 @@ Pré-requisitos do gerador:
 Exemplo de declaração no `pom.xml` do serviço Java:
 
 ```xml
+<repositories>
+  <repository>
+    <id>myMavenRepo.read</id>
+    <url>https://mymavenrepo.com/repo/go9Ye7KC7xaSZHqFec9g/</url>
+  </repository>
+</repositories>
+<pluginRepositories>
+  <pluginRepository>
+    <id>myMavenRepo.read</id>
+    <url>https://mymavenrepo.com/repo/go9Ye7KC7xaSZHqFec9g/</url>
+  </pluginRepository>
+</pluginRepositories>
+
 <build>
   <plugins>
     <plugin>
-      <groupId>com.potatotech</groupId>
+      <groupId>com.gonthera</groupId>
       <artifactId>gonthera-cli</artifactId>
-      <version>1.0.0</version>
+      <version>2.1.2</version>
     </plugin>
   </plugins>
 </build>
@@ -44,7 +57,7 @@ A configuração pode ser validada sem executar os geradores:
 ```bash
 mvn gonthera-cli:validate
 gonthera-cli.exe --validate
-java -jar gonthera-cli-2.0.0.jar --validate
+java -jar gonthera-cli-2.1.2.jar --validate
 ```
 
 O modo de validação exige a pasta `.gonthera`, embora a geração continue aceitando temporariamente os arquivos da raiz. O validador verifica sintaxe e estrutura JSON, rejeita propriedades desconhecidas em qualquer nível e, após unificar os arquivos, verifica cabeçalho, coleções, entidades e chaves, campos, endpoints, enums, canais RabbitMQ e flags de autorização. A validação não apaga nem gera arquivos.
@@ -330,6 +343,8 @@ Sintaxe Java efetivamente implementada:
 | `relation.field eq value` | Cria joins JPA pelo caminho pontuado; UUID é exato e os demais tipos são tratados como texto parcial. |
 | `field isNull` | `field IS NULL`. Também aceita caminho relacionado. |
 | `field notNull` | `field IS NOT NULL`. Também aceita caminho relacionado. |
+| `field gte value` / `field ge value` | Para `date` e `datetime`, maior ou igual ao valor ISO informado. Também aceita caminho relacionado. |
+| `field lte value` / `field le value` | Para `date` e `datetime`, menor ou igual ao valor ISO informado. Também aceita caminho relacionado. |
 | `expr and expr` | Combina predicados com `AND`. A palavra precisa estar separada por espaços. |
 | `expr or expr` | Combina predicados com `OR`. A palavra precisa estar separada por espaços. |
 
@@ -343,23 +358,26 @@ parentCode isNull
 parentCode notNull
 description eq matriz and parentCode notNull
 description eq matriz or description eq filial
+createdAt gte 2026-09-01T00:00:00 and createdAt lte 2026-09-30T23:59:59
+birthDate ge 2026-01-01 and birthDate le 2026-12-31
 ```
 
 Regras e limitações importantes do parser Java:
 
 - use os nomes dos atributos Java/JSON em `lowerCamelCase`, não os nomes das colunas SQL;
 - não envolva valores em aspas; tudo depois de `eq` até o próximo operador lógico é o valor textual;
-- `eq`, `isNull` e `notNull` são sensíveis a maiúsculas/minúsculas e devem ser enviados exatamente assim; `and`/`or` são reconhecidos sem diferenciar caixa;
+- `eq`, `isNull`, `notNull`, `gte`, `lte`, `ge` e `le` são sensíveis a maiúsculas/minúsculas e devem ser enviados exatamente assim; `and`/`or` são reconhecidos sem diferenciar caixa;
+- `gte`/`ge` e `lte`/`le` são exclusivos para campos Java `LocalDate` e `LocalDateTime`; use ISO `yyyy-MM-dd` para `date` e o formato ISO local, como `yyyy-MM-dd'T'HH:mm:ss`, para `datetime`;
 - `eq` em `String` significa **contém**, não igualdade exata;
 - UUID deve ser válido; filtro inválido resulta em HTTP 400 com `Invalid filter: <expressão>`;
 - joins são criados com o tipo padrão do JPA, normalmente `INNER JOIN`, portanto relações ausentes podem excluir o registro;
-- números, booleanos e datas não têm conversão implementada de forma segura no Java. O caminho genérico aplica `lower`/`like` e pode falhar em tempo de execução; restrinja o frontend a texto, UUID, enum e nulidade até o template ser ampliado;
-- não existem atualmente `ne`, `gt`, `gte`, `lt`, `lte`, `in`, `between`, `like` explícito ou `not`;
+- números e booleanos não têm conversão implementada de forma segura no Java. Datas devem usar `gte`/`ge` ou `lte`/`le`; o caminho genérico de `eq` aplica `lower`/`like` e pode falhar em tempo de execução para esses tipos;
+- não existem atualmente `ne`, `gt`, `lt`, `in`, `between`, `like` explícito ou `not`;
 - parênteses e precedência mista não são analisados de forma confiável. Não misture `and` e `or` na mesma expressão e não gere grupos aninhados;
 - valores contendo as palavras ` and ` ou ` or ` não podem ser escapados e serão divididos pelo parser;
 - filtro ausente ou vazio não restringe os resultados;
 - `size` e `offset` devem ser enviados no CRUD Java. `offset` é baseado em 1 na requisição; internamente é convertido para a página baseada em 0;
-- apesar de existir em `RequestData`, `order` é lido pelo controller Java, mas não é aplicado ao `PageRequest` atual;
+- `order` aplica ordenação ao `PageRequest` Java no formato `campo,asc` ou `campo,desc`; quando a direção é omitida, usa `asc`. Caminhos relacionados, como `customer.name,desc`, são aceitos; formato ou direção inválidos resultam em HTTP 400 com `Invalid order: <valor>`;
 - `displayFields` controla a projeção do DTO e não participa do filtro.
 
 No .NET, `DynamicFilter` é uma implementação separada: suporta apenas `eq`, `and` ou `or`; texto também usa `Contains` sem diferenciar caixa, UUID é exato, e coleção usa um caminho com `*` (por exemplo, `children*.description eq matriz`). Não há `isNull`/`notNull`, o parser só escolhe um operador lógico por expressão e os nomes das propriedades C# são sensíveis à forma gerada. Portanto, o frontend deve selecionar o dialeto conforme `language`; uma expressão Java não é portável por garantia para .NET.

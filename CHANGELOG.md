@@ -1,3 +1,11 @@
+## >2.1.2 - 02-09-2026
+
+* Adicionados os operadores de data `gte`/`ge` e `lte`/`le` ao `SpecificationFilter` Java.
+* Comparações de intervalo agora suportam campos `LocalDate` e `LocalDateTime`, inclusive em caminhos relacionados.
+* Adicionada ordenação ao CRUD Java pelo parâmetro `order`, no formato `campo,asc|desc`.
+* Corrigida a tipagem das expressões Criteria usadas nas comparações de data.
+* Atualizados o portal de documentação, a configuração do repositório Maven e os downloads JAR/EXE da versão `2.1.2`.
+
 ## >2.1.0 - 23-07-2026
 
 ### Quebras de compatibilidade

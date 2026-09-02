@@ -6,6 +6,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.UUID;
@@ -16,6 +18,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class SpecificationFilter<T> {
+
+        private static final Pattern DATE_COMPARISON_PATTERN = Pattern.compile("^(.+?)\\s+(gte|lte|ge|le)\\s+(.+)$");
 
         public Specification<T> customFilter(String filter){
             Specification<T> spec = Specification.where(null);
@@ -66,7 +70,11 @@ public class SpecificationFilter<T> {
                 return orPredicate;
             }
 
-            if(expression.trim().contains("eq")){
+            Matcher dateComparison = DATE_COMPARISON_PATTERN.matcher(expression);
+            if(dateComparison.matches()){
+                return setDateComparison(cb, dateComparison, (Root<T>) root);
+            }
+            else if(expression.trim().contains("eq")){
                 return setEq(cb, expression.trim(), (Root<T>) root);
             }
             else if(expression.trim().contains("isNull")){
@@ -77,6 +85,46 @@ public class SpecificationFilter<T> {
             } else {
                 throw new ServiceException(HttpStatus.BAD_REQUEST,"Invalid expression: " + expression);
             }
+        }
+
+        private Predicate setDateComparison(CriteriaBuilder cb, Matcher comparison, Root<T> root) {
+            String property = comparison.group(1).trim();
+            String operator = comparison.group(2);
+            String rawValue = comparison.group(3).trim();
+            Path<?> path = resolvePath(root, property);
+
+            if (LocalDate.class.isAssignableFrom(path.getJavaType())) {
+                LocalDate value = LocalDate.parse(rawValue);
+                Expression<LocalDate> datePath = path.as(LocalDate.class);
+                return isGreaterThanOrEqual(operator)
+                        ? cb.greaterThanOrEqualTo(datePath, value)
+                        : cb.lessThanOrEqualTo(datePath, value);
+            }
+
+            if (LocalDateTime.class.isAssignableFrom(path.getJavaType())) {
+                LocalDateTime value = LocalDateTime.parse(rawValue);
+                Expression<LocalDateTime> dateTimePath = path.as(LocalDateTime.class);
+                return isGreaterThanOrEqual(operator)
+                        ? cb.greaterThanOrEqualTo(dateTimePath, value)
+                        : cb.lessThanOrEqualTo(dateTimePath, value);
+            }
+
+            throw new IllegalArgumentException(
+                    "Operator " + operator + " is only supported for LocalDate and LocalDateTime fields"
+            );
+        }
+
+        private boolean isGreaterThanOrEqual(String operator) {
+            return "gte".equals(operator) || "ge".equals(operator);
+        }
+
+        private Path<?> resolvePath(Root<T> root, String property) {
+            String[] properties = property.split("\\.");
+            if (properties.length > 1) {
+                Join<?, ?> join = createDynamicJoin(root, properties);
+                return join.get(properties[properties.length - 1].trim());
+            }
+            return root.get(property);
         }
 
         private Predicate setEq(CriteriaBuilder cb, String item, Root<T> root) {

@@ -191,7 +191,9 @@ const page = await response.json();
 
 Usar `URLSearchParams` ou o recurso `params` do cliente HTTP; não concatenar filtros manualmente. Considerar `offset` baseado em 1 na requisição.
 
-No Java, permitir `eq`, `isNull`, `notNull`, `and`, `or` e caminhos relacionados com ponto. Não misturar `and` e `or`, não gerar parênteses e não aceitar ` and ` ou ` or ` dentro de valores. Limitar filtros a texto, UUID, enum, nulidade e relações. No .NET, usar apenas `eq` e uma única espécie de operador lógico por expressão; coleções usam `*`. No Node, enviar apenas paginação, pois o filtro atual é ignorado.
+No Java, permitir `eq`, `isNull`, `notNull`, `gte`/`ge` e `lte`/`le` para datas ISO, `and`, `or` e caminhos relacionados com ponto. Não misturar `and` e `or`, não gerar parênteses e não aceitar ` and ` ou ` or ` dentro de valores. Limitar `eq` a texto, UUID e enum; usar os operadores inclusivos para `date` e `datetime`. No .NET, usar apenas `eq` e uma única espécie de operador lógico por expressão; coleções usam `*`. No Node, enviar apenas paginação, pois o filtro atual é ignorado.
+
+Para ordenação Java, enviar `order=campo,asc` ou `order=campo,desc`; direção ausente assume `asc` e caminhos relacionados com ponto são aceitos. Não oferecer ordenação dinâmica para .NET ou Node enquanto os respectivos geradores não a implementarem.
 
 ## Validar antes de exportar
 

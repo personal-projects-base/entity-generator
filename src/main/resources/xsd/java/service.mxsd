@@ -5,10 +5,13 @@ import <<rootPackage>>.converters.*;
 import <<rootPackage>>.dtos.*;
 import <<rootPackage>>.entities.*;
 import <<rootPackage>>.repositories.*;
+import <<rootPackage>>.authorization.exception.ServiceException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.UUID;
@@ -52,7 +55,7 @@ public <<abstract>>class <<entityName>>Service {
     public ResponseData getAll(RequestData input) {
         if (input.offset <= 0) input.offset = 1;
         input.offset--;
-        Pageable pageable = PageRequest.of(input.offset, input.size);
+        Pageable pageable = PageRequest.of(input.offset, input.size, createSort(input.order));
         var spec = specificationFilter.customFilter(input.filter);
         var result = repository.findAll(spec, pageable);
 
@@ -62,5 +65,24 @@ public <<abstract>>class <<entityName>>Service {
         output.size = result.getSize();
         output.offset = input.offset;
         return output;
+    }
+
+    protected Sort createSort(String order) {
+        if (order == null || order.trim().isEmpty()) {
+            return Sort.unsorted();
+        }
+
+        String[] parts = order.split(",", -1);
+        String property = parts[0].trim();
+        if (parts.length > 2 || !property.matches("[a-zA-Z_][a-zA-Z0-9_]*(\\.[a-zA-Z_][a-zA-Z0-9_]*)*")) {
+            throw new ServiceException(HttpStatus.BAD_REQUEST, "Invalid order: " + order);
+        }
+
+        String direction = parts.length == 2 ? parts[1].trim() : "asc";
+        if (!"asc".equalsIgnoreCase(direction) && !"desc".equalsIgnoreCase(direction)) {
+            throw new ServiceException(HttpStatus.BAD_REQUEST, "Invalid order: " + order);
+        }
+
+        return Sort.by(Sort.Direction.fromString(direction), property);
     }
 }

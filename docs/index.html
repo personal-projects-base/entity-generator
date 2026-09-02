@@ -55,7 +55,7 @@
         </div>
         <div class="sidebar-footer">
           <span class="status-dot"></span>
-          <span>Documentação 2.1.0</span>
+          <span>Documentação 2.1.2</span>
         </div>
       </aside>
 
@@ -64,7 +64,7 @@
           <div class="hero-glow hero-glow-one"></div>
           <div class="hero-glow hero-glow-two"></div>
           <div class="hero-content">
-            <div class="release-label"><span></span> Versão 2.1.0 disponível</div>
+            <div class="release-label"><span></span> Versão 2.1.2 disponível</div>
             <p class="eyebrow">Backends consistentes. Menos repetição.</p>
             <h1>Do contrato ao backend,<br><em>em um comando.</em></h1>
             <p class="hero-copy">
@@ -107,7 +107,7 @@
 
           <div class="steps">
             <article class="step-card">
-              <span>1</span><div><h3>Adicione o plugin</h3><p>Para projetos Java, fixe a versão no <code>pom.xml</code>.</p></div>
+              <span>1</span><div><h3>Configure o repositório e o plugin</h3><p>Para o Maven baixar o plugin, adicione o repositório de leitura e fixe a versão no <code>pom.xml</code>.</p></div>
               <code-block lang="xml" :code="snippets.maven"></code-block>
             </article>
             <article class="step-card">
@@ -235,15 +235,15 @@
           </div>
         </section>
 
-        <section id="filtros" class="doc-section section-wrap" data-title="Filtros CRUD paginação offset displayFields Java .NET Node eq isNull notNull">
+        <section id="filtros" class="doc-section section-wrap" data-title="Filtros CRUD ordenação order paginação offset displayFields Java .NET Node eq isNull notNull gte lte ge le">
           <header class="section-heading"><div><p class="eyebrow">09 — Consultas</p><h2>Filtros por linguagem</h2></div><p>Os dialetos ainda não possuem paridade. Use somente as operações seguras de cada alvo.</p></header>
           <div class="comparison-table">
             <div class="table-row table-head"><span>Alvo</span><span>Suporte seguro</span><span>Limitações importantes</span></div>
-            <div class="table-row"><strong>Java</strong><span><code>eq</code>, <code>isNull</code>, <code>notNull</code>, <code>and</code>, <code>or</code> e caminhos com ponto.</span><span>Não misture <code>and</code>/<code>or</code>. Números, datas e booleanos não são seguros.</span></div>
+            <div class="table-row"><strong>Java</strong><span><code>eq</code>, <code>isNull</code>, <code>notNull</code>, datas com <code>gte</code>/<code>ge</code> e <code>lte</code>/<code>le</code>, além de <code>and</code>, <code>or</code> e caminhos com ponto.</span><span>Não misture <code>and</code>/<code>or</code>. Para datas, use ISO <code>yyyy-MM-dd</code> ou <code>yyyy-MM-dd'T'HH:mm:ss</code>.</span></div>
             <div class="table-row"><strong>.NET</strong><span><code>eq</code> e um único operador lógico por expressão.</span><span>Coleções usam <code>*</code>. É um dialeto diferente do Java.</span></div>
             <div class="table-row"><strong>Node</strong><span>Paginação com <code>size</code> e <code>offset</code>.</span><span>O filtro atual é ignorado pelo repository gerado.</span></div>
           </div>
-          <p class="footnote"><code>offset</code> começa em 1 na requisição Java. <code>displayFields</code> controla a projeção do DTO, não filtra registros.</p>
+          <p class="footnote"><code>offset</code> começa em 1 na requisição Java. Ordene com <code>order=campo,asc</code> ou <code>order=campo,desc</code>; sem direção, usa <code>asc</code>. <code>displayFields</code> controla a projeção do DTO, não filtra registros.</p>
         </section>
 
         <section id="migracao" class="doc-section section-wrap" data-title="Migração 2.1.0 authorization backend imports JJWT checklist">
@@ -253,11 +253,10 @@
 
         <section id="downloads" class="doc-section download-section" data-title="Downloads baixar EXE JAR versão Windows Java checksum SHA256">
           <div class="download-inner">
-            <div class="download-copy"><p class="eyebrow">Pronto para gerar?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Os dois artefatos correspondem à mesma versão.</p><div class="release-meta"><span>Versão {{ currentVersion }}</span><span>23 jul 2026</span><span>Java 11+ para a CLI</span></div></div>
+            <div class="download-copy"><p class="eyebrow">Pronto para gerar?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Os dois artefatos correspondem à mesma versão.</p><div class="release-meta"><span>Versão {{ currentVersion }}</span><span>2 set 2026</span><span>Java 11+ para a CLI</span></div></div>
             <div class="download-cards">
               <a v-for="artifact in downloads" :key="artifact.name" class="download-card" :href="artifact.href" download>
                 <span class="download-icon">{{ artifact.icon }}</span><span><small>{{ artifact.platform }}</small><strong>{{ artifact.name }}</strong><em>{{ artifact.size }}</em></span><b>↓</b>
-              </a>
               <button class="checksum-button" type="button" @click="showChecksums = !showChecksums">{{ showChecksums ? 'Ocultar' : 'Ver' }} checksums SHA-256</button>
               <div v-if="showChecksums" class="checksums"><p v-for="artifact in downloads" :key="artifact.sha"><strong>{{ artifact.name }}</strong><code>{{ artifact.sha }}</code></p></div>
             </div>

@@ -77,6 +77,33 @@ O legado `properties.json` permanece como último fallback. A prioridade é `.go
 - `messaging`: provedores de mensageria; atualmente, `RabbitMq`.
 - `authorization`: customização das classes Java `Authenticate` e `TenantConfiguration`.
 
+Para o Maven localizar e baixar o plugin, adicione o repositório de leitura e o plugin ao `pom.xml` do serviço consumidor:
+
+```xml
+<repositories>
+  <repository>
+    <id>myMavenRepo.read</id>
+    <url>https://mymavenrepo.com/repo/go9Ye7KC7xaSZHqFec9g/</url>
+  </repository>
+</repositories>
+<pluginRepositories>
+  <pluginRepository>
+    <id>myMavenRepo.read</id>
+    <url>https://mymavenrepo.com/repo/go9Ye7KC7xaSZHqFec9g/</url>
+  </pluginRepository>
+</pluginRepositories>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>com.gonthera</groupId>
+      <artifactId>gonthera-cli</artifactId>
+      <version>2.1.2</version>
+    </plugin>
+  </plugins>
+</build>
+```
+
 Após configurar o projeto, o código pode ser gerado com o seguinte comando a partir da raiz:
 
   `mvn gonthera-cli:generate-sources`
@@ -93,7 +120,7 @@ Com o executável ou JAR:
 
 ```bash
 gonthera-cli.exe --validate
-java -jar gonthera-cli-2.0.0.jar --validate
+java -jar gonthera-cli-2.1.2.jar --validate
 ```
 
 A validação isolada exige a pasta `.gonthera`, verifica a sintaxe e os tipos estruturais dos arquivos JSON, valida os campos obrigatórios e rejeita propriedades desconhecidas em qualquer nível. As coleções `entities`, `endpoints` e `enums` devem ser arrays; `messaging` deve ser objeto. A geração continua temporariamente compatível com `project.json` e `properties.json` na raiz e aplica as mesmas validações antes de alterar qualquer saída.
