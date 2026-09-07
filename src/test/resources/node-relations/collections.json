@@ -1,0 +1,307 @@
+[
+  {
+    "entityName": "customer",
+    "entityFields": [
+      {
+        "fieldName": "id",
+        "fieldProperties": {
+          "fieldType": "uuid"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "orders",
+        "fieldProperties": {
+          "fieldType": "purchase"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "OneToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY"
+        }
+      },
+      {
+        "fieldName": "reviewed",
+        "fieldProperties": {
+          "fieldType": "purchase"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "OneToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY",
+          "mappedBy": "reviewer"
+        }
+      }
+    ]
+  },
+  {
+    "entityName": "purchase",
+    "entityFields": [
+      {
+        "fieldName": "id",
+        "fieldProperties": {
+          "fieldType": "uuid"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "customer",
+        "fieldProperties": {
+          "fieldType": "customer"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": false,
+        "relationShips": {
+          "relationShip": "ManyToOne",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      },
+      {
+        "fieldName": "reviewer",
+        "fieldProperties": {
+          "fieldType": "customer"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": true
+        },
+        "list": false,
+        "relationShips": {
+          "relationShip": "ManyToOne",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      }
+    ]
+  },
+  {
+    "entityName": "school",
+    "entityFields": [
+      {
+        "fieldName": "id",
+        "fieldProperties": {
+          "fieldType": "uuid"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "courses",
+        "fieldProperties": {
+          "fieldType": "course"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      },
+      {
+        "fieldName": "featured",
+        "fieldProperties": {
+          "fieldType": "course"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      }
+    ]
+  },
+  {
+    "entityName": "course",
+    "entityFields": [
+      {
+        "fieldName": "id",
+        "fieldProperties": {
+          "fieldType": "uuid"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "schools",
+        "fieldProperties": {
+          "fieldType": "school"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY",
+          "mappedBy": "courses"
+        }
+      },
+      {
+        "fieldName": "featuredAt",
+        "fieldProperties": {
+          "fieldType": "school"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY",
+          "mappedBy": "featured"
+        }
+      }
+    ]
+  },
+  {
+    "entityName": "member",
+    "entityFields": [
+      {
+        "fieldName": "id",
+        "fieldProperties": {
+          "fieldType": "uuid"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "following",
+        "fieldProperties": {
+          "fieldType": "member"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      },
+      {
+        "fieldName": "followers",
+        "fieldProperties": {
+          "fieldType": "member"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "ManyToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY",
+          "mappedBy": "following"
+        }
+      }
+    ]
+  },
+  {
+    "entityName": "category",
+    "entityFields": [
+      {
+        "fieldName": "code",
+        "fieldProperties": {
+          "fieldType": "int"
+        },
+        "metadata": {
+          "key": true,
+          "nullable": false
+        },
+        "list": false
+      },
+      {
+        "fieldName": "parent",
+        "fieldProperties": {
+          "fieldType": "category"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": true
+        },
+        "list": false,
+        "relationShips": {
+          "relationShip": "ManyToOne",
+          "bidirectional": false,
+          "reference": true,
+          "fetchType": "LAZY"
+        }
+      },
+      {
+        "fieldName": "children",
+        "fieldProperties": {
+          "fieldType": "category"
+        },
+        "metadata": {
+          "key": false,
+          "nullable": false
+        },
+        "list": true,
+        "relationShips": {
+          "relationShip": "OneToMany",
+          "bidirectional": true,
+          "reference": false,
+          "fetchType": "LAZY",
+          "mappedBy": "parent"
+        }
+      }
+    ]
+  }
+]

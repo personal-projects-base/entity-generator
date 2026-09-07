@@ -1,0 +1,39 @@
+import 'dotenv/config';
+import { PrismaClient, Prisma } from '@prisma/client';
+
+export abstract class DatabaseConfig {
+  protected clientInstance?: PrismaClient;
+
+  protected resolveUrl(): string {
+    const url = process.env.DATABASE_URL?.trim();
+    if (!url) {
+      throw new Error('DATABASE_URL must be configured');
+    }
+    return url;
+  }
+
+  protected createOptions(): Prisma.PrismaClientOptions {
+    return { datasources: { db: { url: this.resolveUrl() } } };
+  }
+
+  protected createClient(): PrismaClient {
+    return new PrismaClient(this.createOptions());
+  }
+
+  get client(): PrismaClient {
+    if (!this.clientInstance) {
+      this.clientInstance = this.createClient();
+    }
+    return this.clientInstance;
+  }
+
+  async connect(): Promise<void> {
+    await this.client.$connect();
+  }
+
+  async disconnect(): Promise<void> {
+    if (this.clientInstance) {
+      await this.clientInstance.$disconnect();
+    }
+  }
+}

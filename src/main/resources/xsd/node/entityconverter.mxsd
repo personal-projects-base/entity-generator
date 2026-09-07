@@ -1,0 +1,162 @@
+import { Prisma } from '@prisma/client';
+import { CrudError } from '../common/contracts';
+import { Entity, Field, key, related, opposite, scalar, identifier, MAX_DEPTH } from '../common/entity-metadata';
+import type { Projection } from '../common/query';
+
+type Row = Record<string, unknown>;
+type Delegate = {
+  update(args: { where: Row; data: Row }): Promise<unknown>;
+  deleteMany(args: { where: Row }): Promise<unknown>;
+};
+
+function object(input: unknown): Row {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new CrudError(400, 'Expected a DTO object');
+  return input as Row;
+}
+
+function validateNames(model: Entity, input: Row): void {
+  for (const name of Object.keys(input)) {
+    if (!model.entityFields.some(value => value.fieldName === name)) throw new CrudError(400, `Unknown DTO field: ${model.entityName}.${name}`);
+  }
+}
+
+export async function toData(tx: Prisma.TransactionClient, model: Entity, raw: unknown,
+  updating = false, parentField?: string, depth = 0, visited = new Set<object>()): Promise<Row> {
+  const input = object(raw);
+  validateNames(model, input);
+  if (depth > MAX_DEPTH || visited.has(input)) throw new CrudError(400, 'DTO graph is cyclic or too deep');
+  const nextVisited = new Set(visited).add(input);
+  const data: Row = {};
+  for (const current of model.entityFields) {
+    const name = current.fieldName;
+    if (name === parentField) continue; // Prisma nested writes restore the inverse owner.
+    const value = input[name];
+    const target = related(current);
+    if (value === undefined) {
+      const generatedKey = current.metadata.key && ['uuid', 'int', 'integer'].includes(current.fieldProperties.fieldType);
+      if (!updating && !generatedKey && (!current.metadata.nullable || current.metadata.key) && !current.list
+        && !current.relationShips?.bidirectional) throw new CrudError(400, `Required DTO field: ${model.entityName}.${name}`);
+      continue;
+    }
+    if (current.metadata.key && updating) continue; // URL id and related identifiers own identity.
+    if (!target) {
+      if (current.list) {
+        if (!Array.isArray(value)) throw new CrudError(400, `Expected list: ${name}`);
+        data[name] = value.map(item => scalar({ ...current, list: false }, item));
+      } else {
+        data[name] = current.metadata.key ? identifier(model, value) : scalar(current, value);
+        if (current.fieldProperties.fieldType === 'map' && value === null) data[name] = Prisma.DbNull;
+      }
+      continue;
+    }
+    if (value === null) {
+      if (current.list) throw new CrudError(400, `Use an array for ${name}`);
+      if (current.relationShips?.bidirectional && updating) {
+        await removeOrphans(tx, model, input, current, []);
+      } else if (!current.metadata.nullable) {
+        throw new CrudError(400, `Relation cannot be null: ${name}`);
+      } else if (updating) data[name] = { disconnect: true };
+      continue;
+    }
+    const values = current.list ? value : [value];
+    if (!Array.isArray(values)) throw new CrudError(400, `Expected list: ${name}`);
+    const connected: Row[] = [];
+    const created: Row[] = [];
+    const pk = key(target).fieldName;
+    const back = opposite(model, current)?.fieldName;
+    const seen = new Set<string>();
+    for (const item of values) {
+      const dto = object(item);
+      validateNames(target, dto);
+      const id = dto[pk];
+      if (id !== undefined && id !== null) {
+        const parsed = identifier(target, id);
+        const identity = String(parsed);
+        if (seen.has(identity)) throw new CrudError(400, `Duplicate relation identifier: ${name}`);
+        seen.add(identity);
+        const where = { [pk]: parsed };
+        // reference=true links an existing object without modifying it.
+        if (!current.relationShips?.reference && Object.keys(dto).some(prop => prop !== pk && prop !== back)) {
+          const changes = await toData(tx, target, dto, true, back, depth + 1, nextVisited);
+          const delegate = (tx as unknown as Record<string, Delegate>)[target.entityName[0].toLowerCase() + target.entityName.slice(1)];
+          await delegate.update({ where, data: changes });
+        }
+        connected.push(where);
+      } else {
+        if (current.relationShips?.reference) throw new CrudError(400, `Reference requires ${name}.${pk}`);
+        created.push(await toData(tx, target, dto, false, back, depth + 1, nextVisited));
+      }
+    }
+    const operations: Row = {};
+    if (current.list) {
+      const kind = current.relationShips?.relationShip.toLowerCase();
+      if (updating && kind === 'manytomany') {
+        operations.set = connected;
+      } else {
+        if (connected.length) operations.connect = connected;
+        if (updating && kind === 'onetomany' && current.relationShips?.bidirectional) {
+          // Match the inverse collection's orphan-removal behavior when a list is supplied.
+          await removeOrphans(tx, model, input, current, connected.map(item => item[pk]));
+        }
+      }
+      if (created.length) operations.create = created;
+    } else {
+      if (connected.length) {
+        if (updating && current.relationShips?.bidirectional) {
+          await removeOrphans(tx, model, input, current, connected.map(item => item[pk]));
+        }
+        operations.connect = connected[0];
+      }
+      if (created.length) operations[updating && current.relationShips?.bidirectional ? 'upsert' : 'create'] =
+        updating && current.relationShips?.bidirectional ? { create: created[0], update: created[0] } : created[0];
+    }
+    if (Object.keys(operations).length) data[name] = operations;
+  }
+  return data;
+}
+
+async function removeOrphans(tx: Prisma.TransactionClient, model: Entity, input: Row, current: Field, keep: unknown[]): Promise<void> {
+  const target = related(current)!;
+  const back = opposite(model, current);
+  const pk = key(model);
+  if (!back || input[pk.fieldName] === undefined) throw new CrudError(400, 'Updating inverse relations requires parent identity');
+  const where: Row = { [back.fieldName]: { is: { [pk.fieldName]: identifier(model, input[pk.fieldName]) } } };
+  if (keep.length) where[key(target).fieldName] = { notIn: keep };
+  await (tx as unknown as Record<string, Delegate>)[target.entityName[0].toLowerCase() + target.entityName.slice(1)].deleteMany({ where });
+}
+
+function scalarOutput(value: unknown, current: Field): unknown {
+  if (value === undefined || value === null) return null;
+  if (value instanceof Date) return current.fieldProperties.fieldType === 'date'
+    ? value.toISOString().slice(0, 10) : value.toISOString().replace(/Z$/, '');
+  if (typeof value === 'bigint') return value <= BigInt(Number.MAX_SAFE_INTEGER) && value >= BigInt(Number.MIN_SAFE_INTEGER) ? Number(value) : value.toString();
+  if (value instanceof Uint8Array) return Buffer.from(value).toString('base64');
+  return value;
+}
+
+export function toDTO(model: Entity, raw: unknown, requested: Projection, depth = 0,
+  blockedField?: string): Row | null {
+  if (raw === null || raw === undefined) return null;
+  if (depth > MAX_DEPTH + 1) throw new CrudError(400, 'DTO response is too deep');
+  const row = object(raw);
+  const dto: Row = {};
+  for (const current of model.entityFields) {
+    const name = current.fieldName;
+    if (name === blockedField) { dto[name] = null; continue; }
+    const explicit = requested.children[name];
+    if (!requested.all && !explicit) { dto[name] = null; continue; }
+    const value = row[name];
+    const target = related(current);
+    if (!target) {
+      dto[name] = Array.isArray(value) ? value.map(item => scalarOutput(item, current)) : scalarOutput(value, current);
+    } else if (value === undefined || value === null) {
+      dto[name] = null;
+    } else {
+      const nested = explicit ?? { all: true, children: {} };
+      const inverse = opposite(model, current)?.fieldName;
+      dto[name] = current.list ? (value as unknown[]).map(item => toDTO(target, item, nested, depth + 1, inverse))
+        : toDTO(target, value, nested, depth + 1, inverse);
+    }
+  }
+  return dto;
+}

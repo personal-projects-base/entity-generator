@@ -1,0 +1,27 @@
+export interface RequestData {
+  size?: number;
+  offset?: number;
+  filter?: string;
+  order?: string;
+  displayFields?: string;
+}
+
+export interface ResponseData<T = unknown> {
+  size: number;
+  offset: number;
+  total: number;
+  contents: T[];
+}
+
+export class CrudError extends Error {
+  constructor(public readonly status: number, message: string) {
+    super(message);
+    this.name = 'CrudError';
+  }
+}
+
+// Projection and cycle cuts can leave fields null; input DTOs are partial graphs.
+export type EntityInput<T> = T extends (infer U)[] ? EntityInput<U>[]
+  : T extends object ? { [K in keyof T]?: EntityInput<T[K]> | null } : T;
+export type EntityOutput<T> = T extends (infer U)[] ? EntityOutput<U>[]
+  : T extends object ? { [K in keyof T]: EntityOutput<T[K]> | null } : T;

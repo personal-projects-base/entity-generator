@@ -1,0 +1,113 @@
+import { CrudError } from './contracts';
+
+export interface Field {
+  [property: string]: unknown;
+  fieldName: string;
+  list?: boolean;
+  fieldProperties: { fieldType: string; [property: string]: unknown };
+  metadata: { key?: boolean; nullable?: boolean; [property: string]: unknown };
+  relationShips?: { relationShip: string; bidirectional?: boolean; reference?: boolean; mappedBy?: string; [property: string]: unknown };
+}
+export interface Entity { entityName: string; entityFields: Field[]; onlyDTO?: boolean; [property: string]: unknown }
+export const entities = <<entities>> as Entity[];
+export const enums = <<enums>> as { enumName: string; values: string[] }[];
+export const MAX_DEPTH = 6;
+export const entity = (name: string): Entity => {
+  const value = entities.find(item => item.entityName === name);
+  if (!value) throw new CrudError(400, `Unknown entity: ${name}`);
+  return value;
+};
+export const field = (model: Entity, name: string): Field => {
+  const value = model.entityFields.find(item => item.fieldName === name);
+  if (!value) throw new CrudError(400, `Unknown field: ${model.entityName}.${name}`);
+  return value;
+};
+export const key = (model: Entity): Field => {
+  const value = model.entityFields.find(item => item.metadata.key);
+  if (!value) throw new CrudError(400, `Missing key: ${model.entityName}`);
+  return value;
+};
+export const related = (value: Field): Entity | undefined => entities.find(item => item.entityName === value.fieldProperties.fieldType);
+export const enumValues = (value: Field): string[] | undefined => enums.find(item => item.enumName.toLowerCase() === value.fieldProperties.fieldType.toLowerCase())?.values;
+
+export function opposite(model: Entity, value: Field): Field | undefined {
+  const target = related(value);
+  if (!target || !value.relationShips) return undefined;
+  if (value.relationShips.bidirectional) {
+    return target.entityFields.find(item => item.fieldName === (value.relationShips?.mappedBy || model.entityName));
+  }
+  return target.entityFields.find(item => item.fieldProperties.fieldType === model.entityName
+    && item.relationShips?.bidirectional
+    && (item.relationShips.mappedBy || target.entityName) === value.fieldName);
+}
+
+export function scalar(value: Field, input: unknown): unknown {
+  if (input === null) {
+    if (value.metadata.key || !value.metadata.nullable) throw new CrudError(400, `Field cannot be null: ${value.fieldName}`);
+    return null;
+  }
+  const type = value.fieldProperties.fieldType;
+  const options = enumValues(value);
+  if (options) {
+    const normalized = typeof input === 'number' || /^\d+$/.test(String(input)) ? options[Number(input)] : input;
+    if (typeof normalized !== 'string' || !options.includes(normalized)) throw new CrudError(400, `Invalid enum: ${value.fieldName}`);
+    return normalized;
+  }
+  if (['uuid', 'string', 'password'].includes(type)) {
+    if (typeof input !== 'string' || (type === 'uuid' && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(input))) {
+      throw new CrudError(400, `Invalid ${type}: ${value.fieldName}`);
+    }
+    return type === 'uuid' ? input.toLowerCase() : input;
+  }
+  if (['int', 'integer', 'long', 'decimal', 'double'].includes(type)) {
+    if (type === 'long') {
+      if ((typeof input !== 'string' && typeof input !== 'number') || !/^-?\d+$/.test(String(input))
+        || (typeof input === 'number' && !Number.isSafeInteger(input))) throw new CrudError(400, `Invalid long: ${value.fieldName}`);
+      return BigInt(input);
+    }
+    if (typeof input !== 'number' || !Number.isFinite(input) || (['int', 'integer'].includes(type) && (!Number.isInteger(input) || input < -2147483648 || input > 2147483647))) {
+      throw new CrudError(400, `Invalid number: ${value.fieldName}`);
+    }
+    return input;
+  }
+  if (type === 'boolean') {
+    if (typeof input !== 'boolean') throw new CrudError(400, `Invalid boolean: ${value.fieldName}`);
+    return input;
+  }
+  if (type === 'date' || type === 'datetime') {
+    const pattern = type === 'date' ? /^\d{4}-\d{2}-\d{2}$/ : /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?$/;
+    if (typeof input !== 'string' || !pattern.test(input)) throw new CrudError(400, `Invalid ISO ${type}: ${value.fieldName}`);
+    const datePart = input.slice(0, 10);
+    const date = new Date(type === 'date' ? `${input}T00:00:00.000Z` : `${input}Z`);
+    if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== datePart) throw new CrudError(400, `Invalid ISO ${type}: ${value.fieldName}`);
+    return date;
+  }
+  if (['byte', 'byte[]', 'inputStream'].includes(type)) {
+    if (typeof input !== 'string') throw new CrudError(400, `Invalid base64: ${value.fieldName}`);
+    return Buffer.from(input, 'base64');
+  }
+  if (type === 'map') {
+    if (!input || typeof input !== 'object' || Array.isArray(input)) throw new CrudError(400, `Invalid map: ${value.fieldName}`);
+    return input;
+  }
+  throw new CrudError(400, `Unsupported scalar: ${value.fieldName}`);
+}
+
+export function identifier(model: Entity, raw: unknown): unknown {
+  const pk = key(model);
+  const type = pk.fieldProperties.fieldType;
+  let value = raw;
+  if (typeof raw === 'string') {
+    if (['int', 'integer'].includes(type)) {
+      if (!/^-?\d+$/.test(raw)) throw new CrudError(400, `Invalid identifier: ${pk.fieldName}`);
+      value = Number(raw);
+    } else if (['decimal', 'double'].includes(type)) {
+      if (!raw.trim() || !Number.isFinite(Number(raw))) throw new CrudError(400, `Invalid identifier: ${pk.fieldName}`);
+      value = Number(raw);
+    } else if (type === 'boolean') {
+      if (raw !== 'true' && raw !== 'false') throw new CrudError(400, `Invalid identifier: ${pk.fieldName}`);
+      value = raw === 'true';
+    }
+  }
+  return scalar(pk, value);
+}

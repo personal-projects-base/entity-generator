@@ -1,0 +1,158 @@
+import { CrudError } from './contracts';
+import { Entity, Field, field, related, opposite, scalar, enumValues, key, MAX_DEPTH } from './entity-metadata';
+
+export function queryString(value: unknown, name: string): string {
+  if (value === undefined || value === null) return '';
+  if (typeof value !== 'string') throw new CrudError(400, `Invalid ${name}`);
+  return value;
+}
+
+function path(model: Entity, raw: string): Field[] {
+  const parts = raw.split('.');
+  if (parts.length > MAX_DEPTH + 1) throw new CrudError(400, 'Path is too deep');
+  return parts.map((part, index) => {
+    if (!/^[a-zA-Z_][a-zA-Z0-9_]*\*?$/.test(part)) throw new CrudError(400, 'Invalid field path');
+    const current = field(model, part.replace(/\*$/, ''));
+    if (part.endsWith('*') && !current.list) throw new CrudError(400, 'Collection marker requires a list');
+    if (index < parts.length - 1) {
+      const target = related(current);
+      if (!target) throw new CrudError(400, 'Path must traverse a relationship');
+      model = target;
+    }
+    return current;
+  });
+}
+
+export function filterWhere(model: Entity, raw: string): Record<string, unknown> {
+  if (!raw.trim()) return {};
+  try {
+    const parts = raw.trim().split(/\s+(and|or)\s+/i);
+    const operators = parts.filter((_value, index) => index % 2 === 1).map(value => value.toLowerCase());
+    if (new Set(operators).size > 1) throw new Error('Mixed logical operators are not supported');
+    const conditions = parts.filter((_value, index) => index % 2 === 0).map(expression => {
+      const match = expression.trim().match(/^(\S+)\s+(eq|isNull|notNull|gte|ge|lte|le)(?:\s+(.+))?$/);
+      if (!match) throw new Error('Invalid expression');
+      const [, name, operator, value] = match;
+      if ((operator === 'isNull' || operator === 'notNull') ? value !== undefined : value === undefined) throw new Error('Invalid operand');
+      const fields = path(model, name);
+      const leaf = fields[fields.length - 1];
+      const target = related(leaf);
+      let predicate: unknown;
+      if (operator === 'isNull' || operator === 'notNull') {
+        if (leaf.list) {
+          if (!target) throw new Error('Scalar lists do not support null predicates');
+          predicate = { [operator === 'isNull' ? 'none' : 'some']: {} };
+        } else if (!leaf.metadata.nullable && !leaf.relationShips?.bidirectional) {
+          const always = operator === 'notNull' ? {} : { OR: [] };
+          return wrap(fields.slice(0, -1), always);
+        } else {
+          predicate = target ? { [operator === 'isNull' ? 'is' : 'isNot']: null }
+            : operator === 'isNull' ? null : { not: null };
+        }
+      } else {
+        if (target || leaf.list) throw new Error('Use a scalar field in the related path');
+        const type = leaf.fieldProperties.fieldType;
+        let operand: unknown = value!;
+        if (['int', 'integer', 'decimal', 'double'].includes(type)) operand = /^-?\d+(?:\.\d+)?$/.test(value!) ? Number(value) : NaN;
+        if (type === 'boolean') {
+          if (value !== 'true' && value !== 'false') throw new Error('Invalid boolean');
+          operand = value === 'true';
+        }
+        if (operator !== 'eq' && !['date', 'datetime'].includes(type)) throw new Error('Range operators require date/datetime');
+        const parsed = scalar(leaf, operand);
+        if (operator === 'eq' && ['string', 'password'].includes(type) && !enumValues(leaf)) {
+          // Match the Java LIKE/contains dialect; do not interpolate SQL.
+          predicate = { contains: parsed, mode: 'insensitive' };
+        } else {
+          predicate = { [operator === 'eq' ? 'equals' : ['gte', 'ge'].includes(operator) ? 'gte' : 'lte']: parsed };
+        }
+      }
+      return wrap(fields.slice(0, -1), { [leaf.fieldName]: predicate });
+    });
+    return conditions.length === 1 ? conditions[0] : { [operators[0] === 'or' ? 'OR' : 'AND']: conditions };
+  } catch {
+    throw new CrudError(400, `Invalid filter: ${raw}`);
+  }
+}
+
+function wrap(fields: Field[], leaf: Record<string, unknown>): Record<string, unknown> {
+  return fields.reduceRight((nested, current) => ({ [current.fieldName]: { [current.list ? 'some' : 'is']: nested } }), leaf);
+}
+
+export function orderBy(model: Entity, raw: string): Record<string, unknown> | undefined {
+  if (!raw.trim()) return undefined;
+  try {
+    const parts = raw.split(',').map(value => value.trim());
+    if (parts.length > 2) throw new Error();
+    const direction = (parts[1] ?? 'asc').toLowerCase();
+    if (!['asc', 'desc'].includes(direction)) throw new Error();
+    const fields = path(model, parts[0]);
+    if (fields.some(value => value.list) || related(fields[fields.length - 1])) throw new Error();
+    return fields.reduceRight<Record<string, unknown> | string>((nested, current) => ({ [current.fieldName]: nested }), direction) as Record<string, unknown>;
+  } catch { throw new CrudError(400, `Invalid order: ${raw}`); }
+}
+
+export interface Projection { all: boolean; children: Record<string, Projection> }
+const node = (): Projection => ({ all: false, children: Object.create(null) as Record<string, Projection> });
+
+export function projection(model: Entity, raw: string): Projection {
+  const root = node();
+  if (!raw.trim() || raw.trim() === '*') { root.all = true; return root; }
+  try {
+    for (const token of raw.split(/[;,]/).map(value => value.trim()).filter(Boolean)) {
+      if (token === '*') { root.all = true; continue; }
+      const wildcard = token.endsWith('.*');
+      const fields = path(model, wildcard ? token.slice(0, -2) : token);
+      let current = root;
+      for (const part of fields) current = current.children[part.fieldName] ??= node();
+      current.all = true;
+      if (wildcard && !related(fields[fields.length - 1])) throw new Error();
+    }
+    if (!root.all && !Object.keys(root.children).length) throw new Error();
+    return root;
+  } catch { throw new CrudError(400, `Invalid displayFields: ${raw}`); }
+}
+
+export function selectFields(model: Entity, requested: Projection, ancestors: string[] = [], depth = 0,
+  blockedField?: string): Record<string, unknown> {
+  const select: Record<string, unknown> = {};
+  for (const current of model.entityFields) {
+    // Do not load the reciprocal side of the relation that brought us here.
+    // This matches the Java DTO converter and avoids parent -> child -> parent duplication.
+    if (current.fieldName === blockedField) continue;
+    const explicit = requested.children[current.fieldName];
+    if (!requested.all && !explicit) continue;
+    const target = related(current);
+    if (!target) { select[current.fieldName] = true; continue; }
+    if (depth >= MAX_DEPTH) {
+      if (explicit) throw new CrudError(400, 'displayFields exceeds maximum relationship depth');
+      continue;
+    }
+    // Wildcard expansion stops on repeated models; explicit finite paths may traverse them.
+    if (ancestors.includes(model.entityName) && !explicit) continue;
+    const children = explicit ?? { all: true, children: {} };
+    select[current.fieldName] = { select: selectFields(target, children, [...ancestors, model.entityName], depth + 1,
+      opposite(model, current)?.fieldName) };
+  }
+  // Prisma requires a nonempty selection. The internal key is never exposed unless selected.
+  if (!Object.keys(select).length) select[key(model).fieldName] = true;
+  return select;
+}
+
+export function listQuery(model: Entity, params: Record<string, unknown>) {
+  const number = (name: string, fallback: number): number => {
+    const raw = params[name];
+    if (raw === undefined) return fallback;
+    if ((typeof raw !== 'string' && typeof raw !== 'number') || !/^-?\d+$/.test(String(raw))) throw new CrudError(400, `Invalid ${name}`);
+    const value = Number(raw);
+    if (!Number.isSafeInteger(value)) throw new CrudError(400, `Invalid ${name}`);
+    return value;
+  };
+  const size = number('size', 20);
+  const offset = Math.max(number('offset', 1), 1) - 1;
+  if (size <= 0 || !Number.isSafeInteger(size * offset)) throw new CrudError(400, 'Invalid size/offset');
+  const fields = projection(model, queryString(params.displayFields, 'displayFields'));
+  return { size, offset, fields, select: selectFields(model, fields),
+    where: filterWhere(model, queryString(params.filter, 'filter')),
+    orderBy: orderBy(model, queryString(params.order, 'order')) };
+}
