@@ -4,11 +4,9 @@
 
 `gonthera-cli` é uma ferramenta de geração de backends distribuída como Maven Plugin (`com.gonthera:gonthera-cli`) e executável standalone. Ela lê `project.json` no diretório em que o Maven/JAR foi executado, com fallback temporário para `properties.json`, e gera persistência, APIs, contratos, mensageria, scripts PostgreSQL e metadados de permissões para Java, .NET e Node.
 
-Este documento descreve o comportamento observado no código da versão `2.1.2`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
+Este documento descreve o comportamento consolidado até a versão `2.1.4` em desenvolvimento. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
 
-As mudanças Node em desenvolvimento estão sendo acumuladas em `2.1.3`, incluindo
-as correções e o futuro suporte MongoDB, por decisão explícita do responsável.
-Essa rodada não altera geradores/templates Java ou .NET.
+As correções do Node com PostgreSQL foram acumuladas em `2.1.3`. A versão `2.1.4` adiciona MongoDB somente ao Node e mantém Java e .NET sem alterações. O desenho e a matriz de validação estão em [MONGODB_2.1.4.md](MONGODB_2.1.4.md).
 
 ## Como consumir
 
@@ -40,7 +38,7 @@ Exemplo de declaração no `pom.xml` do serviço Java:
     <plugin>
       <groupId>com.gonthera</groupId>
       <artifactId>gonthera-cli</artifactId>
-      <version>2.1.2</version>
+      <version>2.1.4</version>
     </plugin>
   </plugins>
 </build>
@@ -61,7 +59,7 @@ A configuração pode ser validada sem executar os geradores:
 ```bash
 mvn gonthera-cli:validate
 gonthera-cli.exe --validate
-java -jar gonthera-cli-2.1.2.jar --validate
+java -jar gonthera-cli-2.1.4.jar --validate
 ```
 
 O modo de validação exige a pasta `.gonthera`, embora a geração continue aceitando temporariamente os arquivos da raiz. O validador verifica sintaxe e estrutura JSON, rejeita propriedades desconhecidas em qualquer nível e, após unificar os arquivos, verifica cabeçalho, coleções, entidades e chaves, campos, endpoints, enums, canais RabbitMQ e flags de autorização. A validação não apaga nem gera arquivos.
@@ -566,10 +564,10 @@ Quando `messaging.RabbitMq` é configurado, também são gerados:
 
 ### Node
 
-O alvo Node da 2.1.3 está maduro para APIs Express com Prisma e PostgreSQL. O
-responsável validou manualmente CRUD, relações, respostas expandidas, filtros,
-ordenação e paginação no serviço base. O suporte MongoDB ainda não existe e será a
-próxima etapa. Esta rodada não alterou os geradores Java e .NET.
+O alvo Node da 2.1.4 gera APIs Express com Prisma para PostgreSQL ou MongoDB. O
+provider é escolhido por configuração sem alterar rotas, DTOs, respostas, filtros,
+ordenação, projeção, OpenAPI ou RabbitMQ. Esta rodada não alterou os geradores Java
+e .NET.
 
 #### Saída gerada e fronteira de customização
 
@@ -581,6 +579,7 @@ src/generated/
 ├── configuration/database/         # DatabaseConfig abstrata
 ├── controllers/                    # fluxo CRUD
 ├── converters/                     # DTO, Prisma input e resposta
+├── documentation/                  # documento OpenAPI 3.0.3
 ├── endpoints/                      # contratos customizados
 ├── enums/
 ├── messaging/rabbitmq/             # somente quando RabbitMq possui canais
@@ -590,13 +589,20 @@ src/generated/
 prisma/schema.prisma
 ```
 
-Também são gerados os arquivos estáticos `properties.json`, `resources.json` e
-`postgree.sql`. Os fontes vêm de `src/main/resources/xsd/node/`.
+Também são gerados os arquivos estáticos `properties.json` e `resources.json`.
+`postgree.sql` é gerado somente para PostgreSQL. Os fontes vêm de
+`src/main/resources/xsd/node/`.
 
 O consumidor deve manter fora de `src/generated`: `package.json`, `tsconfig.json`,
 `.env`, migrations Prisma, implementação concreta de banco e RabbitMQ, `app.ts`,
-`server.ts`, middlewares, Swagger e autenticação. O Gonthera não sobrescreve esses
-arquivos. O `node-test-service` é a referência atual para montar essa camada manual.
+`server.ts`, middlewares, montagem do Swagger UI, extensões OpenAPI e autenticação.
+O Gonthera não sobrescreve esses arquivos. O `node-test-service` é a referência atual.
+
+O item 8.2 gera `documentation/openapi.ts` a partir das entidades, enums e endpoints.
+O documento inclui paths CRUD, schemas de resposta/POST/PUT/referência/paginação,
+relações, tipos reais das chaves, filtros, ordenação, projeção, erros e contratos de
+endpoints customizados. A aplicação pode importar `generatedOpenApiDocument` e
+mesclar título, health check, segurança, servidores e paths manuais fora da geração.
 
 `generateDefaultControllers: false` impede a geração do controller e da rota CRUD
 da entidade, permitindo que o consumidor forneça ambos manualmente. Com
@@ -636,12 +642,30 @@ e oferece `client`, `connect()` e `disconnect()`. Os hooks protegidos `resolveUr
 erro sem expor credenciais. O processo deve reutilizar uma instância concreta,
 conectar antes de abrir a porta HTTP e desconectar em `SIGINT`/`SIGTERM`.
 
-O `prisma/schema.prisma` gerado inclui datasource PostgreSQL, Prisma Client, enums,
-models, tipos nativos e relações. O projeto consumidor instala `dotenv`,
-`@prisma/client` e `prisma`, executa `prisma generate` e cria/aplica suas migrations.
-A CLI Prisma lê `DATABASE_URL` diretamente do ambiente; overrides de `resolveUrl`
-valem para a aplicação em execução. O SQL legado `postgree.sql` não representa as
-tabelas implícitas ManyToMany e não deve substituir migrations Prisma no Node.
+O provider é configurado no cabeçalho de `.gonthera/project.json`:
+
+```json
+"database": {
+  "provider": "MONGODB"
+}
+```
+
+Os valores aceitos são `POSTGRESQL` e `MONGODB`. O objeto `database` ausente mantém
+PostgreSQL como padrão; quando declarado, `provider` é obrigatório. `database` é
+aceito somente com `language: "NODE"`.
+
+O `prisma/schema.prisma` inclui o datasource escolhido, Prisma Client, enums,
+models e relações. A CLI Prisma lê `DATABASE_URL` diretamente do ambiente;
+overrides de `resolveUrl` valem para a aplicação em execução. PostgreSQL usa
+`prisma migrate`; MongoDB usa `prisma db push` e precisa operar como replica set
+para suportar as transações das escritas relacionadas.
+
+As regras ficam separadas em `PostgreSqlDatabaseDialect` e
+`MongoDbDatabaseDialect`, com templates de datasource próprios. PostgreSQL mantém
+tipos nativos, relações ManyToMany implícitas, `RepeatableRead` na listagem e
+`postgree.sql`. MongoDB usa UUID textual mapeado para `_id`, relações ManyToMany
+com arrays internos de IDs e transações sem isolation level. A geração Mongo remove
+um `postgree.sql` antigo para que a troca de provider não deixe artefatos relacionais.
 
 #### Relacionamentos PostgreSQL
 
@@ -663,6 +687,25 @@ A validação Node rejeita pares ausentes ou ambíguos, cardinalidade incorreta,
 `mappedBy` inválido e colisão de nome da FK antes de limpar a saída. Execute também
 `prisma validate` após gerar. Renomear campos usados no nome de uma relação pode
 exigir uma migration de dados.
+
+#### Relacionamentos MongoDB
+
+MongoDB conserva a mesma interpretação de proprietário, inverso e `mappedBy`.
+`OneToOne` mantém o ID único no proprietário; `ManyToOne` armazena o ID relacionado
+e recebe índice explícito; `OneToMany` permanece inverso. Em `ManyToMany`, ambos os
+lados recebem arrays escalares internos, como `tagsIds`, usados pelo Prisma em
+`fields` e `references`. Esses campos não aparecem nos DTOs, metadados ou OpenAPI.
+Relações proprietárias declaram `onDelete: NoAction` e `onUpdate: NoAction`, como o
+Prisma Mongo exige para ciclos e autorrelações.
+
+A chave de todas as entidades Mongo deve ser `uuid`. Ela é gerada como
+`String @id @default(uuid()) @map("_id")`, preservando o identificador público do
+PostgreSQL e evitando `ObjectId` no endpoint. Chaves inteiras são recusadas porque
+MongoDB não oferece `autoincrement()`.
+
+Nos filtros Mongo, `isNull` abrange valor nulo ou campo ausente. `notNull` exige
+campo presente e diferente de nulo; o gerador usa `isSet` internamente mantendo a
+mesma expressão recebida pelo endpoint.
 
 #### Contrato de entrada, persistência e saída
 
@@ -729,7 +772,7 @@ explícito. A base de exemplo ativa a mensageria somente com
 
 #### Referência executável
 
-`node-test-service` fornece Express 5, Swagger em `/docs`, OpenAPI em
+`node-test-service` fornece Express 5, Swagger em `/docs`, OpenAPI gerado em
 `/openapi.json`, health check, middleware `{error:{code,message}}`, configuração
 concreta do Prisma, bootstrap opcional RabbitMQ e encerramento ordenado. Seus scripts
 executam desenvolvimento, build, typecheck, Prisma e o JAR local do Gonthera. A API
@@ -801,7 +844,7 @@ Os namespaces fixos do template `CustomDbContext` atualmente usam `DataOnBackend
 
 ## SQL e permissões
 
-O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junção Many-to-Many. Não há seleção de banco no contrato atual e não há migrations incrementais: o arquivo é recriado por completo.
+O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junção Many-to-Many. Para Node com `database.provider: "MONGODB"`, ele não é gerado e um `postgree.sql` anterior é removido. Não há migrations incrementais: no PostgreSQL o arquivo é recriado por completo, enquanto MongoDB usa `prisma db push`.
 
 `resources.json` contém:
 
@@ -813,7 +856,7 @@ O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junç
 - A geração é destrutiva nos diretórios `_gen`; não coloque código manual neles.
 - Execute sempre na raiz correta: a resolução usa `System.getProperty("user.dir")`.
 - Mantenha nomes em lower camel case. Vários trechos apenas alteram o primeiro caractere e não sanitizam identificadores.
-- Garanta uma única PK por entidade. O Node 2.1.3 rejeita uma entidade sem exatamente uma chave escalar antes de limpar a saída; os demais alvos ainda possuem caminhos legados menos claros para contratos inválidos.
+- Garanta uma única PK por entidade. O Node rejeita uma entidade sem exatamente uma chave escalar antes de limpar a saída; no MongoDB 2.1.4 essa chave deve usar `fieldType: "uuid"`. Os demais alvos ainda possuem caminhos legados menos claros para contratos inválidos.
 - Listas nulas, metadata ausente e relacionamentos incompletos normalmente causam falhas sem mensagem de validação útil.
 - O teste existente executa geração sobre arquivos reais, captura exceções e não possui assertions; ele não garante a validade/compilação do resultado.
 - O plugin compila em Java 11, mas o código Java gerado usa Jakarta/Spring 6, o que normalmente implica runtime Java 17 no serviço consumidor.

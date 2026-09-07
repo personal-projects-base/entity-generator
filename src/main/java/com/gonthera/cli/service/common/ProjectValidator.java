@@ -8,6 +8,7 @@ import com.gonthera.cli.model.MessagingChannel;
 import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.model.RabbitMq;
 import com.gonthera.cli.enuns.Language;
+import com.gonthera.cli.enuns.DatabaseProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +33,38 @@ public final class ProjectValidator {
         validateEndpoints(project, errors);
         validateEnums(project, errors);
         validateMessaging(project, errors);
+        validateDatabase(project, errors);
 
         if (!errors.isEmpty()) throw new ProjectValidationException(errors);
+    }
+
+    private static void validateDatabase(Properties project, List<String> errors) {
+        if (project.getDatabase() != null && project.getLanguage() != Language.NODE) {
+            errors.add("database is supported only when language is NODE");
+            return;
+        }
+        if (project.getLanguage() != Language.NODE || project.getDatabase() == null) return;
+        if (project.getDatabase().getProvider() == null) {
+            errors.add("database.provider must be POSTGRESQL or MONGODB");
+            return;
+        }
+        if (project.getDatabase().getProvider() != DatabaseProvider.MONGODB
+                || project.getEntities() == null) return;
+
+        for (int entityIndex = 0; entityIndex < project.getEntities().size(); entityIndex++) {
+            Entities entity = project.getEntities().get(entityIndex);
+            if (entity == null || entity.getEntityFields() == null) continue;
+            for (int fieldIndex = 0; fieldIndex < entity.getEntityFields().size(); fieldIndex++) {
+                EntityFields field = entity.getEntityFields().get(fieldIndex);
+                if (field == null || field.getMetadata() == null || !field.getMetadata().isKey()
+                        || field.getFieldProperties() == null) continue;
+                if (!"uuid".equals(field.getFieldProperties().getFieldType())) {
+                    errors.add(String.format(
+                            "entities[%d].entityFields[%d]: MongoDB Node keys must use fieldType uuid",
+                            entityIndex, fieldIndex));
+                }
+            }
+        }
     }
 
     public static List<String> warnings(Properties project) {

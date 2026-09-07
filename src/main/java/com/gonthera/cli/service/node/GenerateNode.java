@@ -2,6 +2,8 @@ package com.gonthera.cli.service.node;
 
 import com.google.gson.Gson;
 import com.gonthera.cli.model.Properties;
+import com.gonthera.cli.service.node.database.NodeDatabaseDialect;
+import com.gonthera.cli.service.node.database.NodeDatabaseDialects;
 import com.gonthera.cli.service.common.Common;
 
 import java.io.IOException;
@@ -16,7 +18,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static com.gonthera.cli.service.common.Common.loadPath;
 import static com.gonthera.cli.service.common.GenerateResources.generateResources;
-import static com.gonthera.cli.service.common.GenerateSQL.generateSql;
 import static com.gonthera.cli.service.node.GenerateEndpoint.generateCrudControllers;
 import static com.gonthera.cli.service.node.GenerateEndpoint.generateEndpoints;
 import static com.gonthera.cli.service.node.GenerateEnum.generateEnums;
@@ -31,19 +32,20 @@ public class GenerateNode {
     private static Path packagePath = null;
 
     public static void generateSource(Properties prop) {
-        GeneratePrisma.validateCollectionRelations(prop.getEntities());
+        NodeDatabaseDialect database = NodeDatabaseDialects.resolve(prop);
+        GeneratePrisma.validateCollectionRelations(prop.getEntities(), database.provider());
         dropAndCreateDir();
         GenerateDatabaseConfiguration.generate(packagePath);
-        GenerateCrudSupport.generate(prop, packagePath);
+        GenerateCrudSupport.generate(prop, packagePath, database);
         generateModels(prop.getEntities(), packagePath);
         generateEnums(prop.getEnums(), packagePath);
-        generateRepositories(prop.getEntities(), packagePath);
+        generateRepositories(prop.getEntities(), packagePath, database);
         generateCrudControllers(prop.getEntities(), packagePath);
         generateEndpoints(prop.getEndpoints(), packagePath);
         generate(prop, packagePath);
         generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), packagePath);
-        generatePrismaSchema(prop.getEntities(), prop.getEnums());
-        generateSql(prop.getEntities());
+        generatePrismaSchema(prop.getEntities(), prop.getEnums(), database.provider());
+        database.generateDatabaseArtifacts(prop.getEntities(), Common.resourcePath);
         generateMetadata(prop);
         generateResources(prop.getEntities(), prop.getEndpoints());
     }

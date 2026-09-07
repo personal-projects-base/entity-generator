@@ -28,8 +28,8 @@
     components: { CodeBlock },
     data() {
       return {
-        documentationVersion: '2.1.3',
-        currentVersion: '2.1.2',
+        documentationVersion: '2.1.4',
+        currentVersion: '2.1.4',
         selectedLanguage: 'java',
         activeSection: 'inicio',
         mobileNavOpen: false,
@@ -60,7 +60,7 @@
             { id: 'estrutura', label: 'Aplicação e arquivos' }
           ]},
           { label: 'Obter', items: [
-            { id: 'downloads', label: 'Downloads', badge: '2.1.2' }
+            { id: 'downloads', label: 'Downloads', badge: '2.1.4' }
           ]}
         ],
         projectProperties: [
@@ -214,7 +214,7 @@ Content-Type: application/json
     <plugin>
       <groupId>com.gonthera</groupId>
       <artifactId>gonthera-cli</artifactId>
-      <version>2.1.2</version>
+      <version>2.1.4</version>
     </plugin>
   </plugins>
 </build>`,
@@ -222,8 +222,8 @@ Content-Type: application/json
 mvn gonthera-cli:generate-sources
 
 # Alternativa com o JAR
-java -jar gonthera-cli-2.1.2.jar --validate
-java -jar gonthera-cli-2.1.2.jar`,
+java -jar gonthera-cli-2.1.4.jar --validate
+java -jar gonthera-cli-2.1.4.jar`,
             project: `{
   "mainPackage": "com.example.customer",
   "projectName": "customer-service",
@@ -346,17 +346,18 @@ SECRET_JWT: \${SECRET_JWT}`,
             command: 'npm run gonthera-cli',
             highlights: [
               { title: 'Contrato previsível', text: 'CRUD, filtros, paginação e projeção seguem o padrão HTTP do projeto.' },
-              { title: 'Prisma completo', text: 'Schema PostgreSQL, relações bidirecionais e persistência transacional.' },
+              { title: 'Banco selecionável', text: 'Schema PostgreSQL ou MongoDB com o mesmo contrato HTTP e relações bidirecionais.' },
               { title: 'Base extensível', text: 'Configuração abstrata, Express 5, Swagger e RabbitMQ recuperável.' }
             ],
             installTitle: 'Execute o JAR pelo npm', installText: 'Coloque o JAR em um caminho estável e registre os scripts no package.json.', installLang: 'json',
             install: `{
   "scripts": {
-    "gonthera-cli": "java -jar ./tools/gonthera-cli-2.1.3.jar",
-    "gonthera-validate": "java -jar ./tools/gonthera-cli-2.1.3.jar --validate",
+    "gonthera-cli": "java -jar ./tools/gonthera-cli-2.1.4.jar",
+    "gonthera-validate": "java -jar ./tools/gonthera-cli-2.1.4.jar --validate",
     "prisma:validate": "prisma validate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:push": "prisma db push",
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
@@ -367,11 +368,13 @@ SECRET_JWT: \${SECRET_JWT}`,
     "amqp-connection-manager": "^5.0.0",
     "amqplib": "^2.0.1",
     "dotenv": "16.4.7",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "22.10.2",
+    "@types/swagger-ui-express": "^4.1.8",
     "prisma": "5.22.0",
     "tsx": "4.20.6",
     "typescript": "5.7.2"
@@ -382,14 +385,18 @@ npm run gonthera-validate
 npm run gonthera-cli
 npm run prisma:validate
 npm run prisma:generate
-npm run prisma:migrate -- --name initial
+# PostgreSQL: npm run prisma:migrate -- --name initial
+# MongoDB: npm run prisma:push
 npm run dev`,
             project: `{
   "mainPackage": "com.example.customer",
   "projectName": "customer-service",
-  "language": "NODE"
+  "language": "NODE",
+  "database": {
+    "provider": "MONGODB"
+  }
 }`,
-            entityTitle: 'DTO TypeScript e schema Prisma', entityText: 'O DTO representa o contrato HTTP; o schema gerado cuida da persistência e das FKs internas.', entityLang: 'typescript / prisma',
+            entityTitle: 'DTO TypeScript e schema Prisma MongoDB', entityText: 'O DTO representa o mesmo contrato HTTP nos dois bancos; este schema Mongo mostra os IDs internos que não chegam à API.', entityLang: 'typescript / prisma',
             entityCode: `export interface CustomerDTO {
   id: string;
   name: string;
@@ -399,17 +406,19 @@ npm run dev`,
 }
 
 model Customer {
-  id        String     @id @default(uuid()) @db.Uuid
+  id        String     @id @default(uuid()) @map("_id")
   name      String
   profile   Profile?
   purchases Purchase[]
-  tags      Tag[]      @relation("Customer_Tag_tags")
+  tags      Tag[]      @relation("Customer_Tag_tags", fields: [tagsIds], references: [id])
+  tagsIds   String[]   @map("tags_ids")
 }`,
             output: `src/generated/
 ├── common/
 ├── configuration/database/
 ├── controllers/
 ├── converters/
+├── documentation/
 ├── endpoints/
 ├── enums/
 ├── messaging/rabbitmq/
@@ -417,19 +426,19 @@ model Customer {
 ├── repositories/
 └── routes/
 prisma/schema.prisma`,
-            relationLang: 'prisma', relationTitle: 'OneToOne proprietário e inverso',
+            relationLang: 'prisma', relationTitle: 'OneToOne MongoDB proprietário e inverso',
             relationCode: `model Profile {
-  id         String    @id @default(uuid()) @db.Uuid
+  id         String    @id @default(uuid()) @map("_id")
   bio        String?
   customer   Customer  @relation("Profile_Customer_customer", fields: [customerId], references: [id])
-  customerId String    @unique @db.Uuid
+  customerId String    @unique @map("customer")
 }
 
 model Customer {
-  id      String   @id @default(uuid()) @db.Uuid
+  id      String   @id @default(uuid()) @map("_id")
   profile Profile? @relation("Profile_Customer_customer")
 }`,
-            relationNotes: ['Envie customer: { id } em vez de customerId.', 'reference: true conecta um registro existente.', 'O campo recíproco imediato volta como null para cortar ciclos.', 'OneToMany substitui filhos enviados; ManyToMany substitui somente vínculos.', 'OneToOne, ManyToMany e autorrelações são validados antes da geração.'],
+            relationNotes: ['Envie customer: { id } em vez de customerId.', 'reference: true conecta um registro existente.', 'O campo recíproco imediato volta como null para cortar ciclos.', 'OneToMany substitui filhos enviados; ManyToMany substitui somente vínculos.', 'No MongoDB, arrays como tagsIds são internos e não aparecem na API.', 'OneToOne, ManyToMany e autorrelações são validados antes da geração.'],
             crudLang: 'json / typescript', crudTitle: 'Controller abstrato com CRUD funcional',
             crudCode: `// entities.json
 {
@@ -461,7 +470,7 @@ router.get('/customer/summary', async (_request, response) => {
   const output: CustomerSummaryOutput = await summary();
   response.json(output);
 });`,
-            endpointNotes: ['O Gonthera gera os tipos de input/output e a estrutura de rota.', 'Implemente a regra de negócio fora de src/generated.', 'anonymous é metadado do contrato; o middleware de segurança pertence à aplicação.', 'Registre overrides antes das rotas CRUD geradas.'],
+            endpointNotes: ['O Gonthera gera os tipos de input/output, a estrutura de rota e o contrato OpenAPI.', 'Implemente a regra de negócio fora de src/generated.', 'anonymous e permissões são preservados como metadados OpenAPI; o middleware pertence à aplicação.', 'Registre overrides antes das rotas CRUD geradas.'],
             queryLang: 'http / json',
             queryExample: `GET /customer?size=20&offset=1
   &filter=name eq geo and profile notNull
@@ -474,7 +483,7 @@ router.get('/customer/summary', async (_request, response) => {
   "total": 1,
   "contents": []
 }`,
-            queryNotes: ['eq converte texto, UUID, enum, número e booleano para o Prisma.', 'Datas aceitam gte/ge e lte/le em ISO.', 'Relações usam ponto; coleções aceitam ponto ou *.', 'A entrada offset=1 representa a primeira página e a saída é zero-based.', 'Não misture and e or; não há parênteses ou escape.'],
+            queryNotes: ['eq converte texto, UUID, enum, número e booleano para o Prisma.', 'Datas aceitam gte/ge e lte/le em ISO.', 'Relações usam ponto; coleções aceitam ponto ou *.', 'No MongoDB, isNull inclui campos ausentes e notNull exige campo presente.', 'A entrada offset=1 representa a primeira página e a saída é zero-based.', 'Não misture and e or; não há parênteses ou escape.'],
             messagingLang: 'typescript', messagingTitle: 'Conexão e canais recuperáveis',
             messagingCode: `export class AppRabbitConfig extends RabbitConfig {
   constructor() {
@@ -495,7 +504,7 @@ await customerChangedPub.publish(customerDto);`,
 app.use(authenticationMiddleware);
 app.use(authorizationMiddleware);
 app.use(createGeneratedRoutes(database.client, controllerFactories));`,
-            securityNotes: ['Mantenha middlewares fora de src/generated.', 'Registre rotas customizadas antes das rotas geradas ao sobrescrever um caminho.', 'Swagger e OpenAPI também pertencem à aplicação consumidora.'],
+            securityNotes: ['Mantenha middlewares fora de src/generated.', 'Registre rotas customizadas antes das rotas geradas ao sobrescrever um caminho.', 'O Gonthera gera o OpenAPI; a aplicação monta o Swagger UI e pode estender segurança, servidores e paths.'],
             runtimeTitle: 'Conecte o Prisma antes de abrir a porta', runtimeText: 'Estenda DatabaseConfig fora da geração e compartilhe a mesma instância com todas as rotas.', runtimeLang: 'typescript',
             runtimeCode: `import { DatabaseConfig } from './generated/configuration/database/database.config';
 import { CustomerController } from './generated/controllers/customer.controller';
@@ -524,21 +533,25 @@ const server = app.listen(process.env.PORT ?? 3000);
 // Em SIGINT/SIGTERM:
 server.close(async () => database.disconnect());`,
             environmentTitle: '.env', environmentLang: 'dotenv',
-            environmentCode: `DATABASE_URL="postgresql://user:password@localhost:5432/customer?schema=public"
+            environmentCode: `# PostgreSQL
+DATABASE_URL="postgresql://user:password@localhost:5432/customer?schema=public"
+
+# MongoDB replica set
+# DATABASE_URL="mongodb://user:password@localhost:27017/customer?replicaSet=rs0"
 HOST=127.0.0.1
 PORT=3000
 
 RABBITMQ_ENABLED=false
 RABBITMQ_URL=amqp://guest:guest@localhost:5672
 RABBITMQ_EXCHANGE=customer.events`,
-            generatedFiles: ['DTOs, metadados e converters', 'Repositories, controllers e todas as rotas', 'Contrato tipado GeneratedControllerFactories', 'DatabaseConfig abstrata', 'schema.prisma PostgreSQL', 'RabbitMQ quando configurado'],
-            manualFiles: ['package.json e tsconfig.json', '.env e migrations Prisma', 'Implementações concretas e registro de factories', 'AppDatabaseConfig, app.ts e server.ts', 'Middleware de erros, Swagger e autenticação'],
-            caveat: 'MongoDB ainda não está implementado. Use migrations Prisma para PostgreSQL; o SQL legado não representa tabelas implícitas ManyToMany.'
+            generatedFiles: ['DTOs, metadados e converters', 'Repositories, controllers e todas as rotas', 'OpenAPI com CRUD, schemas e endpoints', 'Contrato tipado GeneratedControllerFactories', 'DatabaseConfig abstrata', 'schema.prisma PostgreSQL ou MongoDB', 'SQL somente no PostgreSQL', 'RabbitMQ quando configurado'],
+            manualFiles: ['package.json e tsconfig.json', '.env e migrations Prisma', 'Implementações concretas e registro de factories', 'AppDatabaseConfig, app.ts e server.ts', 'Middleware de erros, montagem do Swagger UI, extensões OpenAPI e autenticação'],
+            caveat: 'MongoDB exige chaves UUID e replica set. Use prisma migrate no PostgreSQL e prisma db push no MongoDB.'
           },
           dotnet: {
             id: 'dotnet', name: '.NET', icon: '.N', stack: 'ASP.NET Core + Entity Framework Core',
             hero: 'Gere uma API C# organizada com controllers, DTOs e persistência Entity Framework.',
-            command: 'java -jar gonthera-cli-2.1.2.jar',
+            command: 'java -jar gonthera-cli-2.1.4.jar',
             highlights: [
               { title: 'Saída C# organizada', text: 'Entidades, DTOs, converters, repositories e controllers.' },
               { title: 'Controllers extensíveis', text: 'Actions virtuais e controllers abstratos opcionais.' },
@@ -549,8 +562,8 @@ RABBITMQ_EXCHANGE=customer.events`,
 .\\gonthera-cli.exe
 
 # Alternativa multiplataforma
-java -jar gonthera-cli-2.1.2.jar --validate
-java -jar gonthera-cli-2.1.2.jar`,
+java -jar gonthera-cli-2.1.4.jar --validate
+java -jar gonthera-cli-2.1.4.jar`,
             commands: `.\\gonthera-cli.exe --validate
 .\\gonthera-cli.exe
 dotnet restore
@@ -656,8 +669,8 @@ app.Run();`,
           }
         },
         downloads: [
-          { platform: 'Windows', name: 'gonthera-cli.exe', icon: '⊞', size: '2,7 MB', href: './downloads/2.1.2/gonthera-cli.exe', sha: 'bc36e81b7b5e655e51354655019a5346ecf5354ef9e2274b532ebfe4fdee1b10' },
-          { platform: 'Multiplataforma', name: 'gonthera-cli-2.1.2.jar', icon: 'J', size: '2,6 MB', href: './downloads/2.1.2/gonthera-cli-2.1.2.jar', sha: '6c53ab4347ea7297929b5530c46a67ba93ff75b07ccb85c66c35afb76a7b0efa' }
+          { platform: 'Windows', name: 'gonthera-cli.exe', icon: '⊞', size: '2,7 MB', href: './downloads/2.1.4/gonthera-cli.exe', sha: '4f7b53025bcc73f9b729fc1b1e74d88e59bba30e8e4a9c0d2c10edce2ec60e28' },
+          { platform: 'Multiplataforma', name: 'gonthera-cli-2.1.4.jar', icon: 'J', size: '2,6 MB', href: './downloads/2.1.4/gonthera-cli-2.1.4.jar', sha: '605ea85ad7f07e553e1d81b32285e415341c3686b0d55626d0ea705331aa2c7f' }
         ]
       };
     },

@@ -59,7 +59,7 @@ export class <<entityName>>Repository {
       this.prisma.<<prismaDelegate>>.findMany({ where, take: query.size, skip: query.offset * query.size,
         orderBy: query.orderBy as Prisma.<<entityName>>OrderByWithRelationInput | undefined,
         select: query.select as Prisma.<<entityName>>Select })
-    ], { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead });
+    ]<<transactionOptions>>);
     return { size: query.size, offset: query.offset, total,
       contents: rows.map(row => toDTO(this.model, row, query.fields) as EntityOutput<<<entityName>>DTO>) };
   }

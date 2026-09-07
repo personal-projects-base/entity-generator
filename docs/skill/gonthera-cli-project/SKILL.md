@@ -27,7 +27,7 @@ Supported targets:
 
 Java CRUD controllers delegate persistence, conversion, filtering, pagination, and transactions to generated `*Service` classes. `serviceAbstract: false` generates a concrete Spring `@Service`; `serviceAbstract: true` generates an abstract class without `@Service` and must produce a validator warning that the consumer needs a concrete Spring bean. Prefer `generateDefaultControllers` and `controllerAbstract`; accept `generateDefaultHandlers` and `handlerAbstract` only as deprecated aliases with warnings and new-name precedence.
 - `DOTNET`: C# generation under `<mainPackage>_gen`, physically organized into `Entities`, `Dtos`, `Converters`, `Repositories`, `Controllers`, `Endpoints`, `Enums`, `Common`, `Data`, and `Messaging`; static files remain under `static`. Generated C# files currently retain the shared root namespace `<mainPackage>.<mainPackage>_Gen` despite the physical folders.
-- `NODE`: TypeScript/Express generation under `src/generated` plus a Prisma/PostgreSQL `prisma/schema.prisma`, with CRUD converters, relations, query parsing, database configuration, and optional RabbitMQ. MongoDB is pending.
+- `NODE`: TypeScript/Express generation under `src/generated` plus a Prisma schema for PostgreSQL or MongoDB, with CRUD converters, relations, query parsing, database configuration, and optional RabbitMQ.
 - SQL: PostgreSQL script generation as `postgree.sql`.
 - Messaging: RabbitMQ generation under `messaging.RabbitMq`.
 
@@ -296,7 +296,7 @@ Do not use simplified field examples like top-level `fieldType` or top-level `nu
 
 ## Relationships
 
-Java and C# relationship generation are mature. Node relationship generation is also mature for Prisma with PostgreSQL as of 2.1.3; MongoDB remains pending.
+Java and C# relationship generation are mature. Node relationship generation supports Prisma with PostgreSQL and, from 2.1.4, MongoDB while preserving the same HTTP relation contract.
 
 Relationship fields use `relationShips`:
 
@@ -387,7 +387,7 @@ Rules:
 
 ## Node.js Scope
 
-Node 2.1.3 generation for Prisma/PostgreSQL includes:
+Node generation for Prisma/PostgreSQL and Prisma/MongoDB includes:
 
 - models/DTO contracts and entity metadata;
 - enums;
@@ -395,12 +395,13 @@ Node 2.1.3 generation for Prisma/PostgreSQL includes:
 - DTO/entity/Prisma converters with cycle protection;
 - Express controllers and routes with uniform CRUD errors;
 - endpoint contracts;
+- OpenAPI 3.0.3 paths and schemas derived from entities, enums, and endpoints;
 - query parsing for filters, order, projection, and pagination;
 - abstract `configuration/database/DatabaseConfig`;
 - RabbitMQ connection, publisher, and subscriber abstractions when configured;
 - static files;
-- SQL;
-- a complete PostgreSQL `prisma/schema.prisma`, including supported relations.
+- SQL when the provider is PostgreSQL;
+- a provider-specific `prisma/schema.prisma`, including supported relations.
 
 Node does not generate:
 
@@ -409,12 +410,14 @@ Node does not generate:
 - `.env`;
 - migrations;
 - a concrete database configuration;
-- Express application/server bootstrap, error middleware, Swagger, or authentication;
+- Express application/server bootstrap, error middleware, Swagger UI mounting, application-owned OpenAPI extensions, or authentication;
 - a concrete RabbitMQ configuration and listener implementations.
 
 Node controller customization supports the same inheritance intent as Java. `generateDefaultControllers: false` suppresses the generated controller and route. With `controllerAbstract: true`, generate an abstract base with implemented CRUD methods, a protected repository, and normal prototype methods so subclasses can call `super`. Generated route handlers must invoke the controller through wrappers to preserve `this` and dispatch overrides.
 
 `GeneratedControllerFactories` is the runtime composition contract. A factory property is required for every abstract controller and optional for concrete controllers. `createGeneratedRoutes(prisma, factories)` keeps all HTTP bindings generated; the consumer provides only its concrete subclass and a registry entry such as `customer: repository => new AppCustomerController(repository)`. Keep a runtime missing-factory error in each abstract route in addition to the TypeScript requirement. Do not make generated routes import consumer files or require consumers to repeat CRUD bindings.
+
+Generate `src/generated/documentation/openapi.ts` from the same metadata used by Node CRUD. Include only entities with generated CRUD in paths, while keeping component schemas for referenced DTO entities. Describe actual primary-key types, relation references, create/update/output/page contracts, query parameters, standard errors, enums, and custom endpoint input/output. GET custom endpoints use query parameters; POST custom endpoints use a JSON request body. Preserve `grouper`, anonymous metadata, and permission metadata. Consumer code may merge health, title, servers, security, and manual paths outside `src/generated`; never make the generated document import consumer code.
 
 Node runtime contract:
 
@@ -425,7 +428,13 @@ Node runtime contract:
 - GET/POST/PUT expand relations but replace the immediate reciprocal field with `null`; expansion is bounded to six relationship hops.
 - Lists return `{size, offset, total, contents}`. Request page numbering starts at 1 and response `offset` is zero-based.
 - Entities must have exactly one scalar primary key. The route stays `/:id`, while generated code resolves and converts the configured key name and type.
-- MongoDB is not implemented yet. Do not describe the PostgreSQL Prisma schema or relation persistence as Mongo-compatible until item 9 is complete.
+- Resolve `database.provider` through `NodeDatabaseDialects`. A missing `database` object means `POSTGRESQL`; once the object is declared, `provider` is required and accepts `POSTGRESQL` or `MONGODB`.
+- Keep relational and document behavior in their respective `PostgreSqlDatabaseDialect` and `MongoDbDatabaseDialect` classes and datasource templates. Shared relation pairing remains in `GeneratePrisma`.
+- MongoDB entities require a scalar `uuid` key, mapped to `_id` as a string. Do not expose `ObjectId` or synthetic relation ID fields through DTOs or OpenAPI.
+- MongoDB `ManyToMany` requires scalar ID arrays on both sides. PostgreSQL keeps implicit Prisma many-to-many relations.
+- MongoDB owner relations use `onDelete: NoAction` and `onUpdate: NoAction` so cyclic and self-relations satisfy Prisma validation.
+- MongoDB repositories omit relational isolation levels and require a replica set for transactions. Use `prisma db push`; Prisma Migrate remains the PostgreSQL flow.
+- Preserve public `isNull`/`notNull` syntax. In MongoDB, include missing fields through `isSet` for the intended null semantics.
 
 ## Templates
 
@@ -502,4 +511,4 @@ When validating generation, create a temporary project under `/tmp`, copy or cre
 - Do not change generated output paths unless explicitly requested.
 - Do not revert unrelated dirty files.
 - Do not edit generated `_gen` output as source of truth.
-- Describe Node as mature for Prisma/PostgreSQL only. Keep MongoDB, authentication, migrations, and consumer bootstrap listed as pending or consumer-owned until implemented.
+- Describe Node as supporting Prisma/PostgreSQL and Prisma/MongoDB. Keep authentication, database lifecycle scripts and consumer bootstrap consumer-owned.

@@ -42,12 +42,14 @@ export function filterWhere(model: Entity, raw: string): Record<string, unknown>
         if (leaf.list) {
           if (!target) throw new Error('Scalar lists do not support null predicates');
           predicate = { [operator === 'isNull' ? 'none' : 'some']: {} };
-        } else if (!leaf.metadata.nullable && !leaf.relationShips?.bidirectional) {
+        } else if (<<requiredNullCondition>>) {
           const always = operator === 'notNull' ? {} : { OR: [] };
           return wrap(fields.slice(0, -1), always);
         } else {
-          predicate = target ? { [operator === 'isNull' ? 'is' : 'isNot']: null }
-            : operator === 'isNull' ? null : { not: null };
+          if (target) predicate = { [operator === 'isNull' ? 'is' : 'isNot']: null };
+          else {
+            <<scalarNullPredicate>>
+          }
         }
       } else {
         if (target || leaf.list) throw new Error('Use a scalar field in the related path');

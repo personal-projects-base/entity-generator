@@ -1,3 +1,15 @@
+## >2.1.4 - 07-09-2026
+
+### Node com MongoDB
+* Adicionada `database.provider` à configuração Node, aceitando `POSTGRESQL` e `MONGODB`; a ausência da propriedade preserva PostgreSQL como padrão.
+* Separadas as regras relacionais e documentais em dialetos e templates próprios, mantendo compartilhada a validação estrutural das relações.
+* O schema Mongo usa UUID textual em `_id`, relações explícitas `ManyToMany` com arrays internos de IDs, FKs escalares em `OneToOne`/`ManyToOne`, índices das relações `ManyToOne` e ações `NoAction` nos proprietários para suportar ciclos e autorrelações.
+* Repositories Mongo mantêm transações sem enviar o isolamento PostgreSQL `RepeatableRead`. O runtime exige MongoDB configurado como replica set.
+* Filtros Mongo preservam a sintaxe pública e tratam `isNull` como nulo ou campo ausente e `notNull` como campo presente não nulo.
+* A geração Mongo não cria `postgree.sql` e remove esse artefato ao trocar um projeto Node de PostgreSQL para MongoDB. O fluxo de schema usa `prisma db push` porque Prisma Migrate não suporta MongoDB.
+* Projetos Node Mongo exigem uma única chave escalar `uuid`, preservando o mesmo contrato de identificador e evitando o `autoincrement()` indisponível no MongoDB.
+* O schema Mongo foi validado pelo Prisma 5.22 e a saída TypeScript passou no `typecheck`. A validação funcional contra um replica set real permanece manual.
+
 ## >2.1.3 - Em desenvolvimento
 
 ### Relacionamentos Node com Prisma e PostgreSQL
@@ -25,9 +37,10 @@
 * Adicionada a geração de `configuration/database/database.config.ts`. A classe abstrata `DatabaseConfig` carrega `.env`, reutiliza um `PrismaClient`, oferece `connect()`/`disconnect()` e hooks para URL, opções e criação do cliente; a implementação concreta fica fora de `src/generated`.
 * `prisma/schema.prisma` é gerado com datasource PostgreSQL, Prisma Client, enums, models, tipos nativos e relacionamentos. Migrations continuam sendo responsabilidade do projeto consumidor.
 * `controllerAbstract: true` agora gera no Node uma base abstrata com CRUD funcional, repository protegido e métodos sobrescrevíveis. `GeneratedControllerFactories` exige uma implementação concreta para cada controller abstrato e aceita overrides opcionais para controllers concretos; todas as rotas permanecem geradas e validam factories ausentes em runtime.
-* Criado `node-test-service` como serviço base reutilizável com Express 5, configuração concreta do banco, tratamento uniforme de erros, health check, Swagger UI em `/docs`, OpenAPI em `/openapi.json` e encerramento ordenado do Prisma.
+* Item 8.2: o Node agora gera `src/generated/documentation/openapi.ts` a partir de entidades, enums e endpoints. O documento inclui CRUD, tipos reais de chave, schemas de criação/atualização/resposta/referência, relações, paginação, filtros, projeção, erros, permissões e endpoints customizados.
+* Criado `node-test-service` como serviço base reutilizável com Express 5, configuração concreta do banco, tratamento uniforme de erros, health check, Swagger UI em `/docs`, extensão externa do OpenAPI gerado e encerramento ordenado do Prisma.
 * O serviço inclui `.env.example`, migration PostgreSQL inicial e scripts `dev`, `build`, `start`, `typecheck`, `gonthera-cli`, `gonthera-validate` e migrations Prisma. O comando npm executa o JAR local para manter a geração independente do ecossistema da aplicação.
-* `package.json`, `tsconfig.json`, `.env`, migrations, servidor Express, Swagger, middleware de erros e configurações concretas continuam sendo arquivos do consumidor e não são sobrescritos pelo gerador.
+* `package.json`, `tsconfig.json`, `.env`, migrations, servidor Express, montagem do Swagger UI, extensões OpenAPI, middleware de erros e configurações concretas continuam sendo arquivos do consumidor e não são sobrescritos pelo gerador.
 
 ### RabbitMQ no Node
 * A geração passou a usar `amqp-connection-manager` 5.0.0 sobre `amqplib` 2.0.1, compartilhando uma conexão entre publishers e subscribers.
@@ -38,7 +51,7 @@
 * O JAR 2.1.3 foi compilado, a saída Node foi regenerada e o projeto TypeScript passou por `typecheck` e `build`.
 * O responsável validou manualmente a API Node com PostgreSQL, incluindo CRUD, relações bidirecionais, expansão de DTOs, filtros e paginação, e aprovou o comportamento como base de projeto.
 * O portal estático foi reorganizado por linguagem. Um seletor na introdução mantém toda a navegação e todos os exemplos seguintes restritos a Java, Node.js ou .NET; as trilhas Java e Node incluem instalação, geração, código, relações, CRUD, filtros, RabbitMQ, segurança e fronteiras dos arquivos gerados.
-* A ampliação dos testes automatizados permanece para uma etapa posterior. O suporte MongoDB ainda não foi implementado e será o próximo item da 2.1.3.
+* A ampliação dos testes automatizados permanece para uma etapa posterior. O suporte MongoDB ainda não foi implementado e foi planejado separadamente para a versão 2.1.4.
 
 ## >2.1.2 - 02-09-2026
 

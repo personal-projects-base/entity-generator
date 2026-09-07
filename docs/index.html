@@ -182,7 +182,7 @@
 
         <section id="downloads" class="doc-section download-section" data-title="Downloads EXE JAR versão Windows Java checksum SHA256">
           <div class="download-inner">
-            <div class="download-copy"><p class="eyebrow">Pronto para gerar {{ target.name }}?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Execute o arquivo na raiz do serviço consumidor.</p><div class="release-meta"><span>Versão publicada {{ currentVersion }}</span><span>2 set 2026</span><span>Java 11+ para a CLI</span></div></div>
+            <div class="download-copy"><p class="eyebrow">Pronto para gerar {{ target.name }}?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Execute o arquivo na raiz do serviço consumidor.</p><div class="release-meta"><span>Versão publicada {{ currentVersion }}</span><span>7 set 2026</span><span>Java 11+ para a CLI</span></div></div>
             <div class="download-cards">
               <a v-for="artifact in downloads" :key="artifact.name" class="download-card" :href="artifact.href" download><span class="download-icon">{{ artifact.icon }}</span><span><small>{{ artifact.platform }}</small><strong>{{ artifact.name }}</strong><em>{{ artifact.size }}</em></span><b>↓</b></a>
               <button class="checksum-button" type="button" @click="showChecksums = !showChecksums">{{ showChecksums ? 'Ocultar' : 'Ver' }} checksums SHA-256</button>

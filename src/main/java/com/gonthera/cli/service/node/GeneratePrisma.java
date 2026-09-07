@@ -3,6 +3,9 @@ package com.gonthera.cli.service.node;
 import com.gonthera.cli.model.Entities;
 import com.gonthera.cli.model.EntityFields;
 import com.gonthera.cli.model.Enums;
+import com.gonthera.cli.enuns.DatabaseProvider;
+import com.gonthera.cli.service.node.database.NodeDatabaseDialect;
+import com.gonthera.cli.service.node.database.NodeDatabaseDialects;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -20,12 +23,17 @@ import static com.gonthera.cli.service.node.NodeCommon.writeFile;
 public class GeneratePrisma {
 
     public static void generatePrismaSchema(List<Entities> entities, List<Enums> enums) {
-        validateCollectionRelations(entities);
+        generatePrismaSchema(entities, enums, DatabaseProvider.POSTGRESQL);
+    }
+
+    public static void generatePrismaSchema(List<Entities> entities, List<Enums> enums, DatabaseProvider provider) {
+        NodeDatabaseDialect dialect = NodeDatabaseDialects.resolve(provider);
+        validateCollectionRelations(entities, provider);
         try {
             Path schemaPath = Path.of(loadPath()).resolve("prisma").resolve("schema.prisma");
-            String schema = loadWxsd("prismaschema")
+            String schema = loadWxsd(dialect.prismaTemplate())
                     .replace("<<enums>>", generateEnums(enums))
-                    .replace("<<models>>", generateModels(entities));
+                    .replace("<<models>>", generateModels(entities, dialect));
             writeFile(schemaPath, schema);
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -45,48 +53,51 @@ public class GeneratePrisma {
                 .collect(Collectors.joining("\n"));
     }
 
-    private static String generateModels(List<Entities> entities) {
+    private static String generateModels(List<Entities> entities, NodeDatabaseDialect dialect) {
         if (entities == null || entities.isEmpty()) {
             return "";
         }
 
         return entities.stream()
-                .map(entity -> generateModel(entity, entities))
+                .map(entity -> generateModel(entity, entities, dialect))
                 .collect(Collectors.joining("\n"));
     }
 
-    private static String generateModel(Entities entity, List<Entities> entities) {
+    private static String generateModel(Entities entity, List<Entities> entities, NodeDatabaseDialect dialect) {
         StringBuilder fields = new StringBuilder();
 
-        entity.getEntityFields().forEach(field -> appendField(fields, entity, field, entities));
+        entity.getEntityFields().forEach(field -> appendField(fields, entity, field, entities, dialect));
 
-        return String.format("model %s {%n%s%n  @@map(\"%s\")%n}%n",
+        return String.format("model %s {%n%s%n%s  @@map(\"%s\")%n}%n",
                 className(entity.getEntityName()),
                 fields,
+                dialect.modelIndexes(entity, entities),
                 splitByUppercase(getTableName(entity))
         );
     }
 
-    private static void appendField(StringBuilder fields, Entities owner, EntityFields field, List<Entities> entities) {
+    private static void appendField(StringBuilder fields, Entities owner, EntityFields field,
+                                    List<Entities> entities, NodeDatabaseDialect dialect) {
         Entities relatedEntity = findEntity(entities, field.getFieldProperties().getFieldType());
         if (relatedEntity != null) {
-            appendRelationField(fields, owner, field, relatedEntity);
+            appendRelationField(fields, owner, field, relatedEntity, dialect);
             return;
         }
 
         fields.append(String.format("  %s %s%s%n",
                 field.getFieldName(),
                 prismaType(field),
-                attributes(field)
+                dialect.scalarAttributes(field, splitByUppercase(field.getFieldName()))
         ));
     }
 
-    private static void appendRelationField(StringBuilder fields, Entities owner, EntityFields field, Entities relatedEntity) {
+    private static void appendRelationField(StringBuilder fields, Entities owner, EntityFields field,
+                                            Entities relatedEntity, NodeDatabaseDialect dialect) {
         String relationShip = field.getRelationShips() == null ? "" : field.getRelationShips().getRelationShip();
         String relatedType = className(relatedEntity.getEntityName());
 
         if ("OneToOne".equalsIgnoreCase(relationShip)) {
-            appendOneToOneField(fields, owner, field, relatedEntity);
+            appendOneToOneField(fields, owner, field, relatedEntity, dialect);
             return;
         }
 
@@ -104,7 +115,13 @@ public class GeneratePrisma {
                 requireInverse(owner, field, relatedEntity, "ManyToMany");
                 name = relationName(owner, field, relatedEntity);
             }
-            fields.append(String.format("  %s %s[] @relation(\"%s\")%n", field.getFieldName(), relatedType, name));
+            if ("ManyToMany".equalsIgnoreCase(relationShip)) {
+                dialect.validateManyToManyField(owner, field);
+                fields.append(dialect.manyToManyFields(field.getFieldName(), relatedType, name,
+                        primaryKey(relatedEntity), splitByUppercase(field.getFieldName())));
+            } else {
+                fields.append(String.format("  %s %s[] @relation(\"%s\")%n", field.getFieldName(), relatedType, name));
+            }
             return;
         }
 
@@ -120,14 +137,13 @@ public class GeneratePrisma {
         if (owner.getEntityFields().stream().anyMatch(candidate -> scalarName.equals(candidate.getFieldName()))) {
             throw relationError(owner, field, "foreign key conflicts with configured field " + scalarName);
         }
-        fields.append(String.format("  %s %s%s @relation(\"%s\", fields: [%s], references: [%s])%n",
+        fields.append(String.format("  %s %s%s @relation(\"%s\", fields: [%s], references: [%s]%s)%n",
                 field.getFieldName(), relatedType, nullable(field), relationName(owner, field, relatedEntity),
-                scalarName, pkField.getFieldName()));
-        String nativeType = "uuid".equals(pkField.getFieldProperties().getFieldType()) ? " @db.Uuid"
-                : "date".equals(pkField.getFieldProperties().getFieldType()) ? " @db.Date" : "";
-        fields.append(String.format("  %s %s%s%s @map(\"%s\")%n", scalarName,
-                scalarPrismaType(pkField.getFieldProperties().getFieldType()), nullable(field), nativeType,
-                splitByUppercase(field.getFieldName())));
+                scalarName, pkField.getFieldName(), dialect.ownerRelationActions()));
+        fields.append(String.format("  %s %s%s%n", scalarName,
+                scalarPrismaType(pkField.getFieldProperties().getFieldType()),
+                dialect.relationScalarAttributes(pkField, isNullable(field), false,
+                        splitByUppercase(field.getFieldName()))));
     }
 
     private static String mappedBy(Entities inverseEntity, EntityFields inverse) {
@@ -169,6 +185,11 @@ public class GeneratePrisma {
     }
 
     public static void validateCollectionRelations(List<Entities> entities) {
+        validateCollectionRelations(entities, DatabaseProvider.POSTGRESQL);
+    }
+
+    public static void validateCollectionRelations(List<Entities> entities, DatabaseProvider provider) {
+        NodeDatabaseDialect dialect = NodeDatabaseDialects.resolve(provider);
         if (entities == null) return;
         for (Entities entity : entities) {
             long keyCount = entity.getEntityFields().stream()
@@ -183,6 +204,7 @@ public class GeneratePrisma {
                 throw new IllegalArgumentException("Invalid Node primary key " + entity.getEntityName() + "."
                         + key.getFieldName() + ": keys must be scalar fields");
             }
+            dialect.validatePrimaryKey(entity, key);
             for (EntityFields field : entity.getEntityFields()) {
                 if (field.getRelationShips() == null) continue;
                 String kind = field.getRelationShips().getRelationShip();
@@ -192,12 +214,13 @@ public class GeneratePrisma {
                             && entity.getEntityName().equals(field.getFieldProperties().getFieldType()))) continue;
                 Entities related = findEntity(entities, field.getFieldProperties().getFieldType());
                 if (related == null) throw relationError(entity, field, "related entity does not exist");
-                appendRelationField(new StringBuilder(), entity, field, related);
+                appendRelationField(new StringBuilder(), entity, field, related, dialect);
             }
         }
     }
 
-    private static void appendOneToOneField(StringBuilder fields, Entities entity, EntityFields field, Entities relatedEntity) {
+    private static void appendOneToOneField(StringBuilder fields, Entities entity, EntityFields field,
+                                            Entities relatedEntity, NodeDatabaseDialect dialect) {
         if (field.isList()) {
             throw new IllegalArgumentException("Node OneToOne cannot be a list: " + entity.getEntityName() + "." + field.getFieldName());
         }
@@ -232,14 +255,14 @@ public class GeneratePrisma {
             throw new IllegalArgumentException("Node OneToOne foreign key conflicts with configured field: "
                     + entity.getEntityName() + "." + scalarName);
         }
-        fields.append(String.format("  %s %s%s @relation(\"%s\", fields: [%s], references: [%s])%n",
+        fields.append(String.format("  %s %s%s @relation(\"%s\", fields: [%s], references: [%s]%s)%n",
                 field.getFieldName(), className(relatedEntity.getEntityName()), nullable(field),
-                relationName(entity, field, relatedEntity), scalarName, key.getFieldName()));
-        String nativeType = "uuid".equals(key.getFieldProperties().getFieldType()) ? " @db.Uuid"
-                : "date".equals(key.getFieldProperties().getFieldType()) ? " @db.Date" : "";
-        fields.append(String.format("  %s %s%s @unique%s @map(\"%s\")%n",
-                scalarName, scalarPrismaType(key.getFieldProperties().getFieldType()), nullable(field),
-                nativeType, splitByUppercase(field.getFieldName())));
+                relationName(entity, field, relatedEntity), scalarName, key.getFieldName(),
+                dialect.ownerRelationActions()));
+        fields.append(String.format("  %s %s%s%n",
+                scalarName, scalarPrismaType(key.getFieldProperties().getFieldType()),
+                dialect.relationScalarAttributes(key, isNullable(field), true,
+                        splitByUppercase(field.getFieldName()))));
     }
 
     private static String relationName(Entities owner, EntityFields field, Entities relatedEntity) {
@@ -289,33 +312,6 @@ public class GeneratePrisma {
         }
     }
 
-    private static String attributes(EntityFields field) {
-        StringBuilder attributes = new StringBuilder();
-        if (field.getMetadata() != null && field.getMetadata().isKey()) {
-            attributes.append(" @id");
-            if ("uuid".equals(field.getFieldProperties().getFieldType())) {
-                attributes.append(" @default(uuid())");
-            }
-            if ("int".equals(field.getFieldProperties().getFieldType()) || "integer".equals(field.getFieldProperties().getFieldType())) {
-                attributes.append(" @default(autoincrement())");
-            }
-        }
-
-        String mappedField = splitByUppercase(field.getFieldName());
-        if (!field.getFieldName().equals(mappedField)) {
-            attributes.append(String.format(" @map(\"%s\")", mappedField));
-        }
-
-        if ("uuid".equals(field.getFieldProperties().getFieldType())) {
-            attributes.append(" @db.Uuid");
-        }
-        if ("date".equals(field.getFieldProperties().getFieldType())) {
-            attributes.append(" @db.Date");
-        }
-
-        return attributes.toString();
-    }
-
     private static String nullable(EntityFields field) {
         if (field.getMetadata() != null && !field.getMetadata().isNullable()) {
             return "";
@@ -324,6 +320,10 @@ public class GeneratePrisma {
             return "";
         }
         return "?";
+    }
+
+    private static boolean isNullable(EntityFields field) {
+        return "?".equals(nullable(field));
     }
 
     private static Entities findEntity(List<Entities> entities, String entityName) {
