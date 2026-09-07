@@ -1,5 +1,6 @@
-<<imports>>export interface <<entityName>>DTO {
+<<imports>>import type { EntityInput } from '../common/contracts';
+export interface <<entityName>>DTO {
 <<entityFields>>}
 
-export type <<entityName>>CreateInput = Omit<<<entityName>>DTO, 'id'>;
-export type <<entityName>>UpdateInput = Partial<<<entityName>>DTO>;
+export type <<entityName>>CreateInput = EntityInput<<<entityName>>DTO>;
+export type <<entityName>>UpdateInput = EntityInput<<<entityName>>DTO>;

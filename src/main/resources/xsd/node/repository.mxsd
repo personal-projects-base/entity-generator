@@ -1,29 +1,66 @@
-import { PrismaClient } from '@prisma/client';
-import type { <<entityName>>CreateInput, <<entityName>>UpdateInput } from '../models/<<entityFileName>>.model';
+import { PrismaClient, Prisma } from '@prisma/client';
+import type { <<entityName>>DTO, <<entityName>>CreateInput, <<entityName>>UpdateInput } from '../models/<<entityFileName>>.model';
+import { entity, key, identifier } from '../common/entity-metadata';
+import { CrudError, ResponseData, EntityOutput } from '../common/contracts';
+import { listQuery, projection, selectFields } from '../common/query';
+import { toData, toDTO } from '../converters/entity-converter';
 
 export class <<entityName>>Repository {
-  constructor(private readonly prisma: PrismaClient) {}
+  protected readonly model = entity('<<entityConfigName>>');
+  constructor(protected readonly prisma: PrismaClient) {}
 
-  save(data: <<entityName>>CreateInput) {
-    return this.prisma.<<prismaDelegate>>.create({ data: data as never });
+  async save(data: <<entityName>>CreateInput) {
+    const fields = projection(this.model, '*');
+    return this.prisma.$transaction(async tx => {
+      const converted = await toData(tx, this.model, data);
+      const row = await tx.<<prismaDelegate>>.create({
+        data: converted as Prisma.<<entityName>>CreateInput,
+        select: selectFields(this.model, fields) as Prisma.<<entityName>>Select
+      });
+      return toDTO(this.model, row, fields) as EntityOutput<<<entityName>>DTO>;
+    });
   }
 
-  update(id: string, data: <<entityName>>UpdateInput) {
-    return this.prisma.<<prismaDelegate>>.update({ where: { id }, data: data as never });
+  async update(rawKey: <<entityName>>DTO['<<keyField>>'] | string, data: <<entityName>>UpdateInput) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new CrudError(400, 'Expected a DTO object');
+    const pk = key(this.model).fieldName;
+    const keyValue = identifier(this.model, rawKey);
+    const where = { [pk]: keyValue } as Prisma.<<entityName>>WhereUniqueInput;
+    const fields = projection(this.model, '*');
+    return this.prisma.$transaction(async tx => {
+      const existing = await tx.<<prismaDelegate>>.findUnique({ where });
+      if (!existing) throw new CrudError(404, 'Record not found');
+      const converted = await toData(tx, this.model, { ...data, [pk]: keyValue }, true);
+      const row = await tx.<<prismaDelegate>>.update({ where,
+        data: converted as Prisma.<<entityName>>UpdateInput,
+        select: selectFields(this.model, fields) as Prisma.<<entityName>>Select });
+      return toDTO(this.model, row, fields) as EntityOutput<<<entityName>>DTO>;
+    });
   }
 
-  delete(id: string) {
-    return this.prisma.<<prismaDelegate>>.delete({ where: { id } });
+  async delete(rawKey: <<entityName>>DTO['<<keyField>>'] | string) {
+    await this.prisma.<<prismaDelegate>>.delete({ where: { [key(this.model).fieldName]: identifier(this.model, rawKey) } as Prisma.<<entityName>>WhereUniqueInput });
   }
 
-  get(id: string) {
-    return this.prisma.<<prismaDelegate>>.findUnique({ where: { id } });
+  async get(rawKey: <<entityName>>DTO['<<keyField>>'] | string, displayFields = '*') {
+    const fields = projection(this.model, displayFields);
+    const row = await this.prisma.<<prismaDelegate>>.findUnique({
+      where: { [key(this.model).fieldName]: identifier(this.model, rawKey) } as Prisma.<<entityName>>WhereUniqueInput,
+      select: selectFields(this.model, fields) as Prisma.<<entityName>>Select });
+    if (!row) throw new CrudError(404, 'Record not found');
+    return toDTO(this.model, row, fields) as EntityOutput<<<entityName>>DTO>;
   }
 
-  getAll(params: Record<string, string>) {
-    const take = Number(params.size ?? 10);
-    const page = Number(params.offset ?? 1);
-    const skip = Math.max(page - 1, 0) * take;
-    return this.prisma.<<prismaDelegate>>.findMany({ take, skip });
+  async getAll(params: Record<string, unknown>): Promise<ResponseData<EntityOutput<<<entityName>>DTO>>> {
+    const query = listQuery(this.model, params);
+    const where = query.where as Prisma.<<entityName>>WhereInput;
+    const [total, rows] = await this.prisma.$transaction([
+      this.prisma.<<prismaDelegate>>.count({ where }),
+      this.prisma.<<prismaDelegate>>.findMany({ where, take: query.size, skip: query.offset * query.size,
+        orderBy: query.orderBy as Prisma.<<entityName>>OrderByWithRelationInput | undefined,
+        select: query.select as Prisma.<<entityName>>Select })
+    ], { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead });
+    return { size: query.size, offset: query.offset, total,
+      contents: rows.map(row => toDTO(this.model, row, query.fields) as EntityOutput<<<entityName>>DTO>) };
   }
 }

@@ -70,8 +70,12 @@ public class GenerateEndpoint {
         return Stream.concat(endpoint.getMetadata().getInput().stream(), endpoint.getMetadata().getOutput().stream())
                 .filter(parameter -> !NodeCommon.isPrimitive(parameter.getParameterType()))
                 .map(parameter -> {
+                    if ("requestdata".equals(parameter.getParameterType()) || "responsedata".equals(parameter.getParameterType())) {
+                        return String.format("import type { %s } from '../common/contracts';", NodeCommon.typeName(parameter.getParameterType()));
+                    }
                     if (NodeCommon.isEnum(parameter.getParameterType())) {
-                        return String.format("import { %s } from '../enums/%s.enum';", className(parameter.getParameterType()), fileName(parameter.getParameterType()));
+                        String name = NodeCommon.typeName(parameter.getParameterType());
+                        return String.format("import type { %s } from '../enums/%s.enum';", name, fileName(name));
                     }
                     return String.format("import type { %sDTO } from '../models/%s.model';", className(parameter.getParameterType()), fileName(parameter.getParameterType()));
                 })
@@ -95,6 +99,7 @@ public class GenerateEndpoint {
         return loadWxsd("controller")
                 .replace("<<entityName>>", name)
                 .replace("<<entityFileName>>", fileName(entity.getEntityName()))
+                .replace("<<abstract>>", entity.isControllerAbstract() ? "abstract " : "")
                 .replace("<<entity>>", variable);
     }
 
@@ -103,25 +108,65 @@ public class GenerateEndpoint {
         String variable = varName(entity.getEntityName());
         String file = fileName(entity.getEntityName());
 
+        String controllerCreation;
+        if (entity.isControllerAbstract()) {
+            controllerCreation = String.format(
+                    "  if (!factory) throw new Error(\"%sController requires a concrete factory\");%n" +
+                    "  const controller = factory(repository);",
+                    name
+            );
+        } else {
+            controllerCreation = String.format(
+                    "  const controller = factory ? factory(repository) : new %sController(repository);",
+                    name
+            );
+        }
+
         return loadWxsd("route")
                 .replace("<<entityName>>", name)
                 .replace("<<entityFileName>>", file)
+                .replace("<<factoryOptional>>", entity.isControllerAbstract() ? "" : "?")
+                .replace("<<controllerCreation>>", controllerCreation)
                 .replace("<<entityRoute>>", variable);
     }
 
     private static String routesIndex(List<Entities> entities) {
-        String imports = entities.stream()
+        List<Entities> generatedEntities = entities.stream()
                 .filter(entity -> !entity.isOnlyDTO() && entity.isGenerateDefaultHandlers())
-                .map(entity -> String.format("import { create%sRoutes } from './%s.routes';", className(entity.getEntityName()), fileName(entity.getEntityName())))
+                .collect(Collectors.toList());
+
+        String imports = generatedEntities.stream()
+                .map(entity -> String.format(
+                        "import { create%sRoutes, type %sControllerFactory } from './%s.routes';",
+                        className(entity.getEntityName()),
+                        className(entity.getEntityName()),
+                        fileName(entity.getEntityName())
+                ))
                 .collect(Collectors.joining("\n"));
 
-        String uses = entities.stream()
-                .filter(entity -> !entity.isOnlyDTO() && entity.isGenerateDefaultHandlers())
-                .map(entity -> String.format("  router.use(create%sRoutes(prisma));", className(entity.getEntityName())))
+        String factoryFields = generatedEntities.stream()
+                .map(entity -> String.format(
+                        "  %s%s: %sControllerFactory;",
+                        varName(entity.getEntityName()),
+                        entity.isControllerAbstract() ? "" : "?",
+                        className(entity.getEntityName())
+                ))
                 .collect(Collectors.joining("\n"));
+
+        String uses = generatedEntities.stream()
+                .map(entity -> String.format(
+                        "  router.use(create%sRoutes(prisma, factories.%s));",
+                        className(entity.getEntityName()),
+                        varName(entity.getEntityName())
+                ))
+                .collect(Collectors.joining("\n"));
+
+        boolean requiresFactories = generatedEntities.stream().anyMatch(Entities::isControllerAbstract);
 
         return loadWxsd("routesindex")
                 .replace("<<imports>>", imports)
+                .replace("<<factoryFields>>", factoryFields)
+                .replace("<<factoryDefault>>", requiresFactories ? "" : " = {}")
                 .replace("<<routes>>", uses);
     }
 }

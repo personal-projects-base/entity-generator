@@ -48,6 +48,14 @@ public final class ProjectValidator {
                         entity.getEntityName() == null ? "Entity" : Common.firstCharacterUpperCase(entity.getEntityName())
                 ));
             }
+            if (project.getLanguage() == Language.NODE && entity != null && !entity.isOnlyDTO()
+                    && entity.isGenerateDefaultControllers() && entity.isControllerAbstract()) {
+                warnings.add(String.format(
+                        "entities[%d].controllerAbstract=true: %sController will require a concrete factory in createGeneratedRoutes",
+                        index,
+                        entity.getEntityName() == null ? "Entity" : Common.firstCharacterUpperCase(entity.getEntityName())
+                ));
+            }
             if (entity != null && entity.getGenerateDefaultHandlers() != null) {
                 warnings.add(String.format(
                         "entities[%d].generateDefaultHandlers is deprecated; use generateDefaultControllers",

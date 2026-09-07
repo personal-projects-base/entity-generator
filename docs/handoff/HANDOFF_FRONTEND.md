@@ -74,7 +74,7 @@ Formato recomendado para exportação:
 | `tableName` | string | Nome em `snake_case`; normalmente igual à entidade convertida. |
 | `classExtends` | string | Enviar `""`; herança não é aplicada atualmente. |
 | `generateDefaultControllers` | boolean | `true` para disponibilizar o CRUD padrão. `generateDefaultHandlers` é alias legado. |
-| `controllerAbstract` | boolean | Normalmente `false`; em Java e .NET gera o controller CRUD como classe abstrata para implementação no consumidor. `handlerAbstract` é alias legado. |
+| `controllerAbstract` | boolean | Normalmente `false`; em Java, .NET e Node gera o controller CRUD como classe abstrata para implementação no consumidor. No Node, a aplicação registra a classe concreta em `GeneratedControllerFactories`. `handlerAbstract` é alias legado. |
 | `serviceAbstract` | boolean | Normalmente `false`; no Java gera o service abstrato para implementação no consumidor. Não altera a geração .NET ou Node. |
 | `onlyDTO` | boolean | Normalmente `false`; use `true` apenas para contrato sem persistência no Java. |
 | `entityFields` | array | Obrigatório, com pelo menos um campo. |
@@ -226,6 +226,19 @@ Regras:
 - `list`: normalmente `true` em `OneToMany` e `ManyToMany`;
 - em autorrelacionamento, coloque o campo proprietário antes do campo inverso no array.
 
+No Node/Prisma PostgreSQL, o `OneToOne` bidirecional usa o mesmo contrato de
+proprietário/inverso e `mappedBy` (com fallback para o nome da entidade inversa).
+A FK gerada é única. O campo inverso no schema Prisma é sempre opcional por
+exigência do ORM, mesmo se `metadata.nullable` for `false`; isso não altera o JSON
+configurado. A conversão de DTOs segue o contrato Node 2.1.3.
+
+No Node 2.1.3, `ManyToOne` proprietário deve ser escalar e apontar a um inverso
+`OneToMany` em lista; `ManyToMany` exige listas em ambos os lados. Declare um
+proprietário (`bidirectional: false`) e um inverso (`bidirectional: true`) com
+`mappedBy` apontando ao campo proprietário. Se omitido/vazio, o fallback é o nome
+da entidade inversa. Pares ausentes ou ambíguos interrompem a geração Node.
+O CRUD Node recebe objetos relacionados e retorna relações expandidas com controle de ciclos.
+
 ## Endpoints
 
 Formato exportável:
@@ -356,7 +369,7 @@ Ao montar a expressão:
 - `order` aceita `campo,asc` ou `campo,desc`; direção omitida assume `asc`, e caminhos relacionados com ponto são aceitos;
 - `displayFields` escolhe campos do DTO, mas não filtra registros.
 
-O frontend deve considerar `language` antes de montar o filtro. No .NET, o dialeto separado aceita apenas `eq` e uma única espécie de operador lógico (`and` ou `or`) por expressão; relações comuns usam caminho pontuado e coleções usam `*`, como `children*.description eq matriz`. `isNull` e `notNull` não existem no .NET. No Node, o CRUD gerado atualmente ignora `filter` e usa somente `size`/`offset`.
+O frontend deve considerar `language` antes de montar o filtro. No .NET, o dialeto separado aceita apenas `eq` e uma única espécie de operador lógico (`and` ou `or`) por expressão; relações comuns usam caminho pontuado e coleções usam `*`, como `children*.description eq matriz`. `isNull` e `notNull` não existem no .NET. No Node 2.1.3, filtros usam o dialeto descrito no contrato CRUD Node abaixo.
 
 ## Enums
 
@@ -499,3 +512,44 @@ Antes de permitir copiar/exportar:
 8. Exigir arrays `input` e `output` em endpoints.
 9. Impedir enums sem valores ou com valores duplicados.
 10. Exportar somente JSON, sem texto explicativo ao redor, para permitir colagem direta.
+
+### Contrato CRUD Node — itens 5, 6 e 7 (2.1.3)
+
+O gerador agora produz `common/contracts.ts`, metadados, consultas e
+`converters/entity-converter.ts`. POST/PUT recebem relações como objetos DTO:
+`{"customer":{"id":"UUID"}}`, sem `customerId` ou operações internas Prisma.
+`reference: true` conecta registros existentes pelo ID; os demais campos desse
+objeto não atualizam o registro referenciado. `reference: false` permite criar ou
+atualizar objetos aninhados, na mesma transação. Campos omitidos no PUT são preservados.
+Uma coleção inversa OneToMany enviada substitui seus filhos e remove os omitidos;
+ManyToMany substitui os vínculos sem excluir as entidades compartilhadas.
+Exclusões continuam sujeitas às FKs: não há cascade recursivo geral equivalente ao JPA.
+
+GET individual, POST e PUT retornam DTOs com relações expandidas. Ao entrar em uma
+relação, a resposta deixa o campo recíproco como `null`, evitando repetir o objeto
+pai (`customer.profile.customer`, por exemplo), e limita a profundidade a seis relações.
+Campos não selecionados retornam `null`; FKs sintéticas não aparecem no JSON.
+GET inexistente retorna 404. A listagem retorna
+`{"size":20,"offset":0,"total":0,"contents":[]}`: entrada `offset=1` indica a
+primeira página, saída usa índice zero; `total` conta os registros filtrados.
+
+Parâmetros da listagem: `size` (padrão 20), `offset`, `filter`, `order` e
+`displayFields`. `filter` aceita caminhos pontuados, `eq`, `isNull`, `notNull`,
+`gte`/`ge` e `lte`/`le` para datas, unidos por `and` ou por `or`, sem misturá-los.
+Texto com `eq` usa busca parcial sem distinguir caixa; UUID usa igualdade e enum
+aceita nome ou ordinal. Node também converte igualdade numérica/booleana; não se
+presume essa extensão nos demais backends. Coleções aceitam caminho pontuado ou
+`*` após o nome. Não há parênteses nem mecanismo de escape na expressão.
+`order=name,asc` ordena por campo; listas não são ordenáveis por esse parâmetro.
+`displayFields=id;customer.name` projeta campos, também no GET individual;
+o padrão é `*`. Entradas inválidas geram `CrudError` com status 400, tratado pelo
+middleware da aplicação base. Datas usam ISO local, bytes usam base64 e long fora
+da faixa segura do JavaScript retorna string.
+
+Esta etapa não altera schema/migrations nem implementa MongoDB. O JAR 2.1.3 e o
+serviço foram compilados; a validação funcional no banco fica pendente para uso
+manual da API. Por solicitação do usuário, a cobertura automatizada fica para depois.
+
+No Node, a URL do CRUD continua `/<entidade>/:id`, qualquer que seja o nome da chave.
+O backend converte esse segmento para o tipo configurado. Dentro de um DTO relacionado,
+use o nome verdadeiro da chave: `{"category":{"code":12}}`, e não um `id` inventado.

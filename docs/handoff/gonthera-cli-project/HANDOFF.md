@@ -6,6 +6,10 @@
 
 Este documento descreve o comportamento observado no código da versão `2.1.2`. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
 
+As mudanças Node em desenvolvimento estão sendo acumuladas em `2.1.3`, incluindo
+as correções e o futuro suporte MongoDB, por decisão explícita do responsável.
+Essa rodada não altera geradores/templates Java ou .NET.
+
 ## Como consumir
 
 Pré-requisitos do gerador:
@@ -156,7 +160,7 @@ Contrato efetivo:
 - `comment`: usado na descrição do recurso gerado;
 - `entityFields`: precisa conter ao menos um campo e, para geração normal, uma chave com `metadata.key: true`;
 - `generateDefaultControllers`: padrão `true`; controla o CRUD padrão. O alias legado `generateDefaultHandlers` continua aceito com aviso;
-- `controllerAbstract`: gera o controller Java ou .NET como classe abstrata. O alias legado `handlerAbstract` continua aceito com aviso;
+- `controllerAbstract`: gera o controller Java, .NET ou Node como classe abstrata. No Node, a aplicação registra a implementação concreta em `GeneratedControllerFactories`, sem repetir as rotas; o alias legado `handlerAbstract` continua aceito com aviso;
 - se o nome novo e o legado forem declarados juntos, o nome novo tem precedência e o validador avisa sobre o conflito;
 - `serviceAbstract`: afeta apenas o service Java. `false` gera classe concreta com `@Service`; `true` gera classe abstrata sem `@Service` e exige que o consumidor registre um subtipo concreto como bean Spring;
 - `onlyDTO`: implementado somente no fluxo Java; evita Entity, converter, service, repository e controller, mas ainda gera DTO. A entidade continua entrando no SQL gerado;
@@ -382,7 +386,7 @@ Regras e limitações importantes do parser Java:
 
 No .NET, `DynamicFilter` é uma implementação separada: suporta apenas `eq`, `and` ou `or`; texto também usa `Contains` sem diferenciar caixa, UUID é exato, e coleção usa um caminho com `*` (por exemplo, `children*.description eq matriz`). Não há `isNull`/`notNull`, o parser só escolhe um operador lógico por expressão e os nomes das propriedades C# são sensíveis à forma gerada. Portanto, o frontend deve selecionar o dialeto conforme `language`; uma expressão Java não é portável por garantia para .NET.
 
-O CRUD Node atual ignora `filter`: o repository gerado usa somente `size` e `offset` no `findMany` do Prisma.
+O CRUD Node 2.1.3 aplica filtros, ordenação e projeção; consulte o contrato CRUD Node abaixo.
 
 ## Messaging RabbitMQ
 
@@ -415,7 +419,7 @@ Contrato efetivo:
 - `name`: nome base da classe gerada. `notification` gera `NotificationPub`; `notificationChat` gera `NotificationChatSub`;
 - `className`: opcional. Sobrescreve o nome base quando informado; o sufixo `Pub`/`Sub` é adicionado se faltar;
 - `queue`: nome da fila;
-- `routingKey`: obrigatório para `pub`; opcional para `sub` no .NET, onde declara também o binding da fila com a exchange;
+- `routingKey`: obrigatório para `pub`; opcional para `sub` no .NET e Node, onde declara também o binding da fila com a exchange;
 - a exchange não fica fixa no JSON. O gerador cria uma anotação/atributo de exchange e uma configuração abstrata `RabbitConfig`.
 - nenhuma configuração RabbitMQ é gerada se `messaging.RabbitMq` estiver ausente, nulo ou sem canais.
 
@@ -562,15 +566,186 @@ Quando `messaging.RabbitMq` é configurado, também são gerados:
 
 ### Node
 
-O diretório inteiro abaixo é apagado e recriado:
+O alvo Node da 2.1.3 está maduro para APIs Express com Prisma e PostgreSQL. O
+responsável validou manualmente CRUD, relações, respostas expandidas, filtros,
+ordenação e paginação no serviço base. O suporte MongoDB ainda não existe e será a
+próxima etapa. Esta rodada não alterou os geradores Java e .NET.
+
+#### Saída gerada e fronteira de customização
+
+O diretório `src/generated/` é apagado e recriado por completo. Ele contém:
 
 ```text
 src/generated/
+├── common/                         # contratos, erros, metadados e query parser
+├── configuration/database/         # DatabaseConfig abstrata
+├── controllers/                    # fluxo CRUD
+├── converters/                     # DTO, Prisma input e resposta
+├── endpoints/                      # contratos customizados
+├── enums/
+├── messaging/rabbitmq/             # somente quando RabbitMq possui canais
+├── models/                         # DTOs TypeScript
+├── repositories/                   # consultas e transações Prisma
+└── routes/                          # routers Express
+prisma/schema.prisma
 ```
 
-São gerados modelos TypeScript, enums, repositories Prisma-friendly, controllers/rotas Express, contratos de endpoints, `prisma/schema.prisma`, arquivos estáticos (`properties.json`, `resources.json`, `postgree.sql`) e, quando `messaging.RabbitMq` é configurado, abstrações RabbitMQ em `messaging/rabbitmq/`. Os arquivos TypeScript e Prisma usam templates em `src/main/resources/xsd/node/`.
+Também são gerados os arquivos estáticos `properties.json`, `resources.json` e
+`postgree.sql`. Os fontes vêm de `src/main/resources/xsd/node/`.
 
-O gerador Node não cria `package.json`, `tsconfig.json` nem migrations. O `schema.prisma` gerado cobre datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e suporte inicial a relacionamentos; relações complexas podem exigir revisão manual.
+O consumidor deve manter fora de `src/generated`: `package.json`, `tsconfig.json`,
+`.env`, migrations Prisma, implementação concreta de banco e RabbitMQ, `app.ts`,
+`server.ts`, middlewares, Swagger e autenticação. O Gonthera não sobrescreve esses
+arquivos. O `node-test-service` é a referência atual para montar essa camada manual.
+
+`generateDefaultControllers: false` impede a geração do controller e da rota CRUD
+da entidade, permitindo que o consumidor forneça ambos manualmente. Com
+`controllerAbstract: true`, o Node gera uma base abstrata com todo o CRUD implementado,
+repository protegido e métodos normais sobrescrevíveis. A aplicação cria uma classe
+concreta fora de `src/generated` e a registra em `GeneratedControllerFactories`.
+A factory da entidade abstrata é obrigatória no TypeScript e também validada em
+runtime; factories de controllers concretos são opcionais e permitem substituí-los.
+As rotas continuam geradas, portanto a aplicação não repete os bindings HTTP.
+
+```ts
+export class AppCustomerController extends CustomerController {
+  override async save(request: Request, response: Response): Promise<void> {
+    // regra específica
+    await super.save(request, response);
+  }
+}
+
+export const controllerFactories = {
+  customer: repository => new AppCustomerController(repository)
+} satisfies GeneratedControllerFactories;
+
+app.use(createGeneratedRoutes(prisma, controllerFactories));
+```
+
+Os handlers gerados usam wrappers como `(request, response) =>
+controller.save(request, response)`. Isso preserva `this`, respeita overrides e
+permite que a subclasse chame `super`, ao contrário das propriedades arrow usadas
+anteriormente. A validação emite warning lembrando que a factory concreta é exigida.
+
+#### Banco e ciclo de vida do Prisma
+
+`configuration/database/database.config.ts` declara `DatabaseConfig` abstrata. Ela
+carrega `.env` por `dotenv/config`, cria um único `PrismaClient` de forma preguiçosa
+e oferece `client`, `connect()` e `disconnect()`. Os hooks protegidos `resolveUrl`,
+`createOptions` e `createClient` permitem customização na subclasse. URL ausente gera
+erro sem expor credenciais. O processo deve reutilizar uma instância concreta,
+conectar antes de abrir a porta HTTP e desconectar em `SIGINT`/`SIGTERM`.
+
+O `prisma/schema.prisma` gerado inclui datasource PostgreSQL, Prisma Client, enums,
+models, tipos nativos e relações. O projeto consumidor instala `dotenv`,
+`@prisma/client` e `prisma`, executa `prisma generate` e cria/aplica suas migrations.
+A CLI Prisma lê `DATABASE_URL` diretamente do ambiente; overrides de `resolveUrl`
+valem para a aplicação em execução. O SQL legado `postgree.sql` não representa as
+tabelas implícitas ManyToMany e não deve substituir migrations Prisma no Node.
+
+#### Relacionamentos PostgreSQL
+
+O gerador usa a convenção madura do Java: `bidirectional: false` identifica o lado
+proprietário e `bidirectional: true` identifica o inverso, que aponta ao proprietário
+com `mappedBy`. O fallback pelo nome da entidade continua disponível quando não há
+`mappedBy`, mas o nome explícito é preferível em modelos com mais de uma relação.
+
+- `OneToOne`: o proprietário recebe FK única com o tipo da chave referenciada; o
+  inverso Prisma é opcional, como o ORM exige.
+- `ManyToOne`/`OneToMany`: somente o ManyToOne guarda FK, sem `@unique`; o outro lado
+  é uma coleção inversa.
+- `ManyToMany`: os dois lados são listas e o Prisma cria uma tabela implícita por
+  relação. Os nomes permanecem distintos em múltiplos vínculos e autorrelações.
+- Autorrelacionamentos são suportados nos três formatos. Autoimports são omitidos e
+  imports repetidos são consolidados.
+
+A validação Node rejeita pares ausentes ou ambíguos, cardinalidade incorreta,
+`mappedBy` inválido e colisão de nome da FK antes de limpar a saída. Execute também
+`prisma validate` após gerar. Renomear campos usados no nome de uma relação pode
+exigir uma migration de dados.
+
+#### Contrato de entrada, persistência e saída
+
+As relações chegam como objetos DTO com a chave real da entidade:
+
+```json
+{
+  "bio": "Perfil de teste",
+  "customer": { "id": "4a1a00c8-78c1-42e5-8e74-4ae6efe1a9ae" }
+}
+```
+
+Não envie FKs sintéticas como `customerId`. Com `reference: true`, o converter apenas
+conecta a chave existente e ignora os demais campos do objeto relacionado. Sem
+`reference`, ele pode criar ou atualizar o objeto aninhado na mesma transação. PUT
+preserva campos omitidos. Ao receber uma coleção inversa OneToMany, remove filhos
+omitidos; no ManyToMany, substitui vínculos sem excluir entidades compartilhadas.
+Não existe cascade recursivo geral equivalente ao JPA.
+
+GET individual, POST e PUT expandem os objetos relacionados. Para impedir repetição
+e ciclos, o campo recíproco imediato fica `null`: `customer.profile.customer` não
+repete o customer. A profundidade máxima é seis relações. Campos não selecionados
+também ficam `null` e FKs internas não aparecem no JSON. Datas são ISO, bytes são
+Base64 e `long` fora da faixa segura do JavaScript é string.
+
+#### Listagem, filtros e chaves
+
+A listagem retorna:
+
+```json
+{"size":20,"offset":0,"total":1,"contents":[]}
+```
+
+Na entrada, `offset=1` representa a primeira página; na saída ela é `0`. `size` usa
+20 por padrão e `total` conta os registros depois do filtro. São aceitos:
+
+- `filter`: `eq`, `isNull`, `notNull`, datas com `gte`/`ge` e `lte`/`le`, caminhos
+  relacionados e coleções com caminho pontuado ou `*`;
+- `order=campo,asc|desc`;
+- `displayFields=id;customer.name`, também no GET individual.
+
+Uma expressão usa `and` ou `or`, sem misturar os dois; não há parênteses ou escape.
+`eq` textual contém sem diferenciar caixa, UUID compara exatamente, enum aceita nome
+ou ordinal e números/booleanos são convertidos. Filtros, projeções, ordenações ou IDs
+inválidos retornam 400; GET inexistente retorna 404.
+
+Cada entidade Node precisa de exatamente uma chave primária escalar. A URL continua
+`/:id`, enquanto repository, converter e relações resolvem o nome e tipo configurado.
+Por exemplo, uma relação com chave numérica `code` recebe `{"category":{"code":12}}`.
+UUID e inteiro recebem default gerado; as demais chaves devem ser informadas no POST.
+
+#### RabbitMQ
+
+Quando `messaging.RabbitMq` possui `pub` ou `sub`, o Node gera `RabbitConfig`, uma
+base publisher e classes de canal sobre `amqp-connection-manager` 5.0.0 e
+`amqplib` 2.0.1. Uma única configuração concreta deve ser compartilhada pelo
+processo. O manager recupera conexão, canais, declarations, bindings e consumidores.
+
+Publishers usam confirmação e acumulam mensagens durante reconexão. Subscribers
+aplicam `prefetch`, executam `ack` depois do handler e `nack` sem requeue por padrão;
+`requeueOnError` permite mudar a política. Todos os recursos expõem fechamento
+explícito. A base de exemplo ativa a mensageria somente com
+`RABBITMQ_ENABLED=true`, o que permite executar a API sem broker no desenvolvimento.
+
+#### Referência executável
+
+`node-test-service` fornece Express 5, Swagger em `/docs`, OpenAPI em
+`/openapi.json`, health check, middleware `{error:{code,message}}`, configuração
+concreta do Prisma, bootstrap opcional RabbitMQ e encerramento ordenado. Seus scripts
+executam desenvolvimento, build, typecheck, Prisma e o JAR local do Gonthera. A API
+e o gerador 2.1.3 foram compilados; a validação funcional PostgreSQL foi concluída
+manualmente pelo responsável. A cobertura automatizada consolidada ficou para a
+etapa 10.
+
+## Portal estático de documentação
+
+`docs/index.html` apresenta um seletor global de linguagem na introdução. A escolha
+alimenta `targetDocs` em `docs/app.js`, portanto toda a página passa a mostrar uma
+única trilha: instalação, configuração, saída gerada, relações, CRUD, endpoints,
+filtros, RabbitMQ, segurança, bootstrap e limitações somente de Java, Node.js ou
+.NET. Contratos JSON realmente compartilhados permanecem em `snippets`; exemplos
+de código e observações específicas pertencem ao objeto da linguagem. Não volte a
+misturar cards comparativos dos três alvos no corpo da documentação.
 
 ## Dependências exigidas pelo código gerado
 
@@ -616,10 +791,11 @@ As classes abstratas mantêm as implementações padrão. `Authenticate` expõe 
 
 Node pressupõe, no mínimo:
 
-- TypeScript;
-- Express;
-- Prisma Client (`@prisma/client`);
-- quando `messaging.RabbitMq` for usado: `amqplib`.
+- Node.js 20.19 ou superior e TypeScript;
+- Express 5;
+- Prisma CLI e Prisma Client 5.22 (`prisma` e `@prisma/client`);
+- `dotenv` 16 para a configuração de ambiente;
+- quando `messaging.RabbitMq` for usado: `amqplib` 2 e `amqp-connection-manager` 5.
 
 Os namespaces fixos do template `CustomDbContext` atualmente usam `DataOnBackend.Config.*`, independentemente de `mainPackage`; serviços com outro nome provavelmente precisarão ajustar o arquivo gerado ou o template.
 
@@ -637,7 +813,7 @@ O SQL é direcionado a PostgreSQL. Ele gera tabelas, PKs, FKs e tabelas de junç
 - A geração é destrutiva nos diretórios `_gen`; não coloque código manual neles.
 - Execute sempre na raiz correta: a resolução usa `System.getProperty("user.dir")`.
 - Mantenha nomes em lower camel case. Vários trechos apenas alteram o primeiro caractere e não sanitizam identificadores.
-- Garanta uma única PK por entidade. PK ausente causa `NullPointerException`; múltiplas PKs não têm suporte coerente.
+- Garanta uma única PK por entidade. O Node 2.1.3 rejeita uma entidade sem exatamente uma chave escalar antes de limpar a saída; os demais alvos ainda possuem caminhos legados menos claros para contratos inválidos.
 - Listas nulas, metadata ausente e relacionamentos incompletos normalmente causam falhas sem mensagem de validação útil.
 - O teste existente executa geração sobre arquivos reais, captura exceções e não possui assertions; ele não garante a validade/compilação do resultado.
 - O plugin compila em Java 11, mas o código Java gerado usa Jakarta/Spring 6, o que normalmente implica runtime Java 17 no serviço consumidor.

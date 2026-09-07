@@ -1,31 +1,32 @@
 import type { Request, Response } from 'express';
 import { <<entityName>>Repository } from '../repositories/<<entityFileName>>.repository';
+import { queryString } from '../common/query';
 
-export class <<entityName>>Controller {
-  constructor(private readonly repository: <<entityName>>Repository) {}
+export <<abstract>>class <<entityName>>Controller {
+  constructor(protected readonly repository: <<entityName>>Repository) {}
 
-  save = async (request: Request, response: Response) => {
+  async save(request: Request, response: Response): Promise<void> {
     const output = await this.repository.save(request.body);
     response.json(output);
-  };
+  }
 
-  update = async (request: Request, response: Response) => {
+  async update(request: Request, response: Response): Promise<void> {
     const output = await this.repository.update(request.params.id, request.body);
     response.json(output);
-  };
+  }
 
-  delete = async (request: Request, response: Response) => {
+  async delete(request: Request, response: Response): Promise<void> {
     await this.repository.delete(request.params.id);
     response.status(204).send();
-  };
+  }
 
-  get = async (request: Request, response: Response) => {
-    const output = await this.repository.get(request.params.id);
+  async get(request: Request, response: Response): Promise<void> {
+    const output = await this.repository.get(request.params.id, queryString(request.query.displayFields, 'displayFields'));
     response.json(output);
-  };
+  }
 
-  getAll = async (request: Request, response: Response) => {
-    const output = await this.repository.getAll(request.query as Record<string, string>);
+  async getAll(request: Request, response: Response): Promise<void> {
+    const output = await this.repository.getAll(request.query);
     response.json(output);
-  };
+  }
 }

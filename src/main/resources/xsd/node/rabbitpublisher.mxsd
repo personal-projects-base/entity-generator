@@ -1,33 +1,30 @@
-import amqp, { Channel, Connection } from 'amqplib';
+import type { Channel, ChannelWrapper } from 'amqp-connection-manager';
 import { RabbitConfig } from './rabbit-config';
 
 export abstract class RabbitPublisher {
-  private connection?: Connection;
-  private channel?: Channel;
+  private readonly channel: ChannelWrapper;
+  private readonly route: string;
 
-  constructor(private readonly config: RabbitConfig) {}
-
-  protected async publishMessage(queue: string, routingKey: string, message: unknown) {
-    const channel = await this.getChannel();
-    await channel.assertExchange(this.config.exchange, 'topic', { durable: true });
-    await channel.assertQueue(queue, { durable: true });
-    await channel.bindQueue(queue, this.config.exchange, routingKey);
-
-    channel.publish(
-      this.config.exchange,
-      routingKey,
-      Buffer.from(JSON.stringify(message)),
-      { persistent: true, contentType: 'application/json' }
-    );
+  constructor(protected readonly config: RabbitConfig, queue: string,
+    routingKey: string, channelName: string) {
+    this.route = routingKey;
+    this.channel = config.createChannel({
+      name: channelName,
+      confirm: true,
+      json: true,
+      publishTimeout: config.publishTimeoutMs,
+      setup: async (channel: Channel) => {
+        await channel.assertExchange(config.exchange, 'topic', { durable: true });
+        await channel.assertQueue(queue, { durable: true });
+        await channel.bindQueue(queue, config.exchange, routingKey);
+      },
+    });
   }
 
-  private async getChannel() {
-    if (!this.connection) {
-      this.connection = await amqp.connect(this.config.url);
-    }
-    if (!this.channel) {
-      this.channel = await this.connection.createChannel();
-    }
-    return this.channel;
+  protected publishMessage(message: unknown): Promise<boolean> {
+    return this.channel.publish(this.config.exchange, this.route, message,
+      { persistent: true, contentType: 'application/json' });
   }
+
+  close(): Promise<void> { return this.channel.close(); }
 }

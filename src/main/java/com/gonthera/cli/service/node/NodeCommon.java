@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import static com.gonthera.cli.service.common.Common.firstCharacterLowerCase;
 import static com.gonthera.cli.service.common.Common.firstCharacterUpperCase;
@@ -43,9 +45,13 @@ public class NodeCommon {
 
     public static String typeName(String type) {
         if (Common.properties != null && Common.properties.getEnums() != null && Common.properties.getEnums().stream().anyMatch(e -> e.getEnumName().equalsIgnoreCase(type))) {
-            return className(type);
+            return className(enumName(type));
         }
         switch (type) {
+            case "requestdata":
+                return "RequestData";
+            case "responsedata":
+                return "ResponseData";
             case "uuid":
             case "string":
             case "password":
@@ -54,16 +60,17 @@ public class NodeCommon {
                 return "string";
             case "int":
             case "integer":
-            case "long":
             case "decimal":
             case "double":
                 return "number";
+            case "long":
+                return "number | string";
             case "boolean":
                 return "boolean";
             case "byte":
             case "byte[]":
             case "inputStream":
-                return "Buffer";
+                return "string";
             case "map":
                 return "Record<string, unknown>";
             default:
@@ -74,7 +81,7 @@ public class NodeCommon {
     public static String fieldType(EntityFields field) {
         String type = typeName(field.getFieldProperties().getFieldType());
         if (field.isList()) {
-            return String.format("%s[]", type);
+            return String.format("%s[]", type.contains("|") ? "(" + type + ")" : type);
         }
         return type;
     }
@@ -82,22 +89,36 @@ public class NodeCommon {
     public static String parameterType(Parameters parameter) {
         String type = typeName(parameter.getParameterType());
         if (parameter.isList()) {
-            return String.format("%s[]", type);
+            return String.format("%s[]", type.contains("|") ? "(" + type + ")" : type);
         }
         return type;
     }
 
+    public static EntityFields primaryKey(Entities entity) {
+        return entity.getEntityFields().stream()
+                .filter(field -> field.getMetadata() != null && field.getMetadata().isKey())
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Node entity requires one primary key: " + entity.getEntityName()));
+    }
+
     public static String importsForEntityReferences(Entities entity) {
-        StringBuilder imports = new StringBuilder();
+        Set<String> imports = new LinkedHashSet<>();
         entity.getEntityFields().forEach(field -> {
             String type = field.getFieldProperties().getFieldType();
             if (isEnum(type)) {
-                imports.append(String.format("import { %s } from '../enums/%s.enum';%n", className(type), fileName(type)));
-            } else if (!isPrimitive(type)) {
-                imports.append(String.format("import type { %sDTO } from './%s.model';%n", className(type), fileName(type)));
+                String name = enumName(type);
+                imports.add(String.format("import type { %s } from '../enums/%s.enum';%n", className(name), fileName(name)));
+            } else if (!isPrimitive(type) && !type.equals(entity.getEntityName())) {
+                imports.add(String.format("import type { %sDTO } from './%s.model';%n", className(type), fileName(type)));
             }
         });
-        return imports.toString();
+        return String.join("", imports);
+    }
+
+    private static String enumName(String type) {
+        return Common.properties.getEnums().stream()
+                .filter(value -> value.getEnumName().equalsIgnoreCase(type))
+                .findFirst().orElseThrow().getEnumName();
     }
 
     public static boolean isEnum(String type) {

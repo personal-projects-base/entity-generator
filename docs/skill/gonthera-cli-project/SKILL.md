@@ -27,7 +27,7 @@ Supported targets:
 
 Java CRUD controllers delegate persistence, conversion, filtering, pagination, and transactions to generated `*Service` classes. `serviceAbstract: false` generates a concrete Spring `@Service`; `serviceAbstract: true` generates an abstract class without `@Service` and must produce a validator warning that the consumer needs a concrete Spring bean. Prefer `generateDefaultControllers` and `controllerAbstract`; accept `generateDefaultHandlers` and `handlerAbstract` only as deprecated aliases with warnings and new-name precedence.
 - `DOTNET`: C# generation under `<mainPackage>_gen`, physically organized into `Entities`, `Dtos`, `Converters`, `Repositories`, `Controllers`, `Endpoints`, `Enums`, `Common`, `Data`, and `Messaging`; static files remain under `static`. Generated C# files currently retain the shared root namespace `<mainPackage>.<mainPackage>_Gen` despite the physical folders.
-- `NODE`: TypeScript generation under `src/generated` plus `prisma/schema.prisma`.
+- `NODE`: TypeScript/Express generation under `src/generated` plus a Prisma/PostgreSQL `prisma/schema.prisma`, with CRUD converters, relations, query parsing, database configuration, and optional RabbitMQ. MongoDB is pending.
 - SQL: PostgreSQL script generation as `postgree.sql`.
 - Messaging: RabbitMQ generation under `messaging.RabbitMq`.
 
@@ -246,7 +246,7 @@ Before making non-trivial changes, inspect:
   - Shared: `src/main/java/com/gonthera/cli/service/common`
   - Models: `src/main/java/com/gonthera/cli/model`
 
-For docs-only changes in the Docusaurus project, inspect `docs-docusaurus/docs` and `docs-docusaurus/sidebars.js`.
+For docs-only changes, inspect the static portal in `docs/index.html`, `docs/app.js`, and `docs/styles.css`. Also inspect `docs-docusaurus/docs` and `docs-docusaurus/sidebars.js` when the Docusaurus copy is in scope.
 
 ## project.json Contract
 
@@ -296,7 +296,7 @@ Do not use simplified field examples like top-level `fieldType` or top-level `nu
 
 ## Relationships
 
-Java and C# relationship generation are considered mature. Node relationship generation is initial and may require manual Prisma review.
+Java and C# relationship generation are mature. Node relationship generation is also mature for Prisma with PostgreSQL as of 2.1.3; MongoDB remains pending.
 
 Relationship fields use `relationShips`:
 
@@ -329,7 +329,10 @@ Rules:
 - `mappedBy`: must point to the owner field, for example `children` maps by `parentCode`.
 - `reference: true`: normally set on the FK/reference side; Java converters use it to avoid recursion.
 - `list: true`: collection side, usually `OneToMany` or `ManyToMany`.
-- For self-relations, declare the owner/reference field before the inverse field.
+- Node supports bidirectional `OneToOne`, paired `ManyToOne`/`OneToMany`, `ManyToMany`, multiple relations between the same models, and self-relations.
+- Node validates missing or ambiguous inverse fields, invalid `mappedBy`, incompatible cardinalities, and FK name collisions before cleaning generated output.
+- Node relationship inputs use nested objects containing the configured key. Never expose synthetic Prisma FK names as the HTTP contract.
+- Node output expands related DTOs and assigns `null` to the immediate reciprocal field to prevent circular repetition.
 
 Example inverse side:
 
@@ -378,33 +381,51 @@ Rules:
 - Keep the exchange outside `project.json`; Java/.NET use annotation/attribute in consumer code, Node uses a concrete config class.
 - The old `pup` typo must not be reintroduced. Use `pub`.
 - The old `events`/`listeners` model is not implemented; do not document it as current behavior.
+- Node uses `amqp-connection-manager` 5.0.0 with `amqplib` 2.0.1. Reuse one concrete `RabbitConfig` so publishers and subscribers share the connection.
+- Node publishers use confirm channels and connection-manager buffering. Subscribers restore setup after reconnect, apply `prefetch`, acknowledge successful handling, and reject failures without requeue by default.
+- Keep connection URL, exchange, error policy, runtime startup, and shutdown in consumer-owned files outside `src/generated`.
 
 ## Node.js Scope
 
-Node generation currently includes:
+Node 2.1.3 generation for Prisma/PostgreSQL includes:
 
-- models/DTO contracts;
+- models/DTO contracts and entity metadata;
 - enums;
-- Prisma-friendly repositories;
-- Express controllers and routes;
+- transactional Prisma repositories;
+- DTO/entity/Prisma converters with cycle protection;
+- Express controllers and routes with uniform CRUD errors;
 - endpoint contracts;
-- RabbitMQ when configured;
+- query parsing for filters, order, projection, and pagination;
+- abstract `configuration/database/DatabaseConfig`;
+- RabbitMQ connection, publisher, and subscriber abstractions when configured;
 - static files;
 - SQL;
-- `prisma/schema.prisma`.
+- a complete PostgreSQL `prisma/schema.prisma`, including supported relations.
 
 Node does not generate:
 
 - `package.json`;
 - `tsconfig.json`;
+- `.env`;
 - migrations;
-- Java-style DTO converters.
+- a concrete database configuration;
+- Express application/server bootstrap, error middleware, Swagger, or authentication;
+- a concrete RabbitMQ configuration and listener implementations.
 
-Relationship caveat:
+Node controller customization supports the same inheritance intent as Java. `generateDefaultControllers: false` suppresses the generated controller and route. With `controllerAbstract: true`, generate an abstract base with implemented CRUD methods, a protected repository, and normal prototype methods so subclasses can call `super`. Generated route handlers must invoke the controller through wrappers to preserve `this` and dispatch overrides.
 
-- Node/Prisma relation generation is a starting point.
-- Self-relations, bidirectional relations, and `ManyToMany` should be documented as requiring manual review before migrations.
-- Avoid claiming Node relationship parity with Java/C# until `GeneratePrisma` and generated TypeScript models are improved.
+`GeneratedControllerFactories` is the runtime composition contract. A factory property is required for every abstract controller and optional for concrete controllers. `createGeneratedRoutes(prisma, factories)` keeps all HTTP bindings generated; the consumer provides only its concrete subclass and a registry entry such as `customer: repository => new AppCustomerController(repository)`. Keep a runtime missing-factory error in each abstract route in addition to the TypeScript requirement. Do not make generated routes import consumer files or require consumers to repeat CRUD bindings.
+
+Node runtime contract:
+
+- Keep `src/generated` disposable. Consumer customization belongs outside it.
+- Receive relationships as DTO objects containing their real key, such as `{"customer":{"id":"UUID"}}`; do not accept or return synthetic fields such as `customerId`.
+- `reference: true` connects an existing record. Non-reference relationships may create or update nested data in the same transaction.
+- PUT preserves omitted fields. An explicitly supplied inverse OneToMany collection removes omitted children; ManyToMany replaces links without deleting shared rows.
+- GET/POST/PUT expand relations but replace the immediate reciprocal field with `null`; expansion is bounded to six relationship hops.
+- Lists return `{size, offset, total, contents}`. Request page numbering starts at 1 and response `offset` is zero-based.
+- Entities must have exactly one scalar primary key. The route stays `/:id`, while generated code resolves and converts the configured key name and type.
+- MongoDB is not implemented yet. Do not describe the PostgreSQL Prisma schema or relation persistence as Mongo-compatible until item 9 is complete.
 
 ## Templates
 
@@ -423,14 +444,16 @@ User-facing documentation should not explain internal templates unless the user 
 
 ## CRUD Filters
 
-Treat filtering as target-specific behavior, not as a portable JPA/SQL query language.
+Java and Node share the public query parameter names and core response expectations, while their internal query engines remain target-specific.
 
 - Java `SpecificationFilter` supports `eq`, `isNull`, `notNull`, date-only inclusive comparisons with `gte`/`ge` and `lte`/`le`, `and`, `or`, and dotted relationship paths. Date comparisons accept ISO `LocalDate` and `LocalDateTime` values.
 - Java string `eq` is a case-insensitive contains operation; UUID uses exact equality.
 - Java numeric, boolean, and date equality is not safely converted by the current template.
 - Do not claim reliable mixed `and`/`or` precedence, nested parentheses, escaping, comparison operators, or `in` support.
 - .NET `DynamicFilter` is a separate dialect with `eq` and one logical operator kind per expression; collection paths use `*`.
-- Node repositories currently ignore `filter` and use only pagination parameters.
+- Node supports `size`, `offset`, `filter`, `order`, and `displayFields`; `filter` accepts `eq`, `isNull`, `notNull`, date `gte`/`ge` and `lte`/`le`, dotted paths, and collection paths with dotted syntax or `*`.
+- Node string `eq` is case-insensitive contains; UUID is exact; enum accepts name or ordinal; numeric and boolean equality values are converted.
+- Node rejects mixed `and`/`or`, parentheses, escaping, list ordering, unknown fields, and invalid values with HTTP 400. Missing GET IDs return 404.
 - When filter behavior changes, update both entity handoffs and the relevant user documentation.
 
 ## Documentation Standards
@@ -441,9 +464,12 @@ Update docs when behavior changes:
 - `docs/handoff/gonthera-cli-project/HANDOFF.md`: implementation details and caveats.
 - `docs/handoff/HANDOFF_FRONTEND.md`: frontend request construction and limitations.
 - `CHANGELOG.md`: release notes and future improvements.
+- `docs/index.html`, `docs/app.js`, and `docs/styles.css`: public static portal, examples, version status, and the global language selector.
 - `docs-docusaurus/docs`: detailed user documentation.
 
 Docusaurus docs should focus on how to use the generator, not how the generator is implemented.
+
+The static portal is language-scoped. The selector in the introduction controls every section below it. Keep installation, generated code, relationships, CRUD, filters, messaging, security, runtime, and limitations inside the selected target data in `targetDocs`; do not reintroduce mixed Java, Node, and .NET comparison cards in the page body. Shared JSON contracts may stay in `snippets` only when their implemented shape is identical for all targets.
 
 For .NET and Node docs, mention that consumers can download `gonthera-cli.exe` or `gonthera-cli-x.x.x.jar` and execute it in the project root, in the same folder as `project.json`.
 
@@ -476,4 +502,4 @@ When validating generation, create a temporary project under `/tmp`, copy or cre
 - Do not change generated output paths unless explicitly requested.
 - Do not revert unrelated dirty files.
 - Do not edit generated `_gen` output as source of truth.
-- Keep Node relationship limitations honest in docs until implementation is complete.
+- Describe Node as mature for Prisma/PostgreSQL only. Keep MongoDB, authentication, migrations, and consumer bootstrap listed as pending or consumer-owned until implemented.

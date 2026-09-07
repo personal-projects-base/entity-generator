@@ -1,19 +1,82 @@
+import amqp, {
+  type AmqpConnectionManager,
+  type ChannelWrapper,
+  type CreateChannelOpts,
+} from 'amqp-connection-manager';
+
 export interface RabbitConnectionOptions {
   url?: string;
+  urls?: string[];
   exchange: string;
+  heartbeatIntervalInSeconds?: number;
+  reconnectTimeInSeconds?: number;
+  connectionTimeoutMs?: number;
+  publishTimeoutMs?: number;
+  prefetch?: number;
+  requeueOnError?: boolean;
 }
 
 export abstract class RabbitConfig {
+  private manager?: AmqpConnectionManager;
+  private readonly channels = new Set<ChannelWrapper>();
+
   constructor(private readonly options: RabbitConnectionOptions) {}
 
-  get url() {
-    return this.options.url ?? process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672';
+  get urls(): string[] {
+    const environment = process.env.RABBITMQ_URLS?.split(',').map(value => value.trim()).filter(Boolean);
+    return this.options.urls?.length ? this.options.urls
+      : environment?.length ? environment
+      : [this.options.url ?? process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672'];
   }
 
-  get exchange() {
+  get exchange(): string {
     if (!this.options.exchange) {
       throw new Error('RabbitMQ exchange must be configured');
     }
     return this.options.exchange;
   }
+
+  get publishTimeoutMs(): number { return this.options.publishTimeoutMs ?? 10_000; }
+  get connectionTimeoutMs(): number { return this.options.connectionTimeoutMs ?? 10_000; }
+  get prefetch(): number { return this.options.prefetch ?? 1; }
+  get requeueOnError(): boolean { return this.options.requeueOnError ?? false; }
+
+  get connection(): AmqpConnectionManager {
+    if (!this.manager) {
+      this.manager = amqp.connect(this.urls, {
+        heartbeatIntervalInSeconds: this.options.heartbeatIntervalInSeconds ?? 5,
+        reconnectTimeInSeconds: this.options.reconnectTimeInSeconds ?? 5,
+      });
+      this.manager.on('connect', () => this.onConnect());
+      this.manager.on('disconnect', ({ err }) => this.onDisconnect(err));
+      this.manager.on('connectFailed', ({ err }) => this.onConnectionError(err));
+    }
+    return this.manager;
+  }
+
+  createChannel(options: CreateChannelOpts): ChannelWrapper {
+    const channel = this.connection.createChannel(options);
+    this.channels.add(channel);
+    return channel;
+  }
+
+  async connect(): Promise<void> {
+    const connection = this.connection;
+    if (!connection.isConnected()) {
+      await connection.connect({ timeout: this.connectionTimeoutMs });
+    }
+  }
+
+  async close(): Promise<void> {
+    await Promise.allSettled([...this.channels].map(channel => channel.close()));
+    this.channels.clear();
+    if (this.manager) {
+      await this.manager.close();
+      this.manager = undefined;
+    }
+  }
+
+  protected onConnect(): void {}
+  protected onDisconnect(error: Error): void { console.warn('RabbitMQ disconnected:', error.message); }
+  protected onConnectionError(error: Error): void { console.error('RabbitMQ connection failed:', error.message); }
 }

@@ -40,10 +40,14 @@ public class GenerateMessaging {
     private static void generateCommon(Path packagePath) throws IOException {
         Path messagingPath = packagePath.resolve("messaging").resolve("rabbitmq");
         writeFile(messagingPath.resolve("rabbit-config.ts"), loadWxsd("rabbitconfig"));
-        writeFile(messagingPath.resolve("rabbit-publisher.ts"), loadWxsd("rabbitpublisher"));
     }
 
     private static void generatePublishers(List<MessagingChannel> publishers, Path packagePath) throws IOException {
+        if (publishers.isEmpty()) {
+            return;
+        }
+        Path messagingPath = packagePath.resolve("messaging").resolve("rabbitmq");
+        writeFile(messagingPath.resolve("rabbit-publisher.ts"), loadWxsd("rabbitpublisher"));
         Path publisherPath = packagePath.resolve("messaging").resolve("rabbitmq").resolve("pub");
         for (MessagingChannel publisher : publishers) {
             String className = className(publisher, "Pub");
@@ -69,7 +73,7 @@ public class GenerateMessaging {
     private static String subscriberContent(String className, MessagingChannel subscriber) {
         String binding = value(subscriber.getRoutingKey()).isEmpty()
                 ? ""
-                : String.format("%n    await channel.bindQueue(this.queue, this.config.exchange, '%s');", value(subscriber.getRoutingKey()));
+                : String.format("%n        await channel.bindQueue(this.queue, this.config.exchange, '%s');", value(subscriber.getRoutingKey()));
 
         return loadWxsd("rabbitsub")
                 .replace("<<className>>", className)

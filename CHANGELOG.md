@@ -1,3 +1,45 @@
+## >2.1.3 - Em desenvolvimento
+
+### Relacionamentos Node com Prisma e PostgreSQL
+* A geração Node passou a resolver relações bidirecionais com a mesma convenção de lado proprietário, lado inverso e `mappedBy` usada pelo gerador Java.
+* `OneToOne` gera uma FK única no proprietário, mantém o tipo nativo da chave referenciada e compartilha o nome da relação com o campo inverso. O inverso é opcional no schema, como exigido pelo Prisma.
+* `ManyToOne`/`OneToMany` preserva a FK somente no proprietário, sem unicidade indevida. `ManyToMany` usa relações implícitas distintas, inclusive em autorrelações e quando há mais de um vínculo entre o mesmo par de entidades.
+* Pares ausentes, ambíguos, com cardinalidade incompatível, `mappedBy` inválido ou colisão de FK são rejeitados antes da limpeza de `src/generated`.
+* Corrigidos autoimports, imports duplicados e resolução de enums em models, DTOs e schema Prisma. A regeneração agora remove recursivamente subdiretórios antigos e interrompe sem deixar uma saída parcial quando a validação falha.
+
+### DTOs, persistência e respostas Node
+* POST e PUT recebem relações como objetos que contêm a chave configurada, por exemplo `{"customer":{"id":"UUID"}}`; campos artificiais como `customerId` não fazem parte do contrato HTTP.
+* `reference: true` apenas conecta a entidade existente. Relações sem `reference` podem criar ou atualizar objetos aninhados na mesma transação; campos omitidos no PUT são preservados.
+* Coleções inversas `OneToMany` enviadas removem os filhos omitidos, enquanto `ManyToMany` substitui somente os vínculos. Não foi criado cascade recursivo geral equivalente ao JPA.
+* GET, POST e PUT retornam DTOs com relações expandidas. O conversor corta o campo recíproco imediato com `null`, evitando respostas circulares como `customer.profile.customer`, e limita a profundidade total da expansão.
+* Datas usam ISO, bytes usam Base64 e valores `long` fora da faixa segura do JavaScript são serializados como string.
+
+### Contrato CRUD e consultas Node
+* A listagem agora retorna `{size, offset, total, contents}`. O tamanho padrão é 20, a primeira página é informada como `offset=1` e retornada como `offset: 0`.
+* Implementados `filter`, `order` e `displayFields` no repository Prisma. O filtro aceita caminhos relacionados, coleções com caminho pontuado ou `*`, `eq`, `isNull`, `notNull`, `gte`/`ge`, `lte`/`le` e uma única família lógica por expressão (`and` ou `or`).
+* `eq` textual faz busca parcial sem diferenciar maiúsculas; UUID usa igualdade; enums aceitam nome ou ordinal; números e booleanos são convertidos para o tipo Prisma.
+* `order=campo,asc|desc` controla a ordenação e `displayFields=id;customer.name` controla a projeção, inclusive no GET individual. Entradas inválidas retornam 400 e uma chave inexistente retorna 404.
+* A rota pública continua `/:id`, mas repositories e relações usam o nome e o tipo reais da única chave primária escalar configurada. O Node recusa entidades sem exatamente uma chave escalar antes de alterar a saída gerada.
+
+### Configuração, Prisma e serviço base
+* Adicionada a geração de `configuration/database/database.config.ts`. A classe abstrata `DatabaseConfig` carrega `.env`, reutiliza um `PrismaClient`, oferece `connect()`/`disconnect()` e hooks para URL, opções e criação do cliente; a implementação concreta fica fora de `src/generated`.
+* `prisma/schema.prisma` é gerado com datasource PostgreSQL, Prisma Client, enums, models, tipos nativos e relacionamentos. Migrations continuam sendo responsabilidade do projeto consumidor.
+* `controllerAbstract: true` agora gera no Node uma base abstrata com CRUD funcional, repository protegido e métodos sobrescrevíveis. `GeneratedControllerFactories` exige uma implementação concreta para cada controller abstrato e aceita overrides opcionais para controllers concretos; todas as rotas permanecem geradas e validam factories ausentes em runtime.
+* Criado `node-test-service` como serviço base reutilizável com Express 5, configuração concreta do banco, tratamento uniforme de erros, health check, Swagger UI em `/docs`, OpenAPI em `/openapi.json` e encerramento ordenado do Prisma.
+* O serviço inclui `.env.example`, migration PostgreSQL inicial e scripts `dev`, `build`, `start`, `typecheck`, `gonthera-cli`, `gonthera-validate` e migrations Prisma. O comando npm executa o JAR local para manter a geração independente do ecossistema da aplicação.
+* `package.json`, `tsconfig.json`, `.env`, migrations, servidor Express, Swagger, middleware de erros e configurações concretas continuam sendo arquivos do consumidor e não são sobrescritos pelo gerador.
+
+### RabbitMQ no Node
+* A geração passou a usar `amqp-connection-manager` 5.0.0 sobre `amqplib` 2.0.1, compartilhando uma conexão entre publishers e subscribers.
+* Publishers usam canais confirmáveis e mantêm publicações durante reconexões. Subscribers recuperam setup e consumo, aplicam `prefetch`, confirmam mensagens somente após sucesso e usam `nack` sem requeue por padrão, com política configurável.
+* Conexão, canais e consumidores oferecem encerramento explícito. A implementação concreta define URL, exchange e hooks fora de `src/generated`; o serviço base habilita o bootstrap com `RABBITMQ_ENABLED=true`.
+
+### Validação desta entrega
+* O JAR 2.1.3 foi compilado, a saída Node foi regenerada e o projeto TypeScript passou por `typecheck` e `build`.
+* O responsável validou manualmente a API Node com PostgreSQL, incluindo CRUD, relações bidirecionais, expansão de DTOs, filtros e paginação, e aprovou o comportamento como base de projeto.
+* O portal estático foi reorganizado por linguagem. Um seletor na introdução mantém toda a navegação e todos os exemplos seguintes restritos a Java, Node.js ou .NET; as trilhas Java e Node incluem instalação, geração, código, relações, CRUD, filtros, RabbitMQ, segurança e fronteiras dos arquivos gerados.
+* A ampliação dos testes automatizados permanece para uma etapa posterior. O suporte MongoDB ainda não foi implementado e será o próximo item da 2.1.3.
+
 ## >2.1.2 - 02-09-2026
 
 * Adicionados os operadores de data `gte`/`ge` e `lte`/`le` ao `SpecificationFilter` Java.
@@ -96,11 +138,8 @@
 * Documentado o uso de relacionamentos e DTO converters na documentação Docusaurus.
 
 ### Melhorias futuras
-* Evoluir a geração de relacionamentos no Node/Prisma. A geração atual serve como base inicial, mas relacionamentos bidirecionais, autorrelacionamentos e `ManyToMany` ainda devem ser revisados manualmente antes de executar migrations.
-* Evitar auto-imports e imports duplicados nos models TypeScript gerados para entidades autorreferenciadas.
-* Avaliar uma abstração de conversão DTO/entity para Node, equivalente ao papel dos converters em Java e C#.
+* Adicionar suporte Node a MongoDB preservando o mesmo contrato HTTP já usado com PostgreSQL.
 * Reforçar testes automatizados para relacionamentos em Java, C#, SQL e Node, cobrindo `OneToOne`, `OneToMany`, `ManyToOne`, `ManyToMany` e autorrelacionamentos.
-* Considerar que a geração de relacionamentos tende a funcionar melhor e com menos ambiguidade em linguagens fortemente tipadas, como Java e C#, onde os converters, entidades e anotações/atributos conseguem expressar melhor o contrato de domínio.
 
 ### Quebras de compatibilidades
 * Versão promovida para `1.0.0`.

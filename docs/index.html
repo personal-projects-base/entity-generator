@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Documentação oficial do Gonthera CLI, o gerador de backends para Java, .NET e Node.js.">
+  <meta name="description" content="Documentação oficial do Gonthera CLI para geração de backends Java, .NET e Node.js.">
   <meta name="theme-color" content="#0b1220">
   <title>Gonthera CLI — Documentação</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2357e6b1'/%3E%3Cpath d='M43 23c-3-4-7-6-12-6-9 0-15 6-15 15s6 15 15 15c5 0 10-2 13-6V31H30v7h6v1c-1 1-3 2-5 2-5 0-8-4-8-9s3-9 8-9c3 0 5 1 7 4l5-4Z' fill='%230b1220'/%3E%3C/svg%3E">
@@ -14,266 +14,193 @@
     <header class="topbar">
       <a class="brand" href="#inicio" @click="mobileNavOpen = false" aria-label="Gonthera CLI — início">
         <span class="brand-mark" aria-hidden="true">G</span>
-        <span>
-          <strong>Gonthera</strong>
-          <small>CLI docs</small>
-        </span>
+        <span><strong>Gonthera</strong><small>CLI docs</small></span>
       </a>
-
       <div class="topbar-actions">
         <button class="search-trigger" type="button" @click="openSearch" aria-label="Pesquisar na documentação">
-          <span aria-hidden="true">⌕</span>
-          <span>Pesquisar</span>
-          <kbd>Ctrl K</kbd>
+          <span aria-hidden="true">⌕</span><span>Pesquisar</span><kbd>Ctrl K</kbd>
         </button>
-        <a class="version-pill" href="#downloads">v{{ currentVersion }}</a>
-        <button class="icon-button mobile-only" type="button" @click="mobileNavOpen = !mobileNavOpen" aria-label="Abrir menu">
-          <span></span><span></span><span></span>
-        </button>
+        <a class="version-pill" href="#inicio">{{ target.name }} · v{{ documentationVersion }}</a>
+        <button class="icon-button mobile-only" type="button" @click="mobileNavOpen = !mobileNavOpen" aria-label="Abrir menu"><span></span><span></span><span></span></button>
       </div>
     </header>
 
     <div class="shell">
       <aside class="sidebar" aria-label="Navegação da documentação">
+        <div class="labswitch-sidebar">
+          <small>Linguagem ativa</small>
+          <strong>{{ target.name }}</strong>
+          <span>{{ target.stack }}</span>
+        </div>
         <div class="sidebar-scroll">
           <p class="eyebrow sidebar-eyebrow">Documentação</p>
           <nav>
             <div v-for="group in navigation" :key="group.label" class="nav-group">
               <p>{{ group.label }}</p>
-              <a
-                v-for="item in group.items"
-                :key="item.id"
-                :href="`#${item.id}`"
-                :class="{ active: activeSection === item.id }"
-                @click="mobileNavOpen = false"
-              >
-                <span>{{ item.label }}</span>
-                <span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
+              <a v-for="item in group.items" :key="item.id" :href="`#${item.id}`" :class="{ active: activeSection === item.id }" @click="mobileNavOpen = false">
+                <span>{{ item.label }}</span><span v-if="item.badge" class="nav-badge">{{ item.badge }}</span>
               </a>
             </div>
           </nav>
         </div>
-        <div class="sidebar-footer">
-          <span class="status-dot"></span>
-          <span>Documentação 2.1.2</span>
-        </div>
+        <div class="sidebar-footer"><span class="status-dot"></span><span>Documentação {{ documentationVersion }}</span></div>
       </aside>
 
       <main>
-        <section id="inicio" class="hero doc-section" data-title="Introdução Gonthera CLI gerador Java .NET Node">
-          <div class="hero-glow hero-glow-one"></div>
-          <div class="hero-glow hero-glow-two"></div>
+        <section id="inicio" class="hero doc-section" data-title="Introdução e seleção de linguagem">
+          <div class="hero-glow hero-glow-one"></div><div class="hero-glow hero-glow-two"></div>
           <div class="hero-content">
-            <div class="release-label"><span></span> Versão 2.1.2 disponível</div>
-            <p class="eyebrow">Backends consistentes. Menos repetição.</p>
-            <h1>Do contrato ao backend,<br><em>em um comando.</em></h1>
-            <p class="hero-copy">
-              O Gonthera CLI transforma contratos JSON em estruturas completas para Java, .NET e Node.js — com CRUD, persistência, endpoints, autorização e mensageria.
-            </p>
+            <div class="release-label"><span></span> Documentação {{ documentationVersion }}</div>
+            <p class="eyebrow">Escolha sua linguagem</p>
+            <h1>Gonthera para<br><em>{{ target.name }}.</em></h1>
+            <p class="hero-copy">{{ target.hero }}</p>
+
+            <div class="language-selector" role="tablist" aria-label="Escolha a linguagem da documentação">
+              <button v-for="language in languageOptions" :key="language.id" type="button" :class="{ active: selectedLanguage === language.id }" :aria-selected="selectedLanguage === language.id" @click="selectLanguage(language.id)">
+                <span>{{ language.icon }}</span><strong>{{ language.name }}</strong><small>{{ language.stack }}</small>
+              </button>
+            </div>
+
             <div class="hero-actions">
-              <a class="button button-primary" href="#primeiros-passos">Começar agora <span>→</span></a>
+              <a class="button button-primary" href="#primeiros-passos">Começar com {{ target.name }} <span>→</span></a>
               <a class="button button-secondary" href="#downloads">Baixar v{{ currentVersion }}</a>
             </div>
             <div class="hero-command code-card compact-code">
-              <div class="code-card-top"><span>Terminal</span><button type="button" @click="copy('mvn gonthera-cli:generate-sources', $event)">Copiar</button></div>
-              <pre><code><span class="prompt">$</span> mvn gonthera-cli:generate-sources</code></pre>
+              <div class="code-card-top"><span>Terminal · {{ target.name }}</span><button type="button" @click="copy(target.command, $event)">Copiar</button></div>
+              <pre><code><span class="prompt">$</span> {{ target.command }}</code></pre>
             </div>
           </div>
-          <div class="hero-visual" aria-hidden="true">
-            <div class="orbit orbit-one"></div>
-            <div class="orbit orbit-two"></div>
-            <div class="core-card">
-              <div class="core-icon">G</div>
-              <strong>project.json</strong>
-              <small>contrato central</small>
+
+          <div class="hero-visual language-preview" aria-hidden="true">
+            <div class="preview-orbit"></div>
+            <div class="preview-card">
+              <span class="preview-icon">{{ target.icon }}</span>
+              <small>Documentação selecionada</small>
+              <strong>{{ target.name }}</strong>
+              <p>{{ target.stack }}</p>
             </div>
-            <div class="tech-node tech-java"><span>J</span> Java</div>
-            <div class="tech-node tech-dotnet"><span>.N</span> .NET</div>
-            <div class="tech-node tech-nodejs"><span>N</span> Node.js</div>
           </div>
         </section>
 
-        <section class="quick-grid section-wrap" aria-label="Visão geral">
-          <article><span class="card-index">01</span><h3>Um contrato</h3><p>Entidades, relacionamentos, endpoints e enums em JSON legível.</p></article>
-          <article><span class="card-index">02</span><h3>Três ecossistemas</h3><p>Java + Spring, C# + .NET e TypeScript + Express + Prisma.</p></article>
-          <article><span class="card-index">03</span><h3>Saída previsível</h3><p>Código organizado, regenerável e pronto para especialização.</p></article>
+        <section class="quick-grid section-wrap" aria-label="Visão geral da linguagem selecionada">
+          <article v-for="(item, index) in target.highlights" :key="item.title"><span class="card-index">0{{ index + 1 }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p></article>
         </section>
 
-        <section id="primeiros-passos" class="doc-section section-wrap" data-title="Primeiros passos instalar executar Maven JAR EXE">
+        <section id="primeiros-passos" class="doc-section section-wrap" data-title="Primeiros passos instalar validar gerar executar">
           <header class="section-heading">
-            <div><p class="eyebrow">01 — Comece aqui</p><h2>Primeiros passos</h2></div>
-            <p>Crie o contrato, valide e gere. O diretório atual deve ser a raiz que contém a pasta <code>.gonthera</code>.</p>
+            <div><p class="eyebrow">01 — Comece aqui</p><h2>Primeiros passos com {{ target.name }}</h2></div>
+            <p>Execute tudo na raiz do serviço, onde está a pasta <code>.gonthera</code>. Valide o contrato antes de regenerar os arquivos.</p>
           </header>
-
           <div class="steps">
-            <article class="step-card">
-              <span>1</span><div><h3>Configure o repositório e o plugin</h3><p>Para o Maven baixar o plugin, adicione o repositório de leitura e fixe a versão no <code>pom.xml</code>.</p></div>
-              <code-block lang="xml" :code="snippets.maven"></code-block>
-            </article>
-            <article class="step-card">
-              <span>2</span><div><h3>Crie a configuração</h3><p>Separe as áreas do contrato dentro de <code>.gonthera</code>.</p></div>
-              <code-block lang="text" :code="snippets.tree"></code-block>
-            </article>
-            <article class="step-card">
-              <span>3</span><div><h3>Valide e gere</h3><p>Validação não cria nem remove arquivos gerados.</p></div>
-              <code-block lang="bash" :code="snippets.commands"></code-block>
-            </article>
+            <article class="step-card"><span>1</span><div><h3>{{ target.installTitle }}</h3><p>{{ target.installText }}</p></div><code-block :lang="target.installLang" :code="target.install"></code-block></article>
+            <article class="step-card"><span>2</span><div><h3>Organize o contrato</h3><p>Separe entidades, endpoints, enums e mensageria em arquivos pequenos.</p></div><code-block lang="text" :code="snippets.tree"></code-block></article>
+            <article class="step-card"><span>3</span><div><h3>Valide, gere e compile</h3><p>A validação não cria nem remove arquivos. Depois da geração, compile o consumidor.</p></div><code-block lang="bash" :code="target.commands"></code-block></article>
           </div>
         </section>
 
-        <section id="configuracao" class="doc-section section-wrap" data-title="Configuração .gonthera project json modular prioridade arquivos">
+        <section id="configuracao" class="doc-section section-wrap" data-title="Configuração modular project json entities endpoints enums">
           <header class="section-heading">
-            <div><p class="eyebrow">02 — Fundação</p><h2>Configuração modular</h2></div>
-            <p>O <code>project.json</code> identifica o serviço. Os arquivos separados sobrescrevem somente suas respectivas seções.</p>
+            <div><p class="eyebrow">02 — Contrato</p><h2>Configuração para {{ target.name }}</h2></div>
+            <p>O formato modular é compartilhado, mas <code>language</code> determina somente a saída que você verá nesta página.</p>
           </header>
-
           <div class="split-layout">
             <div>
               <div class="callout callout-info"><strong>Ordem de resolução</strong><ol><li><code>.gonthera/project.json</code> e arquivos separados</li><li><code>project.json</code> na raiz</li><li><code>properties.json</code> legado</li></ol></div>
-              <h3>Contrato mínimo</h3>
-              <p>Use a linguagem em maiúsculas: <code>JAVA</code>, <code>DOTNET</code> ou <code>NODE</code>.</p>
-              <code-block lang="json" :code="snippets.project"></code-block>
+              <h3>project.json</h3><code-block lang="json" :code="target.project"></code-block>
             </div>
             <div class="property-list">
-              <article v-for="property in projectProperties" :key="property.name">
-                <code>{{ property.name }}</code><span :class="['tag', property.required ? 'tag-required' : '']">{{ property.required ? 'obrigatório' : 'opcional' }}</span><p>{{ property.description }}</p>
-              </article>
+              <article v-for="property in projectProperties" :key="property.name"><code>{{ property.name }}</code><span :class="['tag', property.required ? 'tag-required' : '']">{{ property.required ? 'obrigatório' : 'opcional' }}</span><p>{{ property.description }}</p></article>
             </div>
           </div>
         </section>
 
-        <section id="entidades" class="doc-section section-wrap" data-title="Entidades campos tipos DTO chave primária CRUD service controller">
+        <section id="entidades" class="doc-section section-wrap" data-title="Entidades campos tipos chave DTO model schema saída gerada">
           <header class="section-heading">
-            <div><p class="eyebrow">03 — Domínio</p><h2>Entidades e campos</h2></div>
-            <p>Cada entidade persistida precisa de exatamente uma chave primária e metadados completos.</p>
+            <div><p class="eyebrow">03 — Domínio</p><h2>Entidades e saída {{ target.name }}</h2></div>
+            <p>Cada entidade persistida precisa de exatamente uma chave e de campos com <code>fieldProperties</code> e <code>metadata</code>.</p>
           </header>
           <div class="content-grid">
-            <div class="content-main"><code-block lang="json" :code="snippets.entity"></code-block></div>
-            <aside class="content-aside">
-              <div class="mini-card"><span class="mini-icon">◆</span><h3>Campos primitivos</h3><p><code>uuid</code>, <code>string</code>, <code>int</code>, <code>long</code>, <code>decimal</code>, <code>datetime</code>, <code>date</code> e <code>boolean</code>.</p></div>
-              <div class="mini-card"><span class="mini-icon">↗</span><h3>CRUD padrão</h3><p><code>generateDefaultControllers: true</code> habilita os controllers gerados.</p></div>
-              <div class="mini-card"><span class="mini-icon">A</span><h3>Customização Java</h3><p><code>controllerAbstract</code> e <code>serviceAbstract</code> permitem implementações externas a <code>_gen</code>.</p></div>
-            </aside>
+            <div class="content-main"><h3>Contrato de entrada</h3><code-block lang="json" :code="snippets.entityContract"></code-block></div>
+            <aside class="content-aside"><div class="mini-card"><span class="mini-icon">◆</span><h3>Tipos comuns</h3><p><code>uuid</code>, <code>string</code>, <code>int</code>, <code>long</code>, <code>decimal</code>, <code>datetime</code>, <code>date</code>, <code>boolean</code> e enums.</p></div><div class="mini-card"><span class="mini-icon">K</span><h3>Chave</h3><p>Marque somente um campo com <code>metadata.key: true</code>.</p></div></aside>
           </div>
-          <div class="technology-grid">
-            <article class="technology-card supported"><div><span class="technology-icon">J</span><p><strong>Java</strong><small>Suporte completo</small></p></div><p>Gera entidades JPA, DTOs, converters, repositories, services e controllers.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon dotnet">.N</span><p><strong>.NET</strong><small>Suporte completo</small></p></div><p>Gera entidades C#, DTOs, converters, repositories e controllers para Entity Framework Core.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon node">N</span><p><strong>Node.js</strong><small>Suporte disponível</small></p></div><p>Gera models TypeScript, repositories, controllers, rotas e models Prisma para campos escalares.</p></article>
+          <div class="split-layout example-pair">
+            <div><h3>{{ target.entityTitle }}</h3><p>{{ target.entityText }}</p><code-block :lang="target.entityLang" :code="target.entityCode"></code-block></div>
+            <div><h3>Estrutura gerada</h3><p>Todo o conteúdo desta árvore é regenerável.</p><code-block lang="text" :code="target.output"></code-block></div>
           </div>
         </section>
 
-        <section id="relacionamentos" class="doc-section section-wrap" data-title="Relacionamentos OneToMany ManyToOne OneToOne ManyToMany mappedBy bidirectional reference">
-          <header class="section-heading"><div><p class="eyebrow">04 — Modelo</p><h2>Relacionamentos sem ambiguidade</h2></div><p>O lado dono guarda a FK. O inverso aponta para ele com <code>mappedBy</code>.</p></header>
-          <div class="relationship-flow">
-            <article><span class="flow-label">Lado dono</span><h3>customer</h3><code>bidirectional: false</code><code>reference: true</code><p>Gera coluna, FK e <code>@JoinColumn</code>.</p></article>
-            <div class="flow-arrow"><span>ManyToOne</span><i>→</i><small>mappedBy: customer</small></div>
-            <article><span class="flow-label inverse">Lado inverso</span><h3>orders</h3><code>bidirectional: true</code><code>list: true</code><p>Não gera coluna adicional.</p></article>
+        <section id="relacionamentos" class="doc-section section-wrap" data-title="Relacionamentos OneToOne OneToMany ManyToOne ManyToMany mappedBy bidirectional reference">
+          <header class="section-heading">
+            <div><p class="eyebrow">04 — Relações</p><h2>Relacionamentos em {{ target.name }}</h2></div>
+            <p><code>bidirectional: false</code> define o proprietário. O inverso usa <code>mappedBy</code> para apontar ao campo proprietário.</p>
+          </header>
+          <div class="split-layout">
+            <div><h3>Campo inverso no contrato</h3><code-block lang="json" :code="snippets.relationContract"></code-block></div>
+            <div><h3>{{ target.relationTitle }}</h3><code-block :lang="target.relationLang" :code="target.relationCode"></code-block><ul class="check-list roomy-list"><li v-for="note in target.relationNotes" :key="note">{{ note }}</li></ul></div>
           </div>
-          <div class="technology-grid relationship-technologies">
-            <article class="technology-card supported"><div><span class="technology-icon">J</span><p><strong>Java</strong><small>Suporte completo</small></p></div><p>Relacionamentos JPA funcionam com lado dono, lado inverso, <code>mappedBy</code>, converters e geração de FK.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon dotnet">.N</span><p><strong>.NET</strong><small>Suporte completo</small></p></div><p>Relacionamentos são gerados para as entidades e o Entity Framework Core, incluindo suas referências e coleções.</p></article>
-            <article class="technology-card improving"><div><span class="technology-icon node">N</span><p><strong>Node.js</strong><small>Em melhoria</small></p></div><p>Relações simples servem como base inicial. Autorrelacionamentos, relações bidirecionais e <code>ManyToMany</code> ainda precisam de revisão antes das migrations.</p></article>
+          <div v-if="selectedLanguage !== 'dotnet'" class="response-example">
+            <header><div><p class="eyebrow">Contrato HTTP</p><h3>Envio por objeto e resposta sem ciclo</h3></div><p>A API recebe a relação pela chave do DTO. O campo recíproco imediato não repete o objeto pai.</p></header>
+            <div class="content-grid"><code-block lang="http / json" :code="snippets.relationRequest"></code-block><code-block lang="json" :code="snippets.relationResponse"></code-block></div>
           </div>
         </section>
 
-        <section id="endpoints" class="doc-section section-wrap" data-title="Endpoints customizados HTTP GET POST anonymous anônimo permissões input output">
-          <header class="section-heading"><div><p class="eyebrow">05 — HTTP</p><h2>Endpoints customizados</h2></div><p>Complemente o CRUD com contratos de entrada, saída e autorização explícitos.</p></header>
+        <section id="crud" class="doc-section section-wrap" data-title="CRUD controllers services repositories DTO resposta HTTP POST PUT GET DELETE">
+          <header class="section-heading"><div><p class="eyebrow">05 — HTTP</p><h2>CRUD e respostas em {{ target.name }}</h2></div><p>O código gerado separa o contrato HTTP da representação persistida e mantém pontos claros de customização.</p></header>
           <div class="content-grid">
-            <div class="content-main"><code-block lang="json" :code="snippets.endpoint"></code-block></div>
-            <aside class="content-aside sticky-note">
-              <div class="callout callout-success"><strong>Endpoint anônimo</strong><p><code>anonymous</code> é <code>false</code> por padrão. Use <code>true</code> somente quando o endpoint puder dispensar autenticação.</p></div>
-              <ul class="check-list"><li><code>input</code> e <code>output</code> devem sempre existir</li><li>Use apenas <code>GET</code> ou <code>POST</code></li></ul>
-            </aside>
+            <div class="content-main"><h3>{{ target.crudTitle }}</h3><code-block :lang="target.crudLang" :code="target.crudCode"></code-block></div>
+            <aside class="content-aside"><ul class="check-list"><li v-for="note in target.crudNotes" :key="note">{{ note }}</li></ul><div class="callout callout-success"><strong>Rotas CRUD</strong><p><code>GET /customer</code>, <code>GET /customer/:id</code>, <code>POST /customer</code>, <code>PUT /customer/:id</code> e <code>DELETE /customer/:id</code>.</p></div></aside>
           </div>
-          <div class="technology-grid">
-            <article class="technology-card supported"><div><span class="technology-icon">J</span><p><strong>Java</strong><small>Suporte completo</small></p></div><p>Gera interface, contratos de entrada e saída e aplica <code>@Anonymous</code> quando solicitado.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon dotnet">.N</span><p><strong>.NET</strong><small>Suporte completo</small></p></div><p>Agrupa métodos por <code>grouper</code> e aplica <code>[AllowAnonymous]</code> quando solicitado.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon node">N</span><p><strong>Node.js</strong><small>Suporte disponível</small></p></div><p>Gera contratos TypeScript e rotas Express. A autorização integrada ainda depende da infraestrutura do consumidor.</p></article>
+          <div class="response-example">
+            <header><div><p class="eyebrow">Além do CRUD</p><h3>Endpoints customizados</h3></div><p>O mesmo contrato gera tipos e pontos de extensão coerentes com a linguagem escolhida.</p></header>
+            <div class="split-layout"><div><h3>Definição em endpoints.json</h3><code-block lang="json" :code="snippets.endpointContract"></code-block></div><div><h3>{{ target.endpointTitle }}</h3><code-block :lang="target.endpointLang" :code="target.endpointCode"></code-block><ul class="check-list roomy-list"><li v-for="note in target.endpointNotes" :key="note">{{ note }}</li></ul></div></div>
           </div>
         </section>
 
-        <section id="autorizacao" class="doc-section section-wrap section-dark" data-title="Autorização Java JWT Authenticate TenantContext SECRET_JWT anonymous segurança .NET Node">
-          <header class="section-heading"><div><p class="eyebrow">06 — Segurança</p><h2>Autorização por tecnologia</h2></div><p>A versão 2.1.0 entrega uma infraestrutura própria e pronta para customização no código Java gerado.</p></header>
-          <div class="technology-grid technology-grid-dark">
-            <article class="technology-card supported"><div><span class="technology-icon">J</span><p><strong>Java</strong><small>Suporte completo</small></p></div><p>Gera autenticação JWT, permissões, annotations, configuração de tenant e contexto da requisição.</p></article>
-            <article class="technology-card improving"><div><span class="technology-icon dotnet">.N</span><p><strong>.NET</strong><small>Em melhoria</small></p></div><p>A geração ainda não oferece o mesmo conjunto próprio de autenticação, tenant e permissões disponível no Java.</p></article>
-            <article class="technology-card improving"><div><span class="technology-icon node">N</span><p><strong>Node.js</strong><small>Em melhoria</small></p></div><p>A geração ainda não oferece o mesmo conjunto próprio de autenticação, tenant e permissões disponível no Java.</p></article>
-          </div>
-          <div class="auth-grid">
-            <article class="auth-tree"><p class="file-root">_gen/authorization/</p><ul><li>exception/<b>ServiceException.java</b></li><li>permission/<b>PermissionType.java</b></li><li>security/<b>Authenticate.java</b></li><li>security/<b>UserSupplier.java</b></li><li>stereotype/<b>Anonymous.java</b></li><li>tenant/<b>TenantConfiguration.java</b></li><li>tenant/<b>TenantContext.java</b></li></ul></article>
-            <div>
-              <h3>Configuração opcional</h3><p>Por padrão, os componentes são concretos. Ative os flags somente quando o consumidor fornecer beans concretos fora de <code>_gen</code>.</p>
-              <code-block lang="json" :code="snippets.authorization"></code-block>
-            </div>
-          </div>
-          <div class="feature-row">
-            <article><span>01</span><h3>JWT 0.11.5</h3><p>Adicione <code>jjwt-api</code>, <code>jjwt-impl</code> e <code>jjwt-jackson</code> ao consumidor.</p></article>
-            <article><span>02</span><h3>SECRET_JWT</h3><p>O comportamento padrão lê uma chave HMAC dessa variável de ambiente.</p></article>
-            <article><span>03</span><h3>ThreadLocal seguro</h3><p>Execute <code>TenantContext.clear()</code> em <code>finally</code> ao terminar a requisição.</p></article>
-          </div>
-          <details class="details-card"><summary>Hooks disponíveis em Authenticate <span>+</span></summary><div><code>resolveSecret()</code><code>extractToken(header)</code><code>parseClaims(token, secret)</code><code>createUser(claims)</code><code>validateUser(user)</code><code>createToken(user, secret)</code></div></details>
-        </section>
-
-        <section id="linguagens" class="doc-section section-wrap" data-title="Java Spring .NET CSharp Node TypeScript Prisma linguagens saídas">
-          <header class="section-heading"><div><p class="eyebrow">07 — Saídas</p><h2>Escolha seu ecossistema</h2></div><p>O contrato é compartilhado, mas cada linguagem recebe uma arquitetura adequada ao seu runtime.</p></header>
-          <div class="tabs" role="tablist">
-            <button v-for="lang in languages" :key="lang.id" type="button" :class="{ active: activeLanguage === lang.id }" @click="activeLanguage = lang.id">{{ lang.name }}</button>
-          </div>
-          <article v-for="lang in languages" v-show="activeLanguage === lang.id" :key="lang.id" class="language-panel">
-            <div><p class="language-kicker">{{ lang.kicker }}</p><h3>{{ lang.title }}</h3><p>{{ lang.description }}</p><ul class="check-list"><li v-for="item in lang.features" :key="item">{{ item }}</li></ul></div>
-            <code-block lang="text" :code="lang.output"></code-block>
-          </article>
-        </section>
-
-        <section id="rabbitmq" class="doc-section section-wrap" data-title="RabbitMQ mensageria publish subscribe pub sub exchange routingKey">
-          <header class="section-heading"><div><p class="eyebrow">08 — Mensageria</p><h2>RabbitMQ quando você precisar</h2></div><p>Nenhuma classe ou dependência é gerada quando <code>RabbitMq</code> está ausente, nulo ou vazio.</p></header>
-          <div class="content-grid"><div class="content-main"><code-block lang="json" :code="snippets.rabbit"></code-block></div><aside class="content-aside"><div class="mini-card"><span class="mini-icon">↑</span><h3>pub</h3><p>Declara canais publicados pelo serviço. <code>routingKey</code> é obrigatório.</p></div><div class="mini-card"><span class="mini-icon">↓</span><h3>sub</h3><p>Declara canais escutados pelo serviço.</p></div><div class="callout callout-info"><strong>Herança desde 2.1.0</strong><p><code>@RabbitExchange</code> possui <code>@Inherited</code> e pode ser resolvida em uma superclasse.</p></div></aside></div>
-          <div class="technology-grid">
-            <article class="technology-card supported"><div><span class="technology-icon">J</span><p><strong>Java</strong><small>Suporte completo</small></p></div><p>Gera configuração Spring AMQP, publishers e subscribers. A exchange é definida com <code>@RabbitExchange</code>.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon dotnet">.N</span><p><strong>.NET</strong><small>Suporte completo</small></p></div><p>Gera configuração para DI, publishers, subscribers e o atributo <code>[RabbitExchange]</code>.</p></article>
-            <article class="technology-card supported"><div><span class="technology-icon node">N</span><p><strong>Node.js</strong><small>Suporte disponível</small></p></div><p>Gera configuração, publishers e subscribers TypeScript usando <code>amqplib</code>.</p></article>
+        <section id="consultas" class="doc-section section-wrap" data-title="Filtros paginação order displayFields offset size eq datas consultas">
+          <header class="section-heading"><div><p class="eyebrow">06 — Consultas</p><h2>Filtros e paginação em {{ target.name }}</h2></div><p>Use somente o dialeto apresentado aqui. O gerador traduz esses parâmetros para a persistência de {{ target.name }}.</p></header>
+          <div class="content-grid">
+            <div class="content-main"><code-block :lang="target.queryLang" :code="target.queryExample"></code-block></div>
+            <aside class="content-aside"><ul class="check-list"><li v-for="note in target.queryNotes" :key="note">{{ note }}</li></ul></aside>
           </div>
         </section>
 
-        <section id="filtros" class="doc-section section-wrap" data-title="Filtros CRUD ordenação order paginação offset displayFields Java .NET Node eq isNull notNull gte lte ge le">
-          <header class="section-heading"><div><p class="eyebrow">09 — Consultas</p><h2>Filtros por linguagem</h2></div><p>Os dialetos ainda não possuem paridade. Use somente as operações seguras de cada alvo.</p></header>
-          <div class="comparison-table">
-            <div class="table-row table-head"><span>Alvo</span><span>Suporte seguro</span><span>Limitações importantes</span></div>
-            <div class="table-row"><strong>Java</strong><span><code>eq</code>, <code>isNull</code>, <code>notNull</code>, datas com <code>gte</code>/<code>ge</code> e <code>lte</code>/<code>le</code>, além de <code>and</code>, <code>or</code> e caminhos com ponto.</span><span>Não misture <code>and</code>/<code>or</code>. Para datas, use ISO <code>yyyy-MM-dd</code> ou <code>yyyy-MM-dd'T'HH:mm:ss</code>.</span></div>
-            <div class="table-row"><strong>.NET</strong><span><code>eq</code> e um único operador lógico por expressão.</span><span>Coleções usam <code>*</code>. É um dialeto diferente do Java.</span></div>
-            <div class="table-row"><strong>Node</strong><span>Paginação com <code>size</code> e <code>offset</code>.</span><span>O filtro atual é ignorado pelo repository gerado.</span></div>
-          </div>
-          <p class="footnote"><code>offset</code> começa em 1 na requisição Java. Ordene com <code>order=campo,asc</code> ou <code>order=campo,desc</code>; sem direção, usa <code>asc</code>. <code>displayFields</code> controla a projeção do DTO, não filtra registros.</p>
+        <section id="mensageria" class="doc-section section-wrap" data-title="RabbitMQ mensageria publisher subscriber exchange queue routingKey">
+          <header class="section-heading"><div><p class="eyebrow">07 — Mensageria</p><h2>RabbitMQ em {{ target.name }}</h2></div><p>A geração só cria a integração quando <code>RabbitMq</code> possui pelo menos um canal <code>pub</code> ou <code>sub</code>.</p></header>
+          <div class="split-layout"><div><h3>Contrato dos canais</h3><code-block lang="json" :code="snippets.rabbit"></code-block></div><div><h3>{{ target.messagingTitle }}</h3><code-block :lang="target.messagingLang" :code="target.messagingCode"></code-block><ul class="check-list roomy-list"><li v-for="note in target.messagingNotes" :key="note">{{ note }}</li></ul></div></div>
         </section>
 
-        <section id="migracao" class="doc-section section-wrap" data-title="Migração 2.1.0 authorization backend imports JJWT checklist">
-          <header class="section-heading"><div><p class="eyebrow">10 — Upgrade</p><h2>Migração para 2.1.0</h2></div><p>Regere e compile o consumidor depois de concluir todos os passos.</p></header>
-          <ol class="migration-list"><li v-for="(item, index) in migrationSteps" :key="item"><span>{{ String(index + 1).padStart(2, '0') }}</span><p v-html="item"></p></li></ol>
+        <section id="seguranca" class="doc-section section-wrap section-dark" data-title="Segurança autenticação autorização JWT permissões anonymous tenant middleware">
+          <header class="section-heading"><div><p class="eyebrow">08 — Segurança</p><h2>{{ target.securityTitle }}</h2></div><p>{{ target.securityText }}</p></header>
+          <div class="content-grid"><div class="content-main"><code-block :lang="target.securityLang" :code="target.securityCode"></code-block></div><aside class="content-aside"><ul class="check-list dark-list"><li v-for="note in target.securityNotes" :key="note">{{ note }}</li></ul></aside></div>
         </section>
 
-        <section id="downloads" class="doc-section download-section" data-title="Downloads baixar EXE JAR versão Windows Java checksum SHA256">
+        <section id="estrutura" class="doc-section section-wrap" data-title="Aplicação runtime arquivos gerados customização configuração bootstrap">
+          <header class="section-heading"><div><p class="eyebrow">09 — Projeto consumidor</p><h2>{{ target.runtimeTitle }}</h2></div><p>{{ target.runtimeText }}</p></header>
+          <div class="content-grid"><div class="content-main"><code-block :lang="target.runtimeLang" :code="target.runtimeCode"></code-block><h3 class="subexample-title">{{ target.environmentTitle }}</h3><code-block :lang="target.environmentLang" :code="target.environmentCode"></code-block></div><aside class="content-aside"><div class="boundary-card generated"><h3>Gonthera gera</h3><ul><li v-for="item in target.generatedFiles" :key="item">{{ item }}</li></ul></div><div class="boundary-card manual"><h3>Você mantém</h3><ul><li v-for="item in target.manualFiles" :key="item">{{ item }}</li></ul></div></aside></div>
+          <div class="callout callout-warning"><strong>Limite atual de {{ target.name }}</strong><p>{{ target.caveat }}</p></div>
+        </section>
+
+        <section id="downloads" class="doc-section download-section" data-title="Downloads EXE JAR versão Windows Java checksum SHA256">
           <div class="download-inner">
-            <div class="download-copy"><p class="eyebrow">Pronto para gerar?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Os dois artefatos correspondem à mesma versão.</p><div class="release-meta"><span>Versão {{ currentVersion }}</span><span>2 set 2026</span><span>Java 11+ para a CLI</span></div></div>
+            <div class="download-copy"><p class="eyebrow">Pronto para gerar {{ target.name }}?</p><h2>Baixe o Gonthera CLI</h2><p>Use o executável no Windows ou o JAR multiplataforma. Execute o arquivo na raiz do serviço consumidor.</p><div class="release-meta"><span>Versão publicada {{ currentVersion }}</span><span>2 set 2026</span><span>Java 11+ para a CLI</span></div></div>
             <div class="download-cards">
-              <a v-for="artifact in downloads" :key="artifact.name" class="download-card" :href="artifact.href" download>
-                <span class="download-icon">{{ artifact.icon }}</span><span><small>{{ artifact.platform }}</small><strong>{{ artifact.name }}</strong><em>{{ artifact.size }}</em></span><b>↓</b>
+              <a v-for="artifact in downloads" :key="artifact.name" class="download-card" :href="artifact.href" download><span class="download-icon">{{ artifact.icon }}</span><span><small>{{ artifact.platform }}</small><strong>{{ artifact.name }}</strong><em>{{ artifact.size }}</em></span><b>↓</b></a>
               <button class="checksum-button" type="button" @click="showChecksums = !showChecksums">{{ showChecksums ? 'Ocultar' : 'Ver' }} checksums SHA-256</button>
               <div v-if="showChecksums" class="checksums"><p v-for="artifact in downloads" :key="artifact.sha"><strong>{{ artifact.name }}</strong><code>{{ artifact.sha }}</code></p></div>
             </div>
           </div>
         </section>
 
-        <footer class="footer"><div><span class="brand-mark">G</span><p><strong>Gonthera CLI</strong><small>Documentação oficial</small></p></div><p>Feito para gerar menos repetição e mais consistência.</p><a href="#inicio">Voltar ao topo ↑</a></footer>
+        <footer class="footer"><div><span class="brand-mark">G</span><p><strong>Gonthera CLI</strong><small>{{ target.name }} · {{ target.stack }}</small></p></div><p>Documentação filtrada pela linguagem escolhida.</p><a href="#inicio">Trocar linguagem ↑</a></footer>
       </main>
     </div>
 
     <div v-if="searchOpen" class="search-overlay" @click.self="closeSearch">
       <div class="search-modal" role="dialog" aria-modal="true" aria-label="Pesquisar na documentação">
-        <div class="search-input-wrap"><span>⌕</span><input ref="searchInput" v-model="searchQuery" type="search" placeholder="Busque por autorização, entidades, RabbitMQ..." @keydown.esc="closeSearch"><kbd>ESC</kbd></div>
-        <div class="search-results"><p v-if="!searchQuery" class="search-hint">Digite para pesquisar nas seções da documentação.</p><a v-for="result in searchResults" :key="result.id" :href="`#${result.id}`" @click="closeSearch"><span>{{ result.group }}</span><strong>{{ result.label }}</strong><small>Ir para a seção →</small></a><p v-if="searchQuery && !searchResults.length" class="search-hint">Nenhuma seção encontrada para “{{ searchQuery }}”.</p></div>
+        <div class="search-input-wrap"><span>⌕</span><input ref="searchInput" v-model="searchQuery" type="search" :placeholder="`Busque na documentação ${target.name}...`" @keydown.esc="closeSearch"><kbd>ESC</kbd></div>
+        <div class="search-results"><p v-if="!searchQuery" class="search-hint">Digite para pesquisar somente no conteúdo de {{ target.name }}.</p><a v-for="result in searchResults" :key="result.id" :href="`#${result.id}`" @click="closeSearch"><span>{{ result.group }}</span><strong>{{ result.label }}</strong><small>Ir para a seção →</small></a><p v-if="searchQuery && !searchResults.length" class="search-hint">Nenhuma seção encontrada para “{{ searchQuery }}”.</p></div>
       </div>
     </div>
-
     <div class="mobile-backdrop" @click="mobileNavOpen = false"></div>
   </div>
 

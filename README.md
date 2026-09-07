@@ -184,7 +184,7 @@ O objeto entities deve ser configurado da seguinte forma:
 * tableName: nome da tabela
 * classExtends: se extende de alguma outra classe
 * generateDefaultControllers: define se o CRUD padrão será gerado
-* controllerAbstract: gera o Controller Java ou .NET como classe abstrata, permitindo implementação concreta e sobrescritas no projeto consumidor
+* controllerAbstract: gera o Controller Java, .NET ou Node como classe abstrata, permitindo implementação concreta e sobrescritas no projeto consumidor; no Node, a implementação é registrada em `GeneratedControllerFactories`
 * serviceAbstract: no Java, gera o `*Service` abstrato e sem `@Service`; o consumidor deve registrar uma implementação concreta. O padrão é `false`.
 * onlyDTO: é gerrado apenas a classe DTO, nenhum conversor, ou repository alem de crud é gerado
 
@@ -597,7 +597,7 @@ ex:
 
 Disponível para projetos Java, .NET e Node.
 
-A propriedade `messaging` agrupa os provedores de mensageria. Hoje o provedor suportado é `RabbitMq`. Em Java, o código gerado usa Spring AMQP. Em .NET, o código gerado usa RabbitMQ.Client e abstrações de hosting/configuração do ASP.NET Core. Em Node, o código gerado usa amqplib.
+A propriedade `messaging` agrupa os provedores de mensageria. Hoje o provedor suportado é `RabbitMq`. Em Java, o código gerado usa Spring AMQP. Em .NET, o código gerado usa RabbitMQ.Client e abstrações de hosting/configuração do ASP.NET Core. Em Node, o código gerado usa `amqp-connection-manager` sobre `amqplib`.
 
 O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` existe e possui ao menos um item em `pub` ou `sub`. Se `messaging` estiver vazio, ou se `RabbitMq` estiver ausente/nulo/vazio, nenhuma configuração RabbitMQ será gerada e o projeto consumidor não precisa carregar dependências de RabbitMQ.
 
@@ -648,7 +648,7 @@ Exemplo:
 * name: nome base da classe gerada. Exemplo: `notification` gera `NotificationPub`; `notificationChat` gera `NotificationChatSub`.
 * className: opcional. Permite informar diretamente o nome da classe. Se o sufixo `Pub` ou `Sub` não existir, o gerador adiciona automaticamente.
 * queue: nome da fila RabbitMQ.
-* routingKey: chave de roteamento usada pelos publishers. Obrigatória em itens de `messaging.RabbitMq.pub`. Em .NET, também pode ser usada em `messaging.RabbitMq.sub` para o subscriber declarar o binding da fila com a exchange.
+* routingKey: chave de roteamento usada pelos publishers. Obrigatória em itens de `messaging.RabbitMq.pub`. Em .NET e Node, também pode ser usada em `messaging.RabbitMq.sub` para o subscriber declarar o binding da fila com a exchange.
 
 #### Arquivos gerados
 
@@ -938,11 +938,106 @@ Configure a conexão RabbitMQ no `appsettings.json`:
 
 O suporte Node gera código TypeScript em `src/generated`.
 
+A partir da 2.1.3, também gera `configuration/database/database.config.ts` com
+`DatabaseConfig` abstrata. Instale `dotenv` e `@prisma/client`, configure
+`DATABASE_URL` no `.env` da raiz do serviço e execute `prisma generate` depois da
+geração do schema. O gerador não cria nem sobrescreve o `.env` do consumidor.
+Crie a implementação concreta fora de `src/generated`:
+
+```ts
+import { DatabaseConfig } from './generated/configuration/database/database.config';
+
+export class AppDatabaseConfig extends DatabaseConfig {}
+export const database = new AppDatabaseConfig();
+```
+
+Use `await database.connect()` na inicialização, passe `database.client` para
+`createGeneratedRoutes` e chame `await database.disconnect()` no encerramento.
+Reutilize a mesma instância. Sobrescreva `resolveUrl`, `createOptions` ou
+`createClient` para customizar o comportamento. Esses hooks afetam a aplicação;
+os comandos Prisma CLI continuam lendo `DATABASE_URL` do ambiente/`.env`.
+O serviço `node-test-service` contém uma implementação concreta e `.env.example`.
+
+No schema Prisma PostgreSQL, `OneToOne` bidirecional usa `bidirectional: false`
+no proprietário da FK e `bidirectional: true` no inverso. Declare no inverso
+`mappedBy` com o nome do campo proprietário; se omitido ou vazio, o gerador usa
+o nome da entidade inversa, seguindo a convenção Java. A FK é única e ambos os
+lados compartilham o nome da relação. O campo inverso é sempre opcional no Prisma,
+mesmo com `metadata.nullable: false`. A conversão do CRUD segue as regras descritas abaixo.
+
+Os pares `ManyToOne`/`OneToMany` também compartilham o nome da relação. Declare
+`ManyToOne` com `list: false`, `bidirectional: false`, e o inverso `OneToMany`
+com `list: true`, `bidirectional: true` e `mappedBy` apontando ao campo proprietário.
+A FK segue o tipo e a nulabilidade configurados, sem unicidade.
+
+Para `ManyToMany`, declare `list: true` nos dois lados, um proprietário
+(`bidirectional: false`) e um inverso (`bidirectional: true`, com `mappedBy`).
+No PostgreSQL, Prisma cria a tabela de ligação implícita a partir do nome da relação,
+que inclui o campo proprietário para distinguir múltiplos vínculos entre os mesmos
+models. Isso difere das tabelas do SQL legado `postgree.sql`: use migrations Prisma
+para os serviços Prisma, sem misturar os dois scripts de criação.
+
+Nesta etapa, ambos os campos de cada par devem estar declarados; não são inventados
+campos inversos. O fallback de `mappedBy` é o nome da entidade inversa. Configurações
+ausentes, ambíguas ou incompatíveis são rejeitadas antes de apagar `src/generated`.
+Em autorrelações ManyToMany implícitas, renomear campos mudando a ordem alfabética
+pode inverter a interpretação dos lados pelo Prisma; revise a migração dos dados.
+DTOs autorreferenciados usam diretamente seu próprio tipo, sem auto-imports;
+referências externas e enums repetidos geram um único import de tipo por arquivo.
+Enums nos models e no schema usam a grafia configurada, mesmo quando o campo usa
+outra capitalização. OneToOne autorreferenciado exige exatamente um inverso com
+`mappedBy` válido e não depende da ordem de declaração. A conversão de relações nas requisições/respostas é gerada na etapa 5.
+
+
+### Contrato CRUD Node — itens 5, 6 e 7 (2.1.3)
+
+O gerador agora produz `common/contracts.ts`, metadados, consultas e
+`converters/entity-converter.ts`. POST/PUT recebem relações como objetos DTO:
+`{"customer":{"id":"UUID"}}`, sem `customerId` ou operações internas Prisma.
+`reference: true` conecta registros existentes pelo ID; os demais campos desse
+objeto não atualizam o registro referenciado. `reference: false` permite criar ou
+atualizar objetos aninhados, na mesma transação. Campos omitidos no PUT são preservados.
+Uma coleção inversa OneToMany enviada substitui seus filhos e remove os omitidos;
+ManyToMany substitui os vínculos sem excluir as entidades compartilhadas.
+Exclusões continuam sujeitas às FKs: não há cascade recursivo geral equivalente ao JPA.
+
+GET individual, POST e PUT retornam DTOs com relações expandidas. Ao entrar em uma
+relação, a resposta deixa o campo recíproco como `null`, evitando repetir o objeto
+pai (`customer.profile.customer`, por exemplo), e limita a profundidade a seis relações.
+Campos não selecionados retornam `null`; FKs sintéticas não aparecem no JSON.
+GET inexistente retorna 404. A listagem retorna
+`{"size":20,"offset":0,"total":0,"contents":[]}`: entrada `offset=1` indica a
+primeira página, saída usa índice zero; `total` conta os registros filtrados.
+
+Parâmetros da listagem: `size` (padrão 20), `offset`, `filter`, `order` e
+`displayFields`. `filter` aceita caminhos pontuados, `eq`, `isNull`, `notNull`,
+`gte`/`ge` e `lte`/`le` para datas, unidos por `and` ou por `or`, sem misturá-los.
+Texto com `eq` usa busca parcial sem distinguir caixa; UUID usa igualdade e enum
+aceita nome ou ordinal. Node também converte igualdade numérica/booleana; não se
+presume essa extensão nos demais backends. Coleções aceitam caminho pontuado ou
+`*` após o nome. Não há parênteses nem mecanismo de escape na expressão.
+`order=name,asc` ordena por campo; listas não são ordenáveis por esse parâmetro.
+`displayFields=id;customer.name` projeta campos, também no GET individual;
+o padrão é `*`. Entradas inválidas geram `CrudError` com status 400, tratado pelo
+middleware da aplicação base. Datas usam ISO local, bytes usam base64 e long fora
+da faixa segura do JavaScript retorna string.
+
+Esta etapa não implementa MongoDB. O JAR 2.1.3 e o serviço foram compilados, e o
+responsável validou manualmente CRUD, relações, respostas, filtros e paginação com
+PostgreSQL. A ampliação da cobertura automatizada fica para uma etapa posterior.
+
+O CRUD Node resolve a chave primária pelos metadados da entidade. A rota permanece
+`/:id`, mas o `where` usa o nome configurado e converte o parâmetro para UUID,
+string, inteiro, long, decimal, booleano, data ou bytes conforme o campo. Objetos
+relacionados também usam a chave real, como `{"category":{"code":12}}`. Cada
+entidade Node deve declarar exatamente uma chave escalar. UUID e inteiro têm default
+gerado; outros tipos de chave devem ser enviados no POST.
+
 O objetivo inicial é fornecer uma base equivalente para integração em projetos Node modernos, sem tentar inferir toda a estrutura de aplicação do serviço consumidor. O código gerado assume:
 
 * Express para controllers e rotas.
 * Prisma Client para repositories.
-* amqplib quando `messaging.RabbitMq` estiver configurado.
+* `amqplib` e `amqp-connection-manager` quando `messaging.RabbitMq` estiver configurado.
 
 O Node é gerado pelo mesmo Maven Plugin/JAR usado para Java e .NET. Não existe um gerador npm separado; basta executar o plugin ou o JAR na raiz do projeto consumidor com `language: "NODE"` no `project.json`.
 
@@ -950,9 +1045,9 @@ Paridade atual:
 
 * Gera models/DTOs, enums, repositories, controllers, rotas CRUD, contratos de endpoints, arquivos estáticos, SQL e RabbitMQ.
 * Respeita `generateDefaultControllers` — e o alias legado `generateDefaultHandlers` — e `onlyDTO` para decidir se gera controllers/rotas/repositories.
-* Gera `prisma/schema.prisma` com datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e suporte inicial a relacionamentos.
+* `controllerAbstract: true` gera a base CRUD abstrata e exige uma factory concreta; controllers concretos também aceitam factory opcional para override.
+* Gera `prisma/schema.prisma` com datasource PostgreSQL, generator Prisma Client, enums, models, campos escalares e relacionamentos bidirecionais, coleções e autorrelações.
 * Ainda não gera `package.json`, `tsconfig.json` ou migrations.
-* Relacionamentos complexos podem exigir revisão manual do `schema.prisma`, especialmente Many-to-Many e relações bidirecionais customizadas.
 
 Exemplo mínimo:
 
@@ -1012,7 +1107,41 @@ app.use(express.json());
 app.use(createGeneratedRoutes(prisma));
 ```
 
+Se uma entidade usa `controllerAbstract: true`, crie uma implementação fora de
+`src/generated` e informe somente sua factory. As rotas continuam geradas:
+
+```ts
+import { CustomerController } from './generated/controllers/customer.controller';
+import { createGeneratedRoutes, type GeneratedControllerFactories } from './generated/routes';
+
+class AppCustomerController extends CustomerController {
+  override async save(request: Request, response: Response): Promise<void> {
+    // regra específica
+    await super.save(request, response);
+  }
+}
+
+const controllerFactories = {
+  customer: repository => new AppCustomerController(repository)
+} satisfies GeneratedControllerFactories;
+
+app.use(createGeneratedRoutes(prisma, controllerFactories));
+```
+
+Cada controller abstrato cria uma propriedade obrigatória em
+`GeneratedControllerFactories`. Controllers concretos criam propriedades opcionais,
+permitindo substituição sem alterar as rotas. Os handlers gerados chamam métodos
+normais por wrappers, preservando `this`, overrides e chamadas a `super`.
+
 #### RabbitMQ em Node
+
+O Node usa `amqp-connection-manager` sobre `amqplib`. Reutilize uma única
+configuração concreta: ela compartilha a conexão, refaz exchange, filas, bindings e
+consumidores após reconexão e mantém publicações pendentes até o canal voltar.
+Publishers usam canal de confirmação. Subscribers executam `ack` somente depois do
+handler terminar; falhas usam `nack` sem requeue por padrão. Configure
+`requeueOnError: true` apenas quando o processamento for idempotente e houver uma
+estratégia para mensagens inválidas.
 
 Crie uma configuração concreta fora de `src/generated`:
 
@@ -1024,18 +1153,21 @@ export class AppRabbitConfig extends RabbitConfig {
     super({
       exchange: '4libert.profile',
       url: process.env.RABBITMQ_URL,
+      requeueOnError: false,
     });
   }
 }
+
+export const rabbit = new AppRabbitConfig();
 ```
 
 Publisher gerado:
 
 ```ts
 import { CustomerChangedPub } from './generated/messaging/rabbitmq/pub/customerChanged.pub';
-import { AppRabbitConfig } from './messaging/app-rabbit-config';
+import { rabbit } from './messaging/app-rabbit-config';
 
-const publisher = new CustomerChangedPub(new AppRabbitConfig());
+const publisher = new CustomerChangedPub(rabbit);
 await publisher.publish({ id: 'customer-id' });
 ```
 
@@ -1043,7 +1175,7 @@ Subscriber gerado:
 
 ```ts
 import { CustomerImportedSub } from './generated/messaging/rabbitmq/sub/customerImported.sub';
-import { AppRabbitConfig } from './messaging/app-rabbit-config';
+import { rabbit } from './messaging/app-rabbit-config';
 
 class CustomerImportedListener extends CustomerImportedSub {
   protected onMessage(message: string) {
@@ -1051,7 +1183,13 @@ class CustomerImportedListener extends CustomerImportedSub {
   }
 }
 
-await new CustomerImportedListener(new AppRabbitConfig()).start();
+const listener = new CustomerImportedListener(rabbit);
+await rabbit.connect();
+await listener.start();
+
+// No encerramento da aplicação:
+await listener.close();
+await rabbit.close();
 ```
 
 #### Dependências Node esperadas
@@ -1071,11 +1209,11 @@ Exemplo de `package.json` para um serviço consumidor:
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "amqplib": "^0.10.5",
+    "amqplib": "^2.0.1",
+    "amqp-connection-manager": "^5.0.0",
     "express": "^4.21.2"
   },
   "devDependencies": {
-    "@types/amqplib": "^0.10.6",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.2",
     "prisma": "^5.22.0",
@@ -1085,7 +1223,7 @@ Exemplo de `package.json` para um serviço consumidor:
 }
 ```
 
-Se o projeto não usar RabbitMQ, remova `amqplib` e `@types/amqplib`. O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` possui canais.
+Se o projeto não usar RabbitMQ, remova `amqplib` e `amqp-connection-manager`. O gerador só cria arquivos RabbitMQ quando `messaging.RabbitMq` possui canais. O `amqplib` 2 já inclui suas declarações TypeScript.
 
 O gerador cria `prisma/schema.prisma`, mas não cria migrations. Depois de revisar o schema gerado, execute o fluxo Prisma usado pelo serviço consumidor, por exemplo `npx prisma generate` e `npx prisma migrate dev`.
 

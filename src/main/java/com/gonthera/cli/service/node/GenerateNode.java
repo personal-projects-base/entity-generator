@@ -5,6 +5,7 @@ import com.gonthera.cli.model.Properties;
 import com.gonthera.cli.service.common.Common;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,6 +22,7 @@ import static com.gonthera.cli.service.node.GenerateEndpoint.generateEndpoints;
 import static com.gonthera.cli.service.node.GenerateEnum.generateEnums;
 import static com.gonthera.cli.service.node.GenerateMessaging.generateMessaging;
 import static com.gonthera.cli.service.node.GenerateModel.generateModels;
+import static com.gonthera.cli.service.node.GenerateOpenApi.generate;
 import static com.gonthera.cli.service.node.GeneratePrisma.generatePrismaSchema;
 import static com.gonthera.cli.service.node.GenerateRepository.generateRepositories;
 
@@ -29,12 +31,16 @@ public class GenerateNode {
     private static Path packagePath = null;
 
     public static void generateSource(Properties prop) {
+        GeneratePrisma.validateCollectionRelations(prop.getEntities());
         dropAndCreateDir();
+        GenerateDatabaseConfiguration.generate(packagePath);
+        GenerateCrudSupport.generate(prop, packagePath);
         generateModels(prop.getEntities(), packagePath);
         generateEnums(prop.getEnums(), packagePath);
         generateRepositories(prop.getEntities(), packagePath);
         generateCrudControllers(prop.getEntities(), packagePath);
         generateEndpoints(prop.getEndpoints(), packagePath);
+        generate(prop, packagePath);
         generateMessaging(prop.getMessaging() == null ? null : prop.getMessaging().getRabbitMq(), packagePath);
         generatePrismaSchema(prop.getEntities(), prop.getEnums());
         generateSql(prop.getEntities());
@@ -52,7 +58,7 @@ public class GenerateNode {
             Files.createDirectories(packagePath);
             Files.createDirectories(Common.resourcePath);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new UncheckedIOException("Unable to prepare Node output directory", ex);
         }
     }
 
@@ -69,6 +75,9 @@ public class GenerateNode {
     }
 
     private static void dropFiles(Path path) {
+        if (!Files.exists(path)) {
+            return;
+        }
         try {
             Files.walkFileTree(path, new SimpleFileVisitor<>() {
                 @Override
@@ -76,8 +85,16 @@ public class GenerateNode {
                     Files.deleteIfExists(file);
                     return FileVisitResult.CONTINUE;
                 }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path directory, IOException ex) throws IOException {
+                    if (ex != null) throw ex;
+                    Files.deleteIfExists(directory);
+                    return FileVisitResult.CONTINUE;
+                }
             });
         } catch (IOException ex) {
+            throw new UncheckedIOException("Unable to clean Node output directory", ex);
         }
     }
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import static com.gonthera.cli.service.node.NodeCommon.className;
 import static com.gonthera.cli.service.node.NodeCommon.fileName;
 import static com.gonthera.cli.service.node.NodeCommon.prismaDelegateName;
+import static com.gonthera.cli.service.node.NodeCommon.primaryKey;
 import static com.gonthera.cli.service.node.NodeCommon.writeFile;
 import static com.gonthera.cli.service.common.Common.loadWxsd;
 
@@ -33,7 +34,9 @@ public class GenerateRepository {
 
         return loadWxsd("repository")
                 .replace("<<entityName>>", entityName)
+                .replace("<<entityConfigName>>", entity.getEntityName())
                 .replace("<<entityFileName>>", fileName(entity.getEntityName()))
+                .replace("<<keyField>>", primaryKey(entity).getFieldName())
                 .replace("<<prismaDelegate>>", delegate);
     }
 }

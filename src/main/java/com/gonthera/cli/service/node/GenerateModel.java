@@ -29,7 +29,8 @@ public class GenerateModel {
     private static String content(Entities entity) {
         StringBuilder fields = new StringBuilder();
         entity.getEntityFields().forEach(field -> {
-            String optional = field.getMetadata() != null && field.getMetadata().isNullable() ? "?" : "";
+            String optional = field.getMetadata() != null && field.getMetadata().isNullable()
+                    && !field.getMetadata().isKey() ? "?" : "";
             fields.append(String.format("  %s%s: %s;%n", field.getFieldName(), optional, fieldType(field)));
         });
 
