@@ -1,0 +1,1 @@
+export const generatedOpenApiDocument = <<document>> as const;
