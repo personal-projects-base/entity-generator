@@ -8,9 +8,13 @@
 * Filtros Mongo preservam a sintaxe pública e tratam `isNull` como nulo ou campo ausente e `notNull` como campo presente não nulo.
 * A geração Mongo não cria `postgree.sql` e remove esse artefato ao trocar um projeto Node de PostgreSQL para MongoDB. O fluxo de schema usa `prisma db push` porque Prisma Migrate não suporta MongoDB.
 * Projetos Node Mongo exigem uma única chave escalar `uuid`, preservando o mesmo contrato de identificador e evitando o `autoincrement()` indisponível no MongoDB.
-* O schema Mongo foi validado pelo Prisma 5.22 e a saída TypeScript passou no `typecheck`. A validação funcional contra um replica set real permanece manual.
+* O `node-test-service` foi atualizado para gerar MongoDB com o JAR 2.1.4 e usar `prisma db push`, mantendo o contrato HTTP existente.
+* Documentada a URL autenticada `?authSource=admin&replicaSet=rs0`: `authSource` seleciona o banco de autenticação e o replica set habilita as transações exigidas pelos repositories.
+* O schema Mongo foi validado com `prisma validate`, `prisma generate` e `prisma db push`; a saída TypeScript passou no `typecheck` e os 14 testes locais foram aprovados.
+* A validação funcional em MongoDB replica set confirmou criação e leitura de `Customer` e o ciclo ManyToMany `Customer.tags` / `Tag.customers`: associação, leitura bidirecional, substituição por coleção vazia e preservação da `Tag` compartilhada.
+* Confirmado que MongoDB standalone falha com Prisma `P2031`, sem fallback silencioso que pudesse comprometer a atomicidade das escritas.
 
-## >2.1.3 - Em desenvolvimento
+## >2.1.3 - 07-09-2026
 
 ### Relacionamentos Node com Prisma e PostgreSQL
 * A geração Node passou a resolver relações bidirecionais com a mesma convenção de lado proprietário, lado inverso e `mappedBy` usada pelo gerador Java.

@@ -4,7 +4,7 @@
 
 `gonthera-cli` é uma ferramenta de geração de backends distribuída como Maven Plugin (`com.gonthera:gonthera-cli`) e executável standalone. Ela lê `project.json` no diretório em que o Maven/JAR foi executado, com fallback temporário para `properties.json`, e gera persistência, APIs, contratos, mensageria, scripts PostgreSQL e metadados de permissões para Java, .NET e Node.
 
-Este documento descreve o comportamento consolidado até a versão `2.1.4` em desenvolvimento. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
+Este documento descreve o comportamento consolidado da versão `2.1.4`, fechada em 7 de setembro de 2026. Em caso de divergência com o `README.md`, considere este handoff mais próximo da implementação atual.
 
 As correções do Node com PostgreSQL foram acumuladas em `2.1.3`. A versão `2.1.4` adiciona MongoDB somente ao Node e mantém Java e .NET sem alterações. O desenho e a matriz de validação estão em [MONGODB_2.1.4.md](MONGODB_2.1.4.md).
 
@@ -660,6 +660,16 @@ overrides de `resolveUrl` valem para a aplicação em execução. PostgreSQL usa
 `prisma migrate`; MongoDB usa `prisma db push` e precisa operar como replica set
 para suportar as transações das escritas relacionadas.
 
+Exemplo MongoDB autenticado:
+
+```dotenv
+DATABASE_URL="mongodb://user:password@localhost:27017/service?authSource=admin&replicaSet=rs0"
+```
+
+`authSource=admin` seleciona o banco de autenticação, enquanto `replicaSet=rs0`
+identifica o conjunto de réplicas. Um parâmetro não substitui o outro; sem replica
+set, as escritas transacionais dos repositories falham com o erro Prisma `P2031`.
+
 As regras ficam separadas em `PostgreSqlDatabaseDialect` e
 `MongoDbDatabaseDialect`, com templates de datasource próprios. PostgreSQL mantém
 tipos nativos, relações ManyToMany implícitas, `RepeatableRead` na listagem e
@@ -776,9 +786,13 @@ explícito. A base de exemplo ativa a mensageria somente com
 `/openapi.json`, health check, middleware `{error:{code,message}}`, configuração
 concreta do Prisma, bootstrap opcional RabbitMQ e encerramento ordenado. Seus scripts
 executam desenvolvimento, build, typecheck, Prisma e o JAR local do Gonthera. A API
-e o gerador 2.1.3 foram compilados; a validação funcional PostgreSQL foi concluída
-manualmente pelo responsável. A cobertura automatizada consolidada ficou para a
-etapa 10.
+e o gerador 2.1.4 foram compilados, o schema Mongo passou por `prisma validate`,
+`prisma generate` e `prisma db push`, e os 14 testes locais foram aprovados. Em banco
+real, foram confirmados criação e leitura de `Customer` e o ciclo ManyToMany completo
+de `Customer.tags` / `Tag.customers`: associação, leitura nos dois lados, remoção do
+vínculo e preservação da `Tag` compartilhada. Os registros temporários foram removidos.
+Essa validação fecha o suporte MongoDB da 2.1.4; a matriz ampliada de regressão entre
+providers permanece documentada em `MONGODB_2.1.4.md`.
 
 ## Portal estático de documentação
 

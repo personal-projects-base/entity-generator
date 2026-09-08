@@ -349,6 +349,17 @@ SECRET_JWT: \${SECRET_JWT}`,
               { title: 'Banco selecionável', text: 'Schema PostgreSQL ou MongoDB com o mesmo contrato HTTP e relações bidirecionais.' },
               { title: 'Base extensível', text: 'Configuração abstrata, Express 5, Swagger e RabbitMQ recuperável.' }
             ],
+            release: {
+              title: 'Novo na 2.1.4 — MongoDB no gerador Node',
+              text: 'A seleção do banco agora acontece em database.provider sem alterar rotas, DTOs, filtros, paginação, projeção ou OpenAPI.',
+              items: [
+                'PostgreSQL continua como padrão; MONGODB ativa datasource, tipos, relações e transações próprios.',
+                'UUID textual é armazenado em _id, sem expor ObjectId no contrato HTTP.',
+                'ManyToMany usa arrays internos de IDs e foi validado em MongoDB real com Customer e Tag.',
+                'isNull também encontra campos ausentes; notNull exige campo presente e não nulo.',
+                'MongoDB usa prisma db push, não gera postgree.sql e exige replica set para as transações Prisma.'
+              ]
+            },
             installTitle: 'Execute o JAR pelo npm', installText: 'Coloque o JAR em um caminho estável e registre os scripts no package.json.', installLang: 'json',
             install: `{
   "scripts": {
@@ -438,7 +449,7 @@ model Customer {
   id      String   @id @default(uuid()) @map("_id")
   profile Profile? @relation("Profile_Customer_customer")
 }`,
-            relationNotes: ['Envie customer: { id } em vez de customerId.', 'reference: true conecta um registro existente.', 'O campo recíproco imediato volta como null para cortar ciclos.', 'OneToMany substitui filhos enviados; ManyToMany substitui somente vínculos.', 'No MongoDB, arrays como tagsIds são internos e não aparecem na API.', 'OneToOne, ManyToMany e autorrelações são validados antes da geração.'],
+            relationNotes: ['Envie customer: { id } em vez de customerId.', 'reference: true conecta um registro existente.', 'O campo recíproco imediato volta como null para cortar ciclos.', 'OneToMany substitui filhos enviados; ManyToMany substitui somente vínculos.', 'No MongoDB, arrays como tagsIds são internos e não aparecem na API.', 'O ciclo Customer.tags / Tag.customers foi validado com associação, leitura bidirecional, desvínculo e preservação da Tag.', 'OneToOne, ManyToMany e autorrelações são validados antes da geração.'],
             crudLang: 'json / typescript', crudTitle: 'Controller abstrato com CRUD funcional',
             crudCode: `// entities.json
 {
@@ -536,8 +547,9 @@ server.close(async () => database.disconnect());`,
             environmentCode: `# PostgreSQL
 DATABASE_URL="postgresql://user:password@localhost:5432/customer?schema=public"
 
-# MongoDB replica set
-# DATABASE_URL="mongodb://user:password@localhost:27017/customer?replicaSet=rs0"
+# MongoDB autenticado e configurado como replica set
+# authSource define o banco de autenticação; replicaSet habilita as transações.
+# DATABASE_URL="mongodb://user:password@localhost:27017/customer?authSource=admin&replicaSet=rs0"
 HOST=127.0.0.1
 PORT=3000
 
@@ -546,7 +558,7 @@ RABBITMQ_URL=amqp://guest:guest@localhost:5672
 RABBITMQ_EXCHANGE=customer.events`,
             generatedFiles: ['DTOs, metadados e converters', 'Repositories, controllers e todas as rotas', 'OpenAPI com CRUD, schemas e endpoints', 'Contrato tipado GeneratedControllerFactories', 'DatabaseConfig abstrata', 'schema.prisma PostgreSQL ou MongoDB', 'SQL somente no PostgreSQL', 'RabbitMQ quando configurado'],
             manualFiles: ['package.json e tsconfig.json', '.env e migrations Prisma', 'Implementações concretas e registro de factories', 'AppDatabaseConfig, app.ts e server.ts', 'Middleware de erros, montagem do Swagger UI, extensões OpenAPI e autenticação'],
-            caveat: 'MongoDB exige chaves UUID e replica set. Use prisma migrate no PostgreSQL e prisma db push no MongoDB.'
+            caveat: 'MongoDB exige chaves UUID e um servidor replica set. authSource não substitui replicaSet: use prisma migrate no PostgreSQL e prisma db push no MongoDB.'
           },
           dotnet: {
             id: 'dotnet', name: '.NET', icon: '.N', stack: 'ASP.NET Core + Entity Framework Core',

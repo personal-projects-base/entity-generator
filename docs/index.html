@@ -86,6 +86,14 @@
           <article v-for="(item, index) in target.highlights" :key="item.title"><span class="card-index">0{{ index + 1 }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p></article>
         </section>
 
+        <section v-if="target.release" id="novidades-node" class="doc-section section-wrap" data-title="Novidades da versão atual">
+          <div class="callout callout-success">
+            <strong>{{ target.release.title }}</strong>
+            <p>{{ target.release.text }}</p>
+            <ul class="check-list roomy-list"><li v-for="item in target.release.items" :key="item">{{ item }}</li></ul>
+          </div>
+        </section>
+
         <section id="primeiros-passos" class="doc-section section-wrap" data-title="Primeiros passos instalar validar gerar executar">
           <header class="section-heading">
             <div><p class="eyebrow">01 — Comece aqui</p><h2>Primeiros passos com {{ target.name }}</h2></div>

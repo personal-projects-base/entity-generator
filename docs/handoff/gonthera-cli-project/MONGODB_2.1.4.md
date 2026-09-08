@@ -2,7 +2,7 @@
 
 ## Estado deste documento
 
-Este documento registra o desenho e a implementação do MongoDB exclusivamente na geração Node. A versão do projeto foi promovida para `2.1.4` e os itens descritos como comportamento atual já fazem parte do motor de geração.
+Este documento registra o desenho, a implementação e o fechamento do MongoDB exclusivamente na geração Node. A versão `2.1.4` foi fechada em 7 de setembro de 2026, e os itens descritos como comportamento atual fazem parte do motor de geração.
 
 Os geradores Java e .NET ficam fora deste escopo. O contrato HTTP já consolidado no Node com PostgreSQL deve permanecer igual: rotas, corpos com relações em forma de objeto, DTOs, paginação, filtros, ordenação, projeção, erros e documento OpenAPI não devem expor qual banco está sendo usado.
 
@@ -176,9 +176,13 @@ O provider deve ser resolvido uma vez e repassado para Prisma, repository e cons
 # PostgreSQL
 DATABASE_URL=postgresql://user:password@localhost:5432/service
 
-# MongoDB replica set
-DATABASE_URL=mongodb://user:password@localhost:27017/service?replicaSet=rs0
+# MongoDB autenticado e configurado como replica set
+DATABASE_URL=mongodb://user:password@localhost:27017/service?authSource=admin&replicaSet=rs0
 ```
+
+`authSource` define o banco de autenticação e `replicaSet` identifica o conjunto de
+réplicas; são parâmetros diferentes e podem ser usados juntos. Informar apenas
+`authSource=admin` não habilita transações em uma instância standalone.
 
 Erros Prisma de chave duplicada, registro ausente e falha de transação devem ser conferidos no Mongo para manter os mesmos status HTTP usados no PostgreSQL.
 
@@ -190,9 +194,13 @@ Erros Prisma de chave duplicada, registro ausente e falha de transação devem s
 4. `prismaschema-postgresql.mxsd` e `prismaschema-mongodb.mxsd` mantêm os datasources separados.
 5. `GeneratePrisma`, repositories e suporte CRUD usam o dialeto resolvido sem expor o provider no contrato HTTP.
 
-## Matriz de aceitação manual
+## Matriz de aceitação e continuidade
 
-Não foram adicionados testes unitários nesta etapa. O schema gerado foi aceito pelo `prisma validate` 5.22 e os fontes Mongo passaram no compilador TypeScript. Antes de fechar a validação funcional da 2.1.4, execute dois serviços equivalentes, um PostgreSQL e um MongoDB replica set, e compare:
+Não foram adicionados testes unitários específicos do dialeto nesta etapa. O schema
+gerado foi aceito pelo `prisma validate` 5.22, os fontes Mongo passaram no compilador
+TypeScript e a suíte existente do `node-test-service` passou. A 2.1.4 foi fechada com
+a validação funcional descrita abaixo. Para ampliar a regressão entre providers,
+continue comparando serviços equivalentes PostgreSQL e MongoDB nos seguintes pontos:
 
 - validação e geração repetida sem resíduos;
 - criação, atualização, busca, listagem e exclusão;
@@ -207,6 +215,33 @@ Não foram adicionados testes unitários nesta etapa. O schema gerado foi aceito
 - rollback de uma escrita aninhada que falha no meio da operação;
 - erros 400, 404 e conflito de unicidade;
 - OpenAPI e formato JSON idênticos entre os providers.
+
+## Validação funcional concluída
+
+Em 7 de setembro de 2026, o `node-test-service` foi regenerado com
+`database.provider: "MONGODB"` e validado contra um MongoDB replica set. O fechamento
+incluiu:
+
+- `prisma validate`, `prisma generate` e `prisma db push` com Prisma 5.22;
+- compilação TypeScript sem erros;
+- 14 testes locais de HTTP, configuração, DTOs, consultas e conversores aprovados;
+- criação e consulta reais de um `Customer` com UUID textual em `_id`;
+- confirmação do erro Prisma `P2031` quando o servidor estava em modo standalone,
+  comprovando que não existe fallback silencioso sem transação;
+- repetição bem-sucedida do CRUD após ativar o replica set;
+- validação da relação MongoDB `Customer.tags` / `Tag.customers`:
+
+  - criação independente de `Customer` e `Tag`;
+  - associação pelo contrato público `{"tags":[{"id":"UUID"}]}`;
+  - leitura do vínculo nos dois lados da relação;
+  - substituição da coleção por `tags: []`;
+  - remoção dos IDs internos nos dois documentos;
+  - preservação da `Tag` compartilhada após a remoção do vínculo.
+
+Todas as operações retornaram sucesso e os registros temporários foram removidos ao
+fim do teste. O suporte MongoDB e o ponto de sincronização ManyToMany
+`Customer` / `Tag` estão fechados para a 2.1.4. Os demais itens da matriz permanecem
+como cobertura adicional de regressão, sem bloquear esta versão.
 
 ## Limites da 2.1.4
 
